@@ -177,7 +177,7 @@ export default function ProfilPage() {
               <span className="block text-xs sm:text-sm font-semibold text-[var(--color-text-mid)] mt-1">Guru & Staff Pengajar</span>
             </div>
             <div>
-              <span className="block text-3xl sm:text-4xl font-extrabold text-[var(--color-primary)]">54</span>
+              <span className="block text-3xl sm:text-4xl font-extrabold text-[var(--color-primary)]">68</span>
               <span className="block text-xs sm:text-sm font-semibold text-[var(--color-text-mid)] mt-1">Siswa Aktif</span>
             </div>
             <div>
