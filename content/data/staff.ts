@@ -84,7 +84,7 @@ export const dataStaff: StaffMember[] = [
     id: "carina-nafisah",
     nama: "Carina Nafisah Masturah, S.Psi",
     jabatan: "Guru",
-    foto: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=500&fit=crop&q=80",
+    foto: "/images/staff/Bu Carina.jpeg",
     deskripsi: "Spesialis bimbingan psikologi yang mendampingi tumbuh kembang emosional dan kognitif khusus murid.",
     tempatLahir: "Samarinda",
     tanggalLahir: "11 Agustus 1996",
