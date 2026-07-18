@@ -2,7 +2,7 @@ import Image from "next/image";
 import SectionTitle from "@/components/ui/SectionTitle";
 import Button from "@/components/ui/Button";
 import { dataStaff } from "@/content/data/staff";
-import { ArrowLeft, Mail, Phone } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 export const metadata = {
   title: "Guru & Staff Pengajar",
@@ -83,16 +83,6 @@ export default function StaffPage() {
                         {staff.deskripsi}
                       </p>
                     )}
-                  </div>
-
-                  {/* Sosial kontak dummy */}
-                  <div className="flex items-center gap-2 pt-3 border-t border-gray-100 text-[var(--color-text-light)]">
-                    <button className="p-1.5 rounded-lg hover:bg-gray-100 hover:text-[var(--color-primary)] transition-colors" aria-label={`Kirim email ke ${staff.nama}`}>
-                      <Mail size={14} />
-                    </button>
-                    <button className="p-1.5 rounded-lg hover:bg-gray-100 hover:text-[var(--color-secondary)] transition-colors" aria-label={`Hubungi telepon ${staff.nama}`}>
-                      <Phone size={14} />
-                    </button>
                   </div>
                 </div>
               </div>
