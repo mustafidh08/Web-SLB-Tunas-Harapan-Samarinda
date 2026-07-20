@@ -412,11 +412,7 @@ export default function AdminDashboard() {
             </button>
           </form>
 
-          <div className="pt-2 text-center border-t border-gray-100">
-            <span className="text-[11px] text-[var(--color-text-light)]">
-              💡 Password default: <code className="bg-gray-100 px-2 py-0.5 rounded font-mono text-[var(--color-primary)]">slbtunasharapan</code>
-            </span>
-          </div>
+
         </div>
       </div>
     );
