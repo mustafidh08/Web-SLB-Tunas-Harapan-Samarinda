@@ -219,8 +219,12 @@ export default function Footer() {
         style={{ borderColor: "rgba(255,255,255,0.08)" }}
       >
         <div className="container-custom flex flex-col sm:flex-row items-center justify-between gap-4 text-xs sm:text-sm text-white/50">
-          <p>
-            © {currentYear} SLB Tunas Harapan. Hak cipta dilindungi.
+          <p className="flex flex-wrap items-center gap-2">
+            <span>© {currentYear} SLB Tunas Harapan. Hak cipta dilindungi.</span>
+            <span>•</span>
+            <Link href="/admin" className="hover:text-white transition-colors underline decoration-dotted text-xs">
+              Kelola Website (Admin)
+            </Link>
           </p>
           <p className="flex items-center gap-1.5">
             Dibuat dengan{" "}
