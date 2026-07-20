@@ -1,11 +1,28 @@
 import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import { getAllKegiatanMeta, getKegiatanBySlug } from "@/lib/mdx";
 
 const REPO_OWNER = "mustafidh08";
 const REPO_NAME = "Web-SLB-Tunas-Harapan-Samarinda";
 const BRANCH = "main";
 
+// GET: Ambil daftar seluruh berita kegiatan
+export async function GET() {
+  try {
+    const rawPosts = getAllKegiatanMeta();
+    const posts = rawPosts.map((p) => ({
+      ...p,
+      gambarCover: p.foto || (p as unknown as Record<string, unknown>).gambarCover as string || "/images/kegiatan/default-cover.jpg",
+    }));
+    return NextResponse.json({ success: true, posts });
+  } catch (error: unknown) {
+    const errMessage = error instanceof Error ? error.message : "Gagal mengambil berita";
+    return NextResponse.json({ success: false, message: errMessage }, { status: 500 });
+  }
+}
+
+// POST: Create / Update Berita Kegiatan
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -18,6 +35,8 @@ export async function POST(request: Request) {
       gambarCoverUrl,
       githubToken: tokenFromReq,
       password,
+      isEdit,
+      oldSlug,
     } = body;
 
     // Verifikasi password
@@ -31,22 +50,25 @@ export async function POST(request: Request) {
     }
 
     const token = tokenFromReq || process.env.GITHUB_TOKEN;
-    const slug = judul
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, "")
-      .trim()
-      .replace(/\s+/g, "-");
+    const slug = isEdit && oldSlug ? oldSlug : judul.toLowerCase().replace(/[^a-z0-9\s-]/g, "").trim().replace(/\s+/g, "-");
     const mdxFileName = `${slug}.mdx`;
 
     let finalImageUrl = gambarCoverUrl || "/images/kegiatan/default-cover.jpg";
 
-    // 1. Jika ada gambar cover dalam bentuk base64, simpan gambar dulu
+    // Jika sedang edit dan tidak ada gambar baru yang di-upload, gunakan gambar lama jika ada
+    if (isEdit && !gambarCoverBase64 && !gambarCoverUrl) {
+      const existingPost = getKegiatanBySlug(slug);
+      if (existingPost) {
+        finalImageUrl = existingPost.foto || (existingPost as unknown as Record<string, unknown>).gambarCover as string || finalImageUrl;
+      }
+    }
+
+    // 1. Simpan foto cover baru jika ada base64
     if (gambarCoverBase64) {
       const imageFileName = `kegiatan-${Date.now()}-${slug}.jpg`;
       const base64Data = gambarCoverBase64.replace(/^data:image\/\w+;base64,/, "");
 
       if (token) {
-        // Commit gambar ke GitHub repository
         const githubImgUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/public/images/kegiatan/${imageFileName}`;
         await fetch(githubImgUrl, {
           method: "PUT",
@@ -63,7 +85,6 @@ export async function POST(request: Request) {
         });
         finalImageUrl = `/images/kegiatan/${imageFileName}`;
       } else {
-        // Mode Lokal FS
         const uploadDir = path.join(process.cwd(), "public", "images", "kegiatan");
         if (!fs.existsSync(uploadDir)) {
           fs.mkdirSync(uploadDir, { recursive: true });
@@ -85,11 +106,10 @@ gambarCover: "${finalImageUrl}"
 ${konten}
 `;
 
-    // 3. Commit file MDX ke folder content/kegiatan/
+    // 3. Commit file MDX ke GitHub / Local FS
     if (token) {
       const githubMdxUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/content/kegiatan/${mdxFileName}`;
       
-      // Cek apakah file sudah ada untuk mendapatkan sha (update vs create)
       let sha: string | undefined;
       const getFileRes = await fetch(githubMdxUrl, {
         headers: {
@@ -110,7 +130,7 @@ ${konten}
           "User-Agent": "SLB-Admin-Panel",
         },
         body: JSON.stringify({
-          message: `Tambah berita kegiatan baru: ${judul}`,
+          message: `${isEdit ? "Update" : "Tambah"} berita kegiatan: ${judul}`,
           content: Buffer.from(mdxContent).toString("base64"),
           branch: BRANCH,
           ...(sha ? { sha } : {}),
@@ -120,18 +140,17 @@ ${konten}
       if (!res.ok) {
         const errorData = await res.json();
         return NextResponse.json(
-          { success: false, message: `Gagal commit ke GitHub: ${errorData.message || "Token tidak valid / izin kurang"}` },
+          { success: false, message: `Gagal commit ke GitHub: ${errorData.message || "Token tidak valid"}` },
           { status: 500 }
         );
       }
 
       return NextResponse.json({
         success: true,
-        message: "Berita berhasil diterbitkan! Vercel sedang melakukan deploy otomatis (1-2 menit).",
+        message: `Berita "${judul}" berhasil ${isEdit ? "perbarui" : "diterbitkan"}! Vercel sedang melakukan deploy otomatis.`,
         slug,
       });
     } else {
-      // Mode Lokal FS
       const kegiatanDir = path.join(process.cwd(), "content", "kegiatan");
       if (!fs.existsSync(kegiatanDir)) {
         fs.mkdirSync(kegiatanDir, { recursive: true });
@@ -140,8 +159,82 @@ ${konten}
 
       return NextResponse.json({
         success: true,
-        message: "Berita lokal berhasil disimpan! Jangan lupa git commit & push.",
+        message: `Berita "${judul}" berhasil ${isEdit ? "diperbarui" : "disimpan"} secara lokal!`,
         slug,
+        isLocal: true,
+      });
+    }
+  } catch (error: unknown) {
+    const errMessage = error instanceof Error ? error.message : "Kesalahan server";
+    return NextResponse.json({ success: false, message: errMessage }, { status: 500 });
+  }
+}
+
+// DELETE: Hapus Berita Kegiatan
+export async function DELETE(request: Request) {
+  try {
+    const body = await request.json();
+    const { slug, githubToken: tokenFromReq, password } = body;
+
+    const expectedPassword = process.env.ADMIN_PASSWORD || "slbtunasharapan";
+    if (password !== expectedPassword) {
+      return NextResponse.json({ success: false, message: "Password admin salah" }, { status: 401 });
+    }
+
+    if (!slug) {
+      return NextResponse.json({ success: false, message: "Slug berita wajib disertakan" }, { status: 400 });
+    }
+
+    const token = tokenFromReq || process.env.GITHUB_TOKEN;
+    const mdxFileName = `${slug}.mdx`;
+
+    if (token) {
+      const githubMdxUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/content/kegiatan/${mdxFileName}`;
+      
+      // Dapatkan SHA file
+      const getFileRes = await fetch(githubMdxUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "User-Agent": "SLB-Admin-Panel",
+        },
+      });
+
+      if (!getFileRes.ok) {
+        return NextResponse.json({ success: false, message: "File berita tidak ditemukan di GitHub" }, { status: 404 });
+      }
+
+      const fileData = await getFileRes.json();
+
+      const delRes = await fetch(githubMdxUrl, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          "User-Agent": "SLB-Admin-Panel",
+        },
+        body: JSON.stringify({
+          message: `Hapus berita kegiatan: ${slug}`,
+          sha: fileData.sha,
+          branch: BRANCH,
+        }),
+      });
+
+      if (!delRes.ok) {
+        return NextResponse.json({ success: false, message: "Gagal menghapus berita di GitHub" }, { status: 500 });
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: "Berita berhasil dihapus! Vercel sedang melakukan deploy otomatis.",
+      });
+    } else {
+      const filePath = path.join(process.cwd(), "content", "kegiatan", mdxFileName);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+      return NextResponse.json({
+        success: true,
+        message: "Berita berhasil dihapus secara lokal!",
         isLocal: true,
       });
     }
