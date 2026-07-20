@@ -19,6 +19,7 @@ import {
   Search,
   ExternalLink
 } from "lucide-react";
+import { convertAndCompressToWebP } from "@/lib/imageCompressor";
 
 interface KegiatanPost {
   slug: string;
@@ -147,28 +148,25 @@ export default function AdminDashboard() {
     sessionStorage.removeItem("slb_admin_session");
   };
 
-  // Convert File to Base64
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, isGaleri = false) => {
+  // Convert File to Base64 & WebP format
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, isGaleri = false) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 4 * 1024 * 1024) {
-      alert("Ukuran gambar terlalu besar! Maksimal 4MB.");
-      return;
-    }
+    try {
+      // Mengompres & mengonversi foto otomatis ke format WebP di browser
+      const { base64 } = await convertAndCompressToWebP(file, 1600, 1600, 0.82);
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const result = reader.result as string;
       if (isGaleri) {
-        setGambarGaleriBase64(result);
-        setPreviewGaleri(result);
+        setGambarGaleriBase64(base64);
+        setPreviewGaleri(base64);
       } else {
-        setGambarCoverBase64(result);
-        setPreviewCover(result);
+        setGambarCoverBase64(base64);
+        setPreviewCover(base64);
       }
-    };
-    reader.readAsDataURL(file);
+    } catch {
+      alert("Gagal mengompres gambar. Coba pilih file gambar lain.");
+    }
   };
 
   // Reset Form Kegiatan
@@ -580,7 +578,7 @@ export default function AdminDashboard() {
                       <label className="cursor-pointer flex flex-col items-center justify-center">
                         <Upload size={32} className="text-gray-400 mb-2" />
                         <span className="text-xs font-bold text-[var(--color-primary)]">Klik untuk Upload Gambar Sampul</span>
-                        <span className="text-[10px] text-gray-400 mt-1">Format JPG/PNG (Maks 4MB)</span>
+                        <span className="text-[10px] text-gray-500 font-semibold mt-1">✨ Otomatis dikompres & dikonversi ke WebP (Super Ringan)</span>
                         <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, false)} className="hidden" />
                       </label>
                     )}
@@ -749,7 +747,7 @@ export default function AdminDashboard() {
                       <label className="cursor-pointer flex flex-col items-center justify-center">
                         <Upload size={32} className="text-gray-400 mb-2" />
                         <span className="text-xs font-bold text-[var(--color-secondary-dark)]">Klik untuk Upload Foto Galeri</span>
-                        <span className="text-[10px] text-gray-400 mt-1">Format JPG/PNG (Maks 4MB)</span>
+                        <span className="text-[10px] text-gray-500 font-semibold mt-1">✨ Otomatis dikompres & dikonversi ke WebP (Super Ringan)</span>
                         <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, true)} className="hidden" />
                       </label>
                     )}
