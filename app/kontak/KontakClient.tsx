@@ -3,7 +3,7 @@
 import { useState } from "react";
 import SectionTitle from "@/components/ui/SectionTitle";
 import Button from "@/components/ui/Button";
-import { MapPin, Phone, Mail, Clock, Send, CheckCircle } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, Send, CheckCircle, AlertCircle } from "lucide-react";
 
 export default function KontakClient() {
   const [formData, setFormData] = useState({
@@ -14,27 +14,43 @@ export default function KontakClient() {
   });
   const [kirimSukses, setKirimSukses] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setErrorMsg("");
 
-    // Buka mail client dengan subject & body terisi dari input form
-    const subject = `Pertanyaan dari ${formData.nama} (via Website SLB)`;
-    const body = `Halo SLB Tunas Harapan Samarinda,\n\nSaya ingin menanyakan perihal sekolah.\n\nBerikut detail kontak saya:\n- Nama: ${formData.nama}\n- WhatsApp/HP: ${formData.whatsapp}\n- Email Pengirim: ${formData.email}\n\nPesan:\n${formData.pesan}\n\nTerima kasih.`;
-    
-    const mailtoUrl = `mailto:slbtunasharapan.smr@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    
-    // Buka di jendela baru
-    window.location.href = mailtoUrl;
+    try {
+      // Send data ke API backend terproteksi untuk sanitasi Anti-XSS & Rate Limiting
+      const res = await fetch("/api/kontak", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
 
-    setTimeout(() => {
-      setIsSubmitting(false);
+      const data = await res.json();
+
+      if (!data.success) {
+        setErrorMsg(data.message || "Gagal mengirim pesan.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Gunakan data tersanitasi dari server
+      const { nama, email, whatsapp, pesan } = data.sanitizedData;
+
+      const subject = `Pertanyaan dari ${nama} (via Website SLB)`;
+      const body = `Halo SLB Tunas Harapan Samarinda,\n\nSaya ingin menanyakan perihal sekolah.\n\nBerikut detail kontak saya:\n- Nama: ${nama}\n- WhatsApp/HP: ${whatsapp}\n- Email Pengirim: ${email}\n\nPesan:\n${pesan}\n\nTerima kasih.`;
+      
+      const mailtoUrl = `mailto:slbtunasharapan.smr@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      window.location.href = mailtoUrl;
+
       setKirimSukses(true);
       setFormData({
         nama: "",
@@ -42,7 +58,11 @@ export default function KontakClient() {
         whatsapp: "",
         pesan: "",
       });
-    }, 1000);
+    } catch {
+      setErrorMsg("Terjadi kesalahan jaringan. Silakan coba beberapa saat lagi.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -184,6 +204,13 @@ export default function KontakClient() {
                     Silakan isi formulir di bawah ini, tim kami akan merespons dalam waktu 1-2 hari kerja.
                   </p>
 
+                  {errorMsg && (
+                    <div className="p-3 bg-red-50 text-red-700 text-xs font-semibold rounded-xl border border-red-200 flex items-center gap-2">
+                      <AlertCircle size={16} />
+                      <span>{errorMsg}</span>
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1">
                       <label htmlFor="nama" className="block text-xs font-semibold text-[var(--color-text-dark)]">
@@ -254,10 +281,10 @@ export default function KontakClient() {
                     type="submit"
                     variant="primary"
                     disabled={isSubmitting}
-                    className="w-full justify-center gap-2"
+                    className="w-full justify-center gap-2 cursor-pointer"
                   >
                     {isSubmitting ? (
-                      <span>Mengirim...</span>
+                      <span>Memproses Keamanan...</span>
                     ) : (
                       <>
                         <span>Kirim Pesan</span>
