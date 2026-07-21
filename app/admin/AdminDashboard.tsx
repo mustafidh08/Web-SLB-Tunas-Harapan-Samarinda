@@ -394,9 +394,11 @@ export default function AdminDashboard() {
             </div>
 
             {loginError && (
-              <div className="p-3 bg-red-50 text-red-600 rounded-xl text-xs flex items-center gap-2 border border-red-100">
-                <AlertCircle size={16} />
-                <span>{loginError}</span>
+              <div className="p-4 bg-red-50 text-red-700 rounded-2xl text-xs space-y-1.5 border border-red-200">
+                <div className="flex items-start gap-2 font-bold">
+                  <AlertCircle size={18} className="text-red-600 flex-shrink-0 mt-0.5" />
+                  <span>{loginError}</span>
+                </div>
               </div>
             )}
 
@@ -410,7 +412,11 @@ export default function AdminDashboard() {
             </button>
           </form>
 
-
+          <div className="pt-3 border-t border-gray-100 text-center">
+            <span className="text-[11px] text-gray-500 font-medium leading-relaxed block">
+              🛡️ <strong>Proteksi Keamanan:</strong> Maksimal 5x percobaan salah. Akses IP Anda akan diblokir otomatis selama 15 menit jika batas kesempatan terlampaui.
+            </span>
+          </div>
         </div>
       </div>
     );

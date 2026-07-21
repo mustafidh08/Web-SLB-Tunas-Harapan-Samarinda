@@ -60,7 +60,7 @@ export function validateImageBase64(base64Str: string): boolean {
 }
 
 /**
- * Rate Limiting Sederhana berbasis IP / Memory Store (Max 10 login gagal per 15 menit)
+ * Rate Limiting Sederhana berbasis IP (Max 5 percobaan login per 15 menit)
  */
 interface RateLimitRecord {
   count: number;
@@ -69,12 +69,11 @@ interface RateLimitRecord {
 
 const loginAttemptsStore = new Map<string, RateLimitRecord>();
 
-export function checkRateLimit(ip: string, maxAttempts = 10, windowMs = 15 * 60 * 1000): { allowed: boolean; remainingMs?: number } {
+export function checkRateLimit(ip: string, maxAttempts = 5, windowMs = 15 * 60 * 1000): { allowed: boolean; remainingMs?: number } {
   const now = Date.now();
   const record = loginAttemptsStore.get(ip);
 
   if (!record || now > record.resetTime) {
-    loginAttemptsStore.set(ip, { count: 1, resetTime: now + windowMs });
     return { allowed: true };
   }
 
@@ -82,6 +81,42 @@ export function checkRateLimit(ip: string, maxAttempts = 10, windowMs = 15 * 60 
     return { allowed: false, remainingMs: record.resetTime - now };
   }
 
-  record.count += 1;
   return { allowed: true };
+}
+
+export function getRateLimitStatus(ip: string, maxAttempts = 5, windowMs = 15 * 60 * 1000) {
+  const now = Date.now();
+  const record = loginAttemptsStore.get(ip);
+
+  if (!record || now > record.resetTime) {
+    return { allowed: true, remainingAttempts: maxAttempts, maxAttempts };
+  }
+
+  if (record.count >= maxAttempts) {
+    return { allowed: false, remainingAttempts: 0, maxAttempts, remainingMs: record.resetTime - now };
+  }
+
+  return {
+    allowed: true,
+    remainingAttempts: maxAttempts - record.count,
+    maxAttempts,
+  };
+}
+
+export function recordFailedLoginAttempt(ip: string, maxAttempts = 5, windowMs = 15 * 60 * 1000) {
+  const now = Date.now();
+  const record = loginAttemptsStore.get(ip);
+
+  if (!record || now > record.resetTime) {
+    loginAttemptsStore.set(ip, { count: 1, resetTime: now + windowMs });
+    return { remainingAttempts: maxAttempts - 1, maxAttempts };
+  }
+
+  record.count += 1;
+  const remaining = Math.max(0, maxAttempts - record.count);
+  return { remainingAttempts: remaining, maxAttempts };
+}
+
+export function resetLoginAttempts(ip: string) {
+  loginAttemptsStore.delete(ip);
 }
