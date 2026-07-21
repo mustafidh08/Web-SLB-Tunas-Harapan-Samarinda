@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
-import { dataGaleri, FotoGaleri } from "@/content/data/galeri";
+import { dataGaleri, FotoGaleri, KategoriGaleri } from "@/content/data/galeri";
+import { timingSafeCompare, sanitizeInputString, sanitizeSlug, validateImageBase64 } from "@/lib/security";
 
 const REPO_OWNER = "mustafidh08";
 const REPO_NAME = "Web-SLB-Tunas-Harapan-Samarinda";
@@ -22,9 +23,9 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const {
-      judul,
-      kategori,
-      alt,
+      judul: rawJudul,
+      kategori: rawKategori,
+      alt: rawAlt,
       gambarBase64,
       gambarUrl,
       githubToken: tokenFromReq,
@@ -33,25 +34,35 @@ export async function POST(request: Request) {
       photoId: reqPhotoId,
     } = body;
 
-    // Verifikasi password
+    // 1. Verifikasi Password secara Timing-Safe
     const expectedPassword = process.env.ADMIN_PASSWORD || "slbtunasharapan";
-    if (password !== expectedPassword) {
+    if (!password || !timingSafeCompare(String(password), expectedPassword)) {
       return NextResponse.json({ success: false, message: "Password admin salah" }, { status: 401 });
     }
+
+    // 2. Sanitasi Input (Anti-XSS)
+    const judul = sanitizeInputString(String(rawJudul || ""));
+    const alt = sanitizeInputString(String(rawAlt || ""));
+    const kategori = sanitizeSlug(String(rawKategori || "kegiatan")) as Exclude<KategoriGaleri, "semua">;
 
     if (!judul || !kategori) {
       return NextResponse.json({ success: false, message: "Judul foto dan kategori wajib diisi" }, { status: 400 });
     }
 
-    const token = tokenFromReq || process.env.GITHUB_TOKEN;
-    const slug = judul.toLowerCase().replace(/[^a-z0-9\s-]/g, "").trim().replace(/\s+/g, "-");
-    const photoId = isEdit && reqPhotoId ? reqPhotoId : `${kategori}-${Date.now().toString().slice(-4)}`;
+    const cleanPhotoId = reqPhotoId ? sanitizeSlug(String(reqPhotoId)) : "";
+    const photoId = isEdit && cleanPhotoId ? cleanPhotoId : `${kategori}-${Date.now().toString().slice(-4)}`;
 
+    const token = tokenFromReq || process.env.GITHUB_TOKEN;
+    const slug = sanitizeSlug(judul);
     let finalImageUrl = gambarUrl || "";
 
-    // Simpan gambar jika ada upload base64 baru
+    // 3. Validasi Format Gambar Base64 jika ada upload baru
     if (gambarBase64) {
-      const imageFileName = `${slug}-${Date.now()}.jpg`;
+      if (!validateImageBase64(gambarBase64)) {
+        return NextResponse.json({ success: false, message: "Format gambar tidak valid. Hanya menerima file JPG/PNG/WebP" }, { status: 400 });
+      }
+
+      const imageFileName = `${slug}-${Date.now()}.webp`;
       const base64Data = gambarBase64.replace(/^data:image\/\w+;base64,/, "");
 
       if (token) {
@@ -81,7 +92,6 @@ export async function POST(request: Request) {
       }
     }
 
-    // Jika edit dan tidak ada gambar baru, gunakan gambar lama dari dataGaleri
     if (isEdit && !finalImageUrl) {
       const existingPhoto = dataGaleri.find((p) => p.id === photoId);
       if (existingPhoto) {
@@ -102,30 +112,7 @@ export async function POST(request: Request) {
     };
 
     // Update file content/data/galeri.ts di GitHub / Local FS
-    if (token) {
-      const githubFileUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/content/data/galeri.ts`;
-      const getRes = await fetch(githubFileUrl, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "User-Agent": "SLB-Admin-Panel",
-        },
-      });
-
-      if (!getRes.ok) {
-        return NextResponse.json({ success: false, message: "Gagal mengambil data galeri dari GitHub" }, { status: 500 });
-      }
-
-      const fileData = await getRes.json();
-      const currentContent = Buffer.from(fileData.content, "base64").toString("utf-8");
-
-      let updatedPhotos: FotoGaleri[] = [];
-      if (isEdit) {
-        updatedPhotos = dataGaleri.map((p) => (p.id === photoId ? targetPhotoItem : p));
-      } else {
-        updatedPhotos = [targetPhotoItem, ...dataGaleri];
-      }
-
-      const fileHeader = `// content/data/galeri.ts
+    const fileHeader = `// content/data/galeri.ts
 // FILE GENERATED AUTOMATICALLY BY SCRIP GENERATOR. DO NOT EDIT DIRECTLY.
 
 export type KategoriGaleri =
@@ -157,7 +144,29 @@ export const labelKategori: Record<KategoriGaleri, string> = {
 
 export const dataGaleri: FotoGaleri[] = `;
 
-      const updatedContent = fileHeader + JSON.stringify(updatedPhotos, null, 2) + ";\n";
+    let updatedPhotos: FotoGaleri[] = [];
+    if (isEdit) {
+      updatedPhotos = dataGaleri.map((p) => (p.id === photoId ? targetPhotoItem : p));
+    } else {
+      updatedPhotos = [targetPhotoItem, ...dataGaleri];
+    }
+
+    const updatedContent = fileHeader + JSON.stringify(updatedPhotos, null, 2) + ";\n";
+
+    if (token) {
+      const githubFileUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/content/data/galeri.ts`;
+      const getRes = await fetch(githubFileUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "User-Agent": "SLB-Admin-Panel",
+        },
+      });
+
+      if (!getRes.ok) {
+        return NextResponse.json({ success: false, message: "Gagal mengambil data galeri dari GitHub" }, { status: 500 });
+      }
+
+      const fileData = await getRes.json();
 
       const putRes = await fetch(githubFileUrl, {
         method: "PUT",
@@ -185,46 +194,6 @@ export const dataGaleri: FotoGaleri[] = `;
       });
     } else {
       const filePath = path.join(process.cwd(), "content", "data", "galeri.ts");
-      let updatedPhotos: FotoGaleri[] = [];
-      if (isEdit) {
-        updatedPhotos = dataGaleri.map((p) => (p.id === photoId ? targetPhotoItem : p));
-      } else {
-        updatedPhotos = [targetPhotoItem, ...dataGaleri];
-      }
-
-      const fileHeader = `// content/data/galeri.ts
-// FILE GENERATED AUTOMATICALLY BY SCRIP GENERATOR. DO NOT EDIT DIRECTLY.
-
-export type KategoriGaleri =
-  | "semua"
-  | "ruang-kelas"
-  | "keterampilan"
-  | "uks"
-  | "wc"
-  | "bangunan"
-  | "kegiatan";
-
-export interface FotoGaleri {
-  id: string;
-  judul: string;
-  kategori: Exclude<KategoriGaleri, "semua">;
-  src: string;
-  alt: string;
-}
-
-export const labelKategori: Record<KategoriGaleri, string> = {
-  semua: "Semua",
-  "ruang-kelas": "Ruang Kelas",
-  keterampilan: "Ruang Keterampilan",
-  uks: "UKS",
-  wc: "WC / Toilet",
-  bangunan: "Bangunan & Area Umum",
-  kegiatan: "Kegiatan Sekolah",
-};
-
-export const dataGaleri: FotoGaleri[] = `;
-
-      const updatedContent = fileHeader + JSON.stringify(updatedPhotos, null, 2) + ";\n";
       fs.writeFileSync(filePath, updatedContent, "utf-8");
 
       return NextResponse.json({
@@ -244,15 +213,16 @@ export const dataGaleri: FotoGaleri[] = `;
 export async function DELETE(request: Request) {
   try {
     const body = await request.json();
-    const { photoId, githubToken: tokenFromReq, password } = body;
+    const { photoId: rawPhotoId, githubToken: tokenFromReq, password } = body;
 
     const expectedPassword = process.env.ADMIN_PASSWORD || "slbtunasharapan";
-    if (password !== expectedPassword) {
+    if (!password || !timingSafeCompare(String(password), expectedPassword)) {
       return NextResponse.json({ success: false, message: "Password admin salah" }, { status: 401 });
     }
 
+    const photoId = sanitizeSlug(String(rawPhotoId || ""));
     if (!photoId) {
-      return NextResponse.json({ success: false, message: "ID foto wajib disertakan" }, { status: 400 });
+      return NextResponse.json({ success: false, message: "ID foto tidak valid" }, { status: 400 });
     }
 
     const token = tokenFromReq || process.env.GITHUB_TOKEN;

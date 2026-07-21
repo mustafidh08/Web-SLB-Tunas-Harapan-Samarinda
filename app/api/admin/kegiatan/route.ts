@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 import { getAllKegiatanMeta, getKegiatanBySlug } from "@/lib/mdx";
+import { timingSafeCompare, sanitizeInputString, sanitizeSlug, validateImageBase64 } from "@/lib/security";
 
 const REPO_OWNER = "mustafidh08";
 const REPO_NAME = "Web-SLB-Tunas-Harapan-Samarinda";
@@ -27,35 +28,43 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const {
-      judul,
-      tanggal,
-      ringkasan,
-      konten,
+      judul: rawJudul,
+      tanggal: rawTanggal,
+      ringkasan: rawRingkasan,
+      konten: rawKonten,
       gambarCoverBase64,
       gambarCoverUrl,
       githubToken: tokenFromReq,
       password,
       isEdit,
-      oldSlug,
+      oldSlug: rawOldSlug,
     } = body;
 
-    // Verifikasi password
+    // 1. Verifikasi Password secara Timing-Safe
     const expectedPassword = process.env.ADMIN_PASSWORD || "slbtunasharapan";
-    if (password !== expectedPassword) {
+    if (!password || !timingSafeCompare(String(password), expectedPassword)) {
       return NextResponse.json({ success: false, message: "Password admin salah" }, { status: 401 });
     }
+
+    // 2. Sanitasi Input (Anti-XSS & Code Injection)
+    const judul = sanitizeInputString(String(rawJudul || ""));
+    const ringkasan = sanitizeInputString(String(rawRingkasan || ""));
+    const konten = sanitizeInputString(String(rawKonten || ""));
+    const tanggal = sanitizeInputString(String(rawTanggal || new Date().toISOString().split("T")[0]));
 
     if (!judul || !ringkasan || !konten) {
       return NextResponse.json({ success: false, message: "Judul, ringkasan, dan konten wajib diisi" }, { status: 400 });
     }
 
-    const token = tokenFromReq || process.env.GITHUB_TOKEN;
-    const slug = isEdit && oldSlug ? oldSlug : judul.toLowerCase().replace(/[^a-z0-9\s-]/g, "").trim().replace(/\s+/g, "-");
+    // 3. Sanitasi Slug (Anti Path Traversal)
+    const cleanOldSlug = rawOldSlug ? sanitizeSlug(String(rawOldSlug)) : "";
+    const cleanNewSlug = sanitizeSlug(judul);
+    const slug = isEdit && cleanOldSlug ? cleanOldSlug : cleanNewSlug;
     const mdxFileName = `${slug}.mdx`;
 
+    const token = tokenFromReq || process.env.GITHUB_TOKEN;
     let finalImageUrl = gambarCoverUrl || "/images/kegiatan/default-cover.jpg";
 
-    // Jika sedang edit dan tidak ada gambar baru yang di-upload, gunakan gambar lama jika ada
     if (isEdit && !gambarCoverBase64 && !gambarCoverUrl) {
       const existingPost = getKegiatanBySlug(slug);
       if (existingPost) {
@@ -63,9 +72,13 @@ export async function POST(request: Request) {
       }
     }
 
-    // 1. Simpan foto cover baru jika ada base64
+    // 4. Validasi Format Foto jika ada Base64
     if (gambarCoverBase64) {
-      const imageFileName = `kegiatan-${Date.now()}-${slug}.jpg`;
+      if (!validateImageBase64(gambarCoverBase64)) {
+        return NextResponse.json({ success: false, message: "Format gambar tidak valid. Hanya menerima file JPG/PNG/WebP" }, { status: 400 });
+      }
+
+      const imageFileName = `kegiatan-${Date.now()}-${slug}.webp`;
       const base64Data = gambarCoverBase64.replace(/^data:image\/\w+;base64,/, "");
 
       if (token) {
@@ -95,10 +108,10 @@ export async function POST(request: Request) {
       }
     }
 
-    // 2. Buat isi konten MDX
+    // 5. Buat isi konten MDX yang tersanitasi
     const mdxContent = `---
 judul: "${judul.replace(/"/g, '\\"')}"
-tanggal: "${tanggal || new Date().toISOString().split("T")[0]}"
+tanggal: "${tanggal.replace(/"/g, '\\"')}"
 ringkasan: "${ringkasan.replace(/"/g, '\\"')}"
 gambarCover: "${finalImageUrl}"
 ---
@@ -106,7 +119,7 @@ gambarCover: "${finalImageUrl}"
 ${konten}
 `;
 
-    // 3. Commit file MDX ke GitHub / Local FS
+    // 6. Commit file MDX ke GitHub / Local FS
     if (token) {
       const githubMdxUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/content/kegiatan/${mdxFileName}`;
       
@@ -147,7 +160,7 @@ ${konten}
 
       return NextResponse.json({
         success: true,
-        message: `Berita "${judul}" berhasil ${isEdit ? "perbarui" : "diterbitkan"}! Vercel sedang melakukan deploy otomatis.`,
+        message: `Berita "${judul}" berhasil ${isEdit ? "diperbarui" : "diterbitkan"}! Vercel sedang melakukan deploy otomatis.`,
         slug,
       });
     } else {
@@ -174,15 +187,16 @@ ${konten}
 export async function DELETE(request: Request) {
   try {
     const body = await request.json();
-    const { slug, githubToken: tokenFromReq, password } = body;
+    const { slug: rawSlug, githubToken: tokenFromReq, password } = body;
 
     const expectedPassword = process.env.ADMIN_PASSWORD || "slbtunasharapan";
-    if (password !== expectedPassword) {
+    if (!password || !timingSafeCompare(String(password), expectedPassword)) {
       return NextResponse.json({ success: false, message: "Password admin salah" }, { status: 401 });
     }
 
+    const slug = sanitizeSlug(String(rawSlug || ""));
     if (!slug) {
-      return NextResponse.json({ success: false, message: "Slug berita wajib disertakan" }, { status: 400 });
+      return NextResponse.json({ success: false, message: "Slug berita tidak valid" }, { status: 400 });
     }
 
     const token = tokenFromReq || process.env.GITHUB_TOKEN;
@@ -191,7 +205,6 @@ export async function DELETE(request: Request) {
     if (token) {
       const githubMdxUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/content/kegiatan/${mdxFileName}`;
       
-      // Dapatkan SHA file
       const getFileRes = await fetch(githubMdxUrl, {
         headers: {
           Authorization: `Bearer ${token}`,
