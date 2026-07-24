@@ -17,7 +17,9 @@ import {
   Plus,
   HelpCircle,
   Search,
-  ExternalLink
+  ExternalLink,
+  Eye,
+  EyeOff
 } from "lucide-react";
 import { convertAndCompressToWebP } from "@/lib/imageCompressor";
 
@@ -40,6 +42,7 @@ interface FotoGaleriItem {
 export default function AdminDashboard() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState("");
   const [loginLoading, setLoginLoading] = useState(false);
 
@@ -394,15 +397,26 @@ export default function AdminDashboard() {
               <label htmlFor="passInput" className="block text-xs font-bold text-[var(--color-text-dark)] mb-1">
                 Password Admin
               </label>
-              <input
-                id="passInput"
-                type="password"
-                required
-                value={passwordInput}
-                onChange={(e) => setPasswordInput(e.target.value)}
-                placeholder="Masukkan password admin..."
-                className="w-full px-4 py-3 text-sm border border-gray-300 rounded-xl focus:outline-none focus:border-[var(--color-primary)] transition-colors"
-              />
+              <div className="relative">
+                <input
+                  id="passInput"
+                  type={showPassword ? "text" : "password"}
+                  required
+                  value={passwordInput}
+                  onChange={(e) => setPasswordInput(e.target.value)}
+                  placeholder="Masukkan password admin..."
+                  className="w-full pl-4 pr-11 py-3 text-sm border border-gray-300 rounded-xl focus:outline-none focus:border-[var(--color-primary)] transition-colors"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 p-0.5 rounded-lg transition-colors cursor-pointer"
+                  title={showPassword ? "Sembunyikan password" : "Tampilkan password"}
+                  aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
 
             {loginError && (
