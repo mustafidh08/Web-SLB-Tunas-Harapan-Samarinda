@@ -5,7 +5,8 @@ import {
   recordFailedLoginAttempt, 
   resetLoginAttempts, 
   generateSessionToken,
-  verifySessionToken 
+  verifySessionToken,
+  logAuditEvent
 } from "@/lib/security";
 
 const MAX_LOGIN_ATTEMPTS = 3; // Maksimal 3x percobaan login salah
@@ -34,6 +35,7 @@ export async function POST(request: Request) {
     const status = getRateLimitStatus(ip, MAX_LOGIN_ATTEMPTS, BLOCK_WINDOW_MS);
     if (!status.allowed) {
       const minutesLeft = Math.ceil((status.remainingMs || 0) / 60000);
+      logAuditEvent("LOGIN_BLOCKED", { reason: "Too many failed attempts", minutesLeft }, ip);
       return NextResponse.json(
         {
           success: false,
@@ -59,6 +61,7 @@ export async function POST(request: Request) {
     if (isValid) {
       // Password Benar -> Reset jumlah percobaan gagal IP ini
       resetLoginAttempts(ip);
+      logAuditEvent("LOGIN_SUCCESS", { status: "Authenticated" }, ip);
 
       // Task 2 Security: Set HttpOnly, Secure, SameSite=Strict Cookie
       const sessionToken = generateSessionToken();
@@ -79,6 +82,7 @@ export async function POST(request: Request) {
       // Password Salah -> Catat percobaan gagal & hitung sisa kesempatan (Maks 3x)
       const failedResult = recordFailedLoginAttempt(ip, MAX_LOGIN_ATTEMPTS, BLOCK_WINDOW_MS);
       const sisa = failedResult.remainingAttempts;
+      logAuditEvent("LOGIN_FAILED", { sisaAttempts: sisa }, ip);
 
       let msg = "";
       if (sisa > 0) {

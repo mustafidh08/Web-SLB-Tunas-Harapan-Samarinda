@@ -170,3 +170,22 @@ export function recordFailedLoginAttempt(ip: string, maxAttempts = 3, windowMs =
 export function resetLoginAttempts(ip: string) {
   loginAttemptsStore.delete(ip);
 }
+
+/**
+ * Task 6 Security (Nice-to-Have): Structured Audit Logging untuk forensik siber
+ */
+export function logAuditEvent(
+  action: string,
+  details: Record<string, unknown>,
+  ip = "unknown"
+) {
+  const timestamp = new Date().toISOString();
+  const logEntry = {
+    timestamp,
+    action,
+    ip,
+    details,
+  };
+
+  console.log(`[AUDIT LOG] ${JSON.stringify(logEntry)}`);
+}
