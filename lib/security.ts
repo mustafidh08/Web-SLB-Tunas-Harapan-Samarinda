@@ -30,6 +30,18 @@ export function sanitizeInputString(str: string): string {
 }
 
 /**
+ * Task 4 Security: Escape karakter JSX/MDX bermasalah agar tidak memicu Code Injection saat build.
+ */
+export function escapeMdxContent(str: string): string {
+  if (!str) return "";
+  return str
+    .replace(/\{/g, "&#123;")
+    .replace(/\}/g, "&#125;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+/**
  * Sanitasi slug untuk mencegah Path Traversal attack (misal ../../evil.js)
  */
 export function sanitizeSlug(slug: string): string {
@@ -43,11 +55,27 @@ export function sanitizeSlug(slug: string): string {
 }
 
 /**
+ * Task 1 Security: Validasi server-side untuk memastikan penulisan file HANYA diizinkan pada folder konten.
+ * Mencegah kompromi token atau path injection menimpa source code (/app, /components, /lib, dsb).
+ */
+export function validateAllowedContentPath(targetPath: string): boolean {
+  const normalized = targetPath.replace(/\\/g, "/").toLowerCase();
+  
+  const allowedPrefixes = [
+    "content/kegiatan/",
+    "public/images/kegiatan/",
+    "content/data/galeri.ts",
+    "public/images/galeri/",
+  ];
+
+  return allowedPrefixes.some((prefix) => normalized.includes(prefix));
+}
+
+/**
  * Validasi header Base64 image untuk memastikan file yang diunggah benar-benar gambar
  */
 export function validateImageBase64(base64Str: string): boolean {
   if (!base64Str) return false;
-  // Periksa header MIME type
   const allowedMimeTypes = [
     "data:image/jpeg;base64,",
     "data:image/jpg;base64,",
@@ -60,7 +88,29 @@ export function validateImageBase64(base64Str: string): boolean {
 }
 
 /**
- * Rate Limiting Sederhana berbasis IP (Max 5 percobaan login per 15 menit)
+ * Task 2 Security: Helper pembuat dan pemverifikasi Session Token untuk HttpOnly Cookie
+ */
+const SESSION_SECRET = process.env.ADMIN_PASSWORD || "slbtunasharapan";
+
+export function generateSessionToken(): string {
+  const payload = `slb_session_${Date.now()}_${crypto.randomBytes(16).toString("hex")}`;
+  const hmac = crypto.createHmac("sha256", SESSION_SECRET).update(payload).digest("hex");
+  return `${payload}.${hmac}`;
+}
+
+export function verifySessionToken(token: string | undefined | null): boolean {
+  if (!token || !token.includes(".")) return false;
+  const parts = token.split(".");
+  if (parts.length !== 2) return false;
+  
+  const [payload, hmac] = parts;
+  const expectedHmac = crypto.createHmac("sha256", SESSION_SECRET).update(payload).digest("hex");
+  
+  return timingSafeCompare(hmac, expectedHmac);
+}
+
+/**
+ * Rate Limiting Sederhana berbasis IP (Max 3 percobaan login per 15 menit)
  */
 interface RateLimitRecord {
   count: number;
@@ -69,7 +119,7 @@ interface RateLimitRecord {
 
 const loginAttemptsStore = new Map<string, RateLimitRecord>();
 
-export function checkRateLimit(ip: string, maxAttempts = 5, windowMs = 15 * 60 * 1000): { allowed: boolean; remainingMs?: number } {
+export function checkRateLimit(ip: string, maxAttempts = 3, windowMs = 15 * 60 * 1000): { allowed: boolean; remainingMs?: number } {
   const now = Date.now();
   const record = loginAttemptsStore.get(ip);
 
@@ -84,7 +134,7 @@ export function checkRateLimit(ip: string, maxAttempts = 5, windowMs = 15 * 60 *
   return { allowed: true };
 }
 
-export function getRateLimitStatus(ip: string, maxAttempts = 5, windowMs = 15 * 60 * 1000) {
+export function getRateLimitStatus(ip: string, maxAttempts = 3, windowMs = 15 * 60 * 1000) {
   const now = Date.now();
   const record = loginAttemptsStore.get(ip);
 
@@ -103,7 +153,7 @@ export function getRateLimitStatus(ip: string, maxAttempts = 5, windowMs = 15 * 
   };
 }
 
-export function recordFailedLoginAttempt(ip: string, maxAttempts = 5, windowMs = 15 * 60 * 1000) {
+export function recordFailedLoginAttempt(ip: string, maxAttempts = 3, windowMs = 15 * 60 * 1000) {
   const now = Date.now();
   const record = loginAttemptsStore.get(ip);
 

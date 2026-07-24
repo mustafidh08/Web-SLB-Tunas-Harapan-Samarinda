@@ -1,12 +1,33 @@
 import { NextResponse } from "next/server";
-import { timingSafeCompare, getRateLimitStatus, recordFailedLoginAttempt, resetLoginAttempts } from "@/lib/security";
+import { 
+  timingSafeCompare, 
+  getRateLimitStatus, 
+  recordFailedLoginAttempt, 
+  resetLoginAttempts, 
+  generateSessionToken,
+  verifySessionToken 
+} from "@/lib/security";
 
-const MAX_LOGIN_ATTEMPTS = 5;
+const MAX_LOGIN_ATTEMPTS = 3; // Maksimal 3x percobaan login salah
 const BLOCK_WINDOW_MS = 15 * 60 * 1000; // 15 Menit
 
+// GET: Cek apakah session cookie httpOnly masih valid
+export async function GET(request: Request) {
+  const cookieHeader = request.headers.get("cookie") || "";
+  const match = cookieHeader.match(/slb_admin_session=([^;]+)/);
+  const token = match ? match[1] : null;
+
+  if (verifySessionToken(token)) {
+    return NextResponse.json({ success: true, isLoggedIn: true });
+  }
+
+  return NextResponse.json({ success: false, isLoggedIn: false }, { status: 401 });
+}
+
+// POST: Login Admin & Set httpOnly Cookie
 export async function POST(request: Request) {
   try {
-    // 1. Ambil IP Client untuk Anti Brute-Force Rate Limiting (Maks 5x Percobaan)
+    // 1. Ambil IP Client untuk Anti Brute-Force Rate Limiting (Maks 3x Percobaan)
     const forwardedFor = request.headers.get("x-forwarded-for");
     const ip = forwardedFor ? forwardedFor.split(",")[0].trim() : "127.0.0.1";
 
@@ -19,7 +40,7 @@ export async function POST(request: Request) {
           blocked: true,
           remainingAttempts: 0,
           maxAttempts: MAX_LOGIN_ATTEMPTS,
-          message: `Akses diblokir sementara karena 5x salah memasukkan password. Silakan tunggu ${minutesLeft} menit sebelum mencoba lagi.`,
+          message: `Akses diblokir sementara karena ${MAX_LOGIN_ATTEMPTS}x salah memasukkan password. Silakan tunggu ${minutesLeft} menit sebelum mencoba lagi.`,
         },
         { status: 429 }
       );
@@ -38,9 +59,24 @@ export async function POST(request: Request) {
     if (isValid) {
       // Password Benar -> Reset jumlah percobaan gagal IP ini
       resetLoginAttempts(ip);
-      return NextResponse.json({ success: true, message: "Login berhasil" });
+
+      // Task 2 Security: Set HttpOnly, Secure, SameSite=Strict Cookie
+      const sessionToken = generateSessionToken();
+      const response = NextResponse.json({ success: true, message: "Login berhasil" });
+
+      response.cookies.set({
+        name: "slb_admin_session",
+        value: sessionToken,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        path: "/",
+        maxAge: 7200, // 2 Jam
+      });
+
+      return response;
     } else {
-      // Password Salah -> Catat percobaan gagal & hitung sisa kesempatan
+      // Password Salah -> Catat percobaan gagal & hitung sisa kesempatan (Maks 3x)
       const failedResult = recordFailedLoginAttempt(ip, MAX_LOGIN_ATTEMPTS, BLOCK_WINDOW_MS);
       const sisa = failedResult.remainingAttempts;
 
@@ -48,7 +84,7 @@ export async function POST(request: Request) {
       if (sisa > 0) {
         msg = `Password admin salah. Sisa kesempatan mencoba: ${sisa} kali lagi. (Jika gagal ${MAX_LOGIN_ATTEMPTS}x berturut-turut, IP Anda akan diblokir sementara selama 15 menit).`;
       } else {
-        msg = `Password admin salah. Anda telah mencapai batas maksimal 5x percobaan. Akses Anda diblokir sementara selama 15 menit demi keamanan.`;
+        msg = `Password admin salah. Anda telah mencapai batas maksimal ${MAX_LOGIN_ATTEMPTS}x percobaan. Akses Anda diblokir sementara selama 15 menit demi keamanan.`;
       }
 
       return NextResponse.json(
@@ -67,4 +103,19 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
+}
+
+// DELETE: Logout Admin & Hapus httpOnly Cookie
+export async function DELETE() {
+  const response = NextResponse.json({ success: true, message: "Logout berhasil" });
+  response.cookies.set({
+    name: "slb_admin_session",
+    value: "",
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    path: "/",
+    maxAge: 0, // Hapus cookie
+  });
+  return response;
 }

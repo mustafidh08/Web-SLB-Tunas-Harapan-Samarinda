@@ -2,11 +2,30 @@ import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 import { dataGaleri, FotoGaleri, KategoriGaleri } from "@/content/data/galeri";
-import { timingSafeCompare, sanitizeInputString, sanitizeSlug, validateImageBase64 } from "@/lib/security";
+import { 
+  timingSafeCompare, 
+  sanitizeInputString, 
+  sanitizeSlug, 
+  validateImageBase64,
+  validateAllowedContentPath,
+  verifySessionToken 
+} from "@/lib/security";
 
 const REPO_OWNER = "mustafidh08";
 const REPO_NAME = "Web-SLB-Tunas-Harapan-Samarinda";
 const BRANCH = "main";
+
+// Helper verifikasi otorisasi admin (Password ATAU HttpOnly Session Cookie)
+function isAuthorized(request: Request, passwordFromReq?: string): boolean {
+  const expectedPassword = process.env.ADMIN_PASSWORD || "slbtunasharapan";
+  if (passwordFromReq && timingSafeCompare(String(passwordFromReq), expectedPassword)) {
+    return true;
+  }
+  const cookieHeader = request.headers.get("cookie") || "";
+  const match = cookieHeader.match(/slb_admin_session=([^;]+)/);
+  const token = match ? match[1] : null;
+  return verifySessionToken(token);
+}
 
 // GET: Ambil daftar seluruh foto galeri
 export async function GET() {
@@ -34,10 +53,9 @@ export async function POST(request: Request) {
       photoId: reqPhotoId,
     } = body;
 
-    // 1. Verifikasi Password secara Timing-Safe
-    const expectedPassword = process.env.ADMIN_PASSWORD || "slbtunasharapan";
-    if (!password || !timingSafeCompare(String(password), expectedPassword)) {
-      return NextResponse.json({ success: false, message: "Password admin salah" }, { status: 401 });
+    // 1. Otorisasi Admin (HttpOnly Cookie / Password)
+    if (!isAuthorized(request, password)) {
+      return NextResponse.json({ success: false, message: "Sesi admin tidak valid atau expired. Silakan login kembali." }, { status: 401 });
     }
 
     // 2. Sanitasi Input (Anti-XSS)
@@ -56,17 +74,23 @@ export async function POST(request: Request) {
     const slug = sanitizeSlug(judul);
     let finalImageUrl = gambarUrl || "";
 
-    // 3. Validasi Format Gambar Base64 jika ada upload baru
+    // 3. Task 1 Security: Path Restriction Validation untuk Gambar Galeri
     if (gambarBase64) {
       if (!validateImageBase64(gambarBase64)) {
         return NextResponse.json({ success: false, message: "Format gambar tidak valid. Hanya menerima file JPG/PNG/WebP" }, { status: 400 });
       }
 
       const imageFileName = `${slug}-${Date.now()}.webp`;
+      const imageRelativePath = `public/images/galeri/${kategori}/${imageFileName}`;
+
+      if (!validateAllowedContentPath(imageRelativePath)) {
+        return NextResponse.json({ success: false, message: "Akses ditolak: Jalur penulisan gambar galeri di luar folder yang diizinkan." }, { status: 403 });
+      }
+
       const base64Data = gambarBase64.replace(/^data:image\/\w+;base64,/, "");
 
       if (token) {
-        const githubImgUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/public/images/galeri/${kategori}/${imageFileName}`;
+        const githubImgUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${imageRelativePath}`;
         await fetch(githubImgUrl, {
           method: "PUT",
           headers: {
@@ -111,7 +135,12 @@ export async function POST(request: Request) {
       alt: alt || judul,
     };
 
-    // Update file content/data/galeri.ts di GitHub / Local FS
+    // Task 1 Security: Path Restriction Validation untuk File galeri.ts
+    const galeriFilePath = "content/data/galeri.ts";
+    if (!validateAllowedContentPath(galeriFilePath)) {
+      return NextResponse.json({ success: false, message: "Akses ditolak: Jalur penulisan galeri.ts di luar folder yang diizinkan." }, { status: 403 });
+    }
+
     const fileHeader = `// content/data/galeri.ts
 // FILE GENERATED AUTOMATICALLY BY SCRIP GENERATOR. DO NOT EDIT DIRECTLY.
 
@@ -154,7 +183,7 @@ export const dataGaleri: FotoGaleri[] = `;
     const updatedContent = fileHeader + JSON.stringify(updatedPhotos, null, 2) + ";\n";
 
     if (token) {
-      const githubFileUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/content/data/galeri.ts`;
+      const githubFileUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${galeriFilePath}`;
       const getRes = await fetch(githubFileUrl, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -215,9 +244,8 @@ export async function DELETE(request: Request) {
     const body = await request.json();
     const { photoId: rawPhotoId, githubToken: tokenFromReq, password } = body;
 
-    const expectedPassword = process.env.ADMIN_PASSWORD || "slbtunasharapan";
-    if (!password || !timingSafeCompare(String(password), expectedPassword)) {
-      return NextResponse.json({ success: false, message: "Password admin salah" }, { status: 401 });
+    if (!isAuthorized(request, password)) {
+      return NextResponse.json({ success: false, message: "Sesi admin tidak valid atau expired. Silakan login kembali." }, { status: 401 });
     }
 
     const photoId = sanitizeSlug(String(rawPhotoId || ""));
@@ -227,6 +255,11 @@ export async function DELETE(request: Request) {
 
     const token = tokenFromReq || process.env.GITHUB_TOKEN;
     const updatedPhotos = dataGaleri.filter((p) => p.id !== photoId);
+
+    const galeriFilePath = "content/data/galeri.ts";
+    if (!validateAllowedContentPath(galeriFilePath)) {
+      return NextResponse.json({ success: false, message: "Akses ditolak: Jalur penulisan galeri.ts di luar folder yang diizinkan." }, { status: 403 });
+    }
 
     const fileHeader = `// content/data/galeri.ts
 // FILE GENERATED AUTOMATICALLY BY SCRIP GENERATOR. DO NOT EDIT DIRECTLY.
@@ -263,7 +296,7 @@ export const dataGaleri: FotoGaleri[] = `;
     const updatedContent = fileHeader + JSON.stringify(updatedPhotos, null, 2) + ";\n";
 
     if (token) {
-      const githubFileUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/content/data/galeri.ts`;
+      const githubFileUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${galeriFilePath}`;
       const getRes = await fetch(githubFileUrl, {
         headers: {
           Authorization: `Bearer ${token}`,

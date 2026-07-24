@@ -2,11 +2,31 @@ import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 import { getAllKegiatanMeta, getKegiatanBySlug } from "@/lib/mdx";
-import { timingSafeCompare, sanitizeInputString, sanitizeSlug, validateImageBase64 } from "@/lib/security";
+import { 
+  timingSafeCompare, 
+  sanitizeInputString, 
+  sanitizeSlug, 
+  validateImageBase64, 
+  validateAllowedContentPath, 
+  escapeMdxContent,
+  verifySessionToken 
+} from "@/lib/security";
 
 const REPO_OWNER = "mustafidh08";
 const REPO_NAME = "Web-SLB-Tunas-Harapan-Samarinda";
 const BRANCH = "main";
+
+// Helper verifikasi otorisasi admin (Password ATAU HttpOnly Session Cookie)
+function isAuthorized(request: Request, passwordFromReq?: string): boolean {
+  const expectedPassword = process.env.ADMIN_PASSWORD || "slbtunasharapan";
+  if (passwordFromReq && timingSafeCompare(String(passwordFromReq), expectedPassword)) {
+    return true;
+  }
+  const cookieHeader = request.headers.get("cookie") || "";
+  const match = cookieHeader.match(/slb_admin_session=([^;]+)/);
+  const token = match ? match[1] : null;
+  return verifySessionToken(token);
+}
 
 // GET: Ambil daftar seluruh berita kegiatan
 export async function GET() {
@@ -40,10 +60,9 @@ export async function POST(request: Request) {
       oldSlug: rawOldSlug,
     } = body;
 
-    // 1. Verifikasi Password secara Timing-Safe
-    const expectedPassword = process.env.ADMIN_PASSWORD || "slbtunasharapan";
-    if (!password || !timingSafeCompare(String(password), expectedPassword)) {
-      return NextResponse.json({ success: false, message: "Password admin salah" }, { status: 401 });
+    // 1. Otorisasi Admin (Session Cookie / Password)
+    if (!isAuthorized(request, password)) {
+      return NextResponse.json({ success: false, message: "Sesi admin tidak valid atau expired. Silakan login kembali." }, { status: 401 });
     }
 
     // 2. Sanitasi Input (Anti-XSS & Code Injection)
@@ -62,6 +81,12 @@ export async function POST(request: Request) {
     const slug = isEdit && cleanOldSlug ? cleanOldSlug : cleanNewSlug;
     const mdxFileName = `${slug}.mdx`;
 
+    // Task 1 Security: Path Restriction Validation
+    const mdxRelativePath = `content/kegiatan/${mdxFileName}`;
+    if (!validateAllowedContentPath(mdxRelativePath)) {
+      return NextResponse.json({ success: false, message: "Akses ditolak: Jalur penulisan berkas di luar folder yang diizinkan." }, { status: 403 });
+    }
+
     const token = tokenFromReq || process.env.GITHUB_TOKEN;
     let finalImageUrl = gambarCoverUrl || "/images/kegiatan/default-cover.jpg";
 
@@ -79,10 +104,16 @@ export async function POST(request: Request) {
       }
 
       const imageFileName = `kegiatan-${Date.now()}-${slug}.webp`;
+      const imageRelativePath = `public/images/kegiatan/${imageFileName}`;
+
+      if (!validateAllowedContentPath(imageRelativePath)) {
+        return NextResponse.json({ success: false, message: "Akses ditolak: Jalur penulisan gambar di luar folder yang diizinkan." }, { status: 403 });
+      }
+
       const base64Data = gambarCoverBase64.replace(/^data:image\/\w+;base64,/, "");
 
       if (token) {
-        const githubImgUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/public/images/kegiatan/${imageFileName}`;
+        const githubImgUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${imageRelativePath}`;
         await fetch(githubImgUrl, {
           method: "PUT",
           headers: {
@@ -108,20 +139,24 @@ export async function POST(request: Request) {
       }
     }
 
-    // 5. Buat isi konten MDX yang tersanitasi
+    // 5. Task 4 Security: Buat isi konten MDX tersanitasi & escaped
+    const safeTitle = escapeMdxContent(judul);
+    const safeSummary = escapeMdxContent(ringkasan);
+    const safeContent = escapeMdxContent(konten);
+
     const mdxContent = `---
-judul: "${judul.replace(/"/g, '\\"')}"
+judul: "${safeTitle.replace(/"/g, '\\"')}"
 tanggal: "${tanggal.replace(/"/g, '\\"')}"
-ringkasan: "${ringkasan.replace(/"/g, '\\"')}"
+ringkasan: "${safeSummary.replace(/"/g, '\\"')}"
 gambarCover: "${finalImageUrl}"
 ---
 
-${konten}
+${safeContent}
 `;
 
     // 6. Commit file MDX ke GitHub / Local FS
     if (token) {
-      const githubMdxUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/content/kegiatan/${mdxFileName}`;
+      const githubMdxUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${mdxRelativePath}`;
       
       let sha: string | undefined;
       const getFileRes = await fetch(githubMdxUrl, {
@@ -189,9 +224,8 @@ export async function DELETE(request: Request) {
     const body = await request.json();
     const { slug: rawSlug, githubToken: tokenFromReq, password } = body;
 
-    const expectedPassword = process.env.ADMIN_PASSWORD || "slbtunasharapan";
-    if (!password || !timingSafeCompare(String(password), expectedPassword)) {
-      return NextResponse.json({ success: false, message: "Password admin salah" }, { status: 401 });
+    if (!isAuthorized(request, password)) {
+      return NextResponse.json({ success: false, message: "Sesi admin tidak valid atau expired. Silakan login kembali." }, { status: 401 });
     }
 
     const slug = sanitizeSlug(String(rawSlug || ""));
@@ -199,11 +233,17 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ success: false, message: "Slug berita tidak valid" }, { status: 400 });
     }
 
-    const token = tokenFromReq || process.env.GITHUB_TOKEN;
     const mdxFileName = `${slug}.mdx`;
+    const mdxRelativePath = `content/kegiatan/${mdxFileName}`;
+
+    if (!validateAllowedContentPath(mdxRelativePath)) {
+      return NextResponse.json({ success: false, message: "Akses ditolak: Jalur penghapusan berkas di luar folder yang diizinkan." }, { status: 403 });
+    }
+
+    const token = tokenFromReq || process.env.GITHUB_TOKEN;
 
     if (token) {
-      const githubMdxUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/content/kegiatan/${mdxFileName}`;
+      const githubMdxUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${mdxRelativePath}`;
       
       const getFileRes = await fetch(githubMdxUrl, {
         headers: {

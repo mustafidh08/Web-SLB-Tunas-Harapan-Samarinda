@@ -1,127 +1,122 @@
-# 🏫 Website Profil & CMS SLB Tunas Harapan Samarinda
+# 🏫 SLB Tunas Harapan Samarinda — Official Website & CMS
 
-> Website resmi dan Sistem Manajemen Konten (CMS) mandiri untuk SLB Tunas Harapan Samarinda. Dirancang dengan arsitektur **JAMstack Modern**, **Serverless Backend**, dan **Git-Based Storage** yang cepat, aman, dan berbiaya operasional Rp 0,- (Zero-Cost).
+> The official website and self-hosted Content Management System (CMS) for **SLB Tunas Harapan Samarinda** (Special Needs School in Samarinda, Indonesia). Built using a modern **JAMstack Architecture**, **Serverless Backend**, and **Git-Based Content Storage** ensuring zero operational cost (Rp 0 / $0 monthly database fees), high performance, and robust cyber security.
 
 ---
 
 ## 📊 Summary Tech Stack
 
-| Layer / Komponen | Teknologi | Keterangan & Peran |
+| Layer / Component | Technology | Description & Role |
 | :--- | :--- | :--- |
-| **Frontend Framework** | Next.js 16 (App Router) | Static Site Generation (SSG) & UI Rendering |
-| **Language** | TypeScript | Type Safety & Pengkodean yang Andal |
-| **Styling & Icons** | Vanilla CSS / Tailored Tokens + Lucide React | Desain Responsif & Ikonografi Modern |
-| **Animation** | Framer Motion | Transisi Micro-animation Halus |
-| **Server-side Runtime** | Next.js Serverless Route Handlers | API Endpoint Tanpa Server Fisik |
-| **Content Format** | MDX (Markdown + JSX) | Format Berita & Artikel Kegiatan |
-| **Content Storage** | GitHub Repository | Version-controlled Flat Storage (Zero-Cost) |
-| **Media Processing** | Canvas WebP API & Next.js Image Engine | Kompresi & Format Gambar Otomatis |
-| **Hosting & Edge CDN** | Vercel Global Edge Network | Deployment & Distribusi Serverless |
-| **CI/CD** | GitHub + Vercel Webhook | Rebuild & Deployment Otomatis |
-| **Security Controls** | OWASP Best Practices | Protection Against Common Cyber Threats |
+| **Frontend Framework** | Next.js 16 (App Router) | Static Site Generation (SSG) & React 19 UI |
+| **Programming Language** | TypeScript | Strict Type Safety & Reliable Codebase |
+| **Styling & Icons** | Tailored CSS / CSS Tokens + Lucide React | Responsive Design & Modern Vector Iconography |
+| **Animation** | Framer Motion | Fluid Micro-animations & Interactive UX |
+| **Server-side Runtime** | Next.js Serverless Route Handlers | Serverless API Endpoints (No Dedicated Server) |
+| **Content Format** | MDX (Markdown + JSX) | Structured Content for School News & Activities |
+| **Content Storage** | GitHub Repository API | Version-Controlled Flat Storage (Zero-Cost DB) |
+| **Media Processing** | HTML5 Canvas WebP Engine & Next.js Image | Automatic Client-side & Edge Image Compression |
+| **Hosting & Edge CDN** | Vercel Global Edge Network | Global Serverless Hosting & Static Content Delivery |
+| **CI/CD** | GitHub + Vercel Automated Webhook | Instant Rebuild & Automatic Deployments |
+| **Security Controls** | OWASP Top 10 Aligned Controls | Comprehensive Defense Against Cyber Threats |
 
 ---
 
-## 🎯 Mengapa Arsitektur Ini Dipilih? (Why This Architecture)
+## 🛡️ Cyber Security Evaluation & Remediation (OWASP Aligned)
 
-Pemilihan arsitektur **JAMstack + Serverless + Git-Based Storage** didasarkan pada analisis kebutuhan nyata sekolah:
+The system implements strict security controls aligned with the **OWASP (Open Web Application Security Project)** guidelines to protect the application against common siber threats:
 
-1. **Zero-Cost Hosting & Database**: Sekolah tidak perlu membayar biaya sewa server VPS atau database SQL bulanan.
-2. **Static-First Performance (SSG)**: Seluruh halaman publik disajikan sebagai HTML statis dari Vercel Edge CDN, membuat waktu muat (*load time*) sangat cepat bagi wali murid di berbagai jaringan internet.
-3. **Ramah SEO**: Pre-rendered HTML + Structured Data (Schema.org) memudahkan mesin pencari Google melakukan pencatatan (*indexing*).
-4. **Bebas Maintenance Server Database**: Tidak perlu melakukan patching database, backup dump bulanan, atau mengelola koneksi database pool.
-5. **Skalabilitas Tinggi**: Mampu menangani lonjakan pengunjung harian tanpa perlu melakukan upgrade server.
+### 1. 🔒 Authentication & Secure Session Management (OWASP Task 2)
+* **HttpOnly Cookie Sessions**: Session tokens are stored in server-managed **`HttpOnly`**, **`Secure`**, and **`SameSite=Strict`** cookies. JavaScript cannot access session tokens via `document.cookie` or `sessionStorage`, effectively preventing session theft via XSS attacks.
+* **Timing-Safe Password Verification**: Password comparison utilizes `crypto.timingSafeEqual` to eliminate timing attack vulnerabilities.
+* **Server-side Session Validation**: All administrative endpoints (`/api/admin/*`) verify cryptographic session signatures on the server side.
+
+### 2. 🚫 Strict Rate Limiting & Anti-Brute Force (3 Max Attempts)
+* **Admin Login Lockout**: Password attempts are strictly limited to a **maximum of 3 failed attempts**. Exceeding 3 failed attempts triggers an automatic 15-minute IP address lockout.
+* **Contact Form Rate Limiting**: The public contact API limits message submissions to **maximum 3 requests per 5 minutes per IP** to prevent automated bot spamming.
+
+### 3. 📁 Server-Side Path Restriction & Scoped Storage (OWASP Task 1)
+* **Path Restriction Validation**: Server-side route handlers enforce strict content path validation (`validateAllowedContentPath`). File write and delete operations are restricted strictly to `/content/kegiatan/`, `/public/images/kegiatan/`, `/content/data/galeri.ts`, and `/public/images/galeri/`. Attempts to write to application source code (e.g., `/app`, `/components`, `/lib`) are rejected with `403 Forbidden`.
+* **Fine-Grained GitHub PAT Security**: Configured to work with GitHub Fine-Grained Personal Access Tokens restricted strictly to the target repository.
+
+### 4. 🧹 Input Sanitization & MDX Code Escaping (OWASP Task 4)
+* **Anti-XSS Input Cleansing**: All inputs from public and admin forms pass through `sanitizeInputString()` to strip malicious HTML and script tags.
+* **MDX Expression Escaping**: MDX content generation escapes potentially dangerous JSX expressions (`{`, `}`, `<`, `>`) via `escapeMdxContent()` to prevent remote code execution during Vercel static build compilation.
+* **Path Traversal Shield**: Slugs and file parameters are sanitized with `sanitizeSlug()` to prevent `../` directory traversal attacks.
+
+### 5. 🌐 Infrastructure & HTTP Security Headers (OWASP Task 5)
+* **`Strict-Transport-Security` (HSTS)**: Forces encrypted HTTPS connections (`max-age=63072000; includeSubDomains; preload`).
+* **`X-Frame-Options: DENY`**: Prevents Clickjacking attacks.
+* **`X-Content-Type-Options: nosniff`**: Mitigates MIME-sniffing exploits.
+* **`Referrer-Policy` & `Permissions-Policy`**: Controls referrer privacy and disables unnecessary browser APIs (camera/microphone/geolocation).
 
 ---
 
-## 📁 Mengapa Memilih Git-Based Content Storage?
+## 🎯 Architecture Rationale (Why This Architecture?)
 
-Konten website sekolah (profil, berita kegiatan, dan galeri foto) bersifat terukur dan memiliki frekuensi pembaruan berkala (bukan juta-an transaksi per detik). Oleh karena itu, penyimpanan berbasis Git adalah pilihan yang sangat efisien:
-
-> *"Penyimpanan berbasis Git membuat pengelolaan konten lebih sederhana, hemat biaya, memiliki riwayat perubahan (version control) bawaan, dan sangat mudah dipelihara tanpa overhead infrastruktur database SQL."*
+1. **Zero-Cost Operation ($0 / Month)**: Eliminates monthly expenses for dedicated VPS servers or SQL databases.
+2. **Static-First Performance (SSG)**: Pre-rendered static pages hosted on Vercel's Global Edge CDN ensure ultra-fast load times for parents on mobile connections.
+3. **Git-Based Storage Efficiency**: For structured school profiles, activity articles, and photo galleries, Git storage provides built-in version control, audit history, and zero maintenance overhead.
+4. **Natural Resilience**: Serving static pages means there is no database server to crash or exploit via SQL injection.
 
 ---
 
-## 🏗️ Diagram Arsitektur Sistem
+## 🏗️ System Architecture Flow
 
 ```mermaid
 graph TD
-    A[Pengelola / Admin Sekolah] -->|1. Login & Edit Konten| B[Admin Dashboard]
-    B -->|2. Request Terotentikasi| C[Serverless API Route]
-    C -->|3. Commit / Push Payload| D[GitHub Repository - MDX & Data]
-    D -->|4. Trigger Webhook| E[Vercel Automated Build]
-    E -->|5. Deploy Static Pages| F[Vercel Global Edge CDN]
-    F -->|6. Akses Halaman Cepat| G[Masyarakat / Pengunjung]
+    A[School Administrator] -->|1. Authenticate & Edit Content| B[Admin Dashboard]
+    B -->|2. Secure Request + HttpOnly Cookie| C[Serverless API Route]
+    C -->|3. Validate Path & Commit Payload| D[GitHub Repository - MDX & Data]
+    D -->|4. Trigger Deployment Webhook| E[Vercel Automated Build]
+    E -->|5. Deploy Pre-rendered SSG Pages| F[Vercel Global Edge CDN]
+    F -->|6. Fast & Secure Page Delivery| G[Parents & Public Visitors]
 ```
 
 ---
 
-## 🛡️ Kontrol Keamanan Siber (Security Controls)
+## ⚡ Performance Optimization
 
-Website ini menerapkan kontrol keamanan yang mengacu pada praktik terbaik **OWASP (Open Web Application Security Project)** untuk mengurangi risiko serangan siber umum:
-
-### 1. Autentikasi & Otorisasi
-* **Timing-Safe Password Comparison**: Menggunakan `crypto.timingSafeEqual` pada proses verifikasi password admin untuk mencegah *Timing Attacks*.
-* **Protected Routes**: Seluruh endpoint API pengelola (`/api/admin/*`) dilindungi oleh otentikasi server-side.
-* **Session Management**: Pengelolaan sesi admin terisolasi dengan penanganan batas waktu sesi (*session timeout*).
-
-### 2. Secure Coding Practices
-* **Input Sanitization (Anti-XSS)**: Seluruh formulir (berita, galeri, dan kontak publik) menggunakan fungsi sanitasi untuk membuang skrip atau tag HTML berbahaya.
-* **Path Traversal Protection**: Pembersihan `slug` dan nama berkas melalui `sanitizeSlug` untuk mencegah manipulasi penulisan berkas (`../../`).
-* **Vektor Serangan SQL**: Bebas dari risiko *SQL Injection* karena arsitektur ini tidak menggunakan server database SQL.
-
-### 3. Keamanan Infrastruktur (HTTP Security Headers)
-* **`Strict-Transport-Security` (HSTS)**: Memaksa enkripsi HTTPS pada seluruh komunikasi browser.
-* **`X-Frame-Options: DENY`**: Mencegah serangan *Clickjacking*.
-* **`X-Content-Type-Options: nosniff`**: Mencegah pemindaian tipe media (*MIME sniffing*).
-* **`Referrer-Policy` & `Permissions-Policy`**: Mengontrol privasi referrer dan membatasi akses ke perangkat periferal (kamera/mikrofon).
-
-### 4. Rate Limiting & Anti-Brute-Force
-* **Admin Login**: Maksimal 5 kali percobaan salah. Jika terlampaui, IP akan diblokir sementara selama 15 menit.
-* **Form Kontak Publik**: Maksimal 3 kali pengiriman per 5 menit per IP untuk mencegah *bot spamming*.
+* **Static Site Generation (SSG)**: Pages are pre-rendered at build time for near-instant page loads.
+* **Dual-Layer Image Compression**: 
+  - *Client-Side*: Images uploaded by admins are automatically resized and converted to **WebP (~100-200 KB)** in browser memory before network transmission.
+  - *Edge Optimizer*: Vercel Image Engine delivers AVIF/WebP formats tailored to visitor device screens.
+* **Font Optimization**: Google Poppins font loaded via `next/font/google` with `display: swap` to prevent Cumulative Layout Shifts (CLS).
+* **SEO & Structured Data**: Built-in Schema.org JSON-LD structured data (`School` / `EducationalOrganization`) and Google Search Console metadata.
 
 ---
 
-## ⚡ Optimalisasi Performa (Performance Optimization)
+## 📈 Scalability & Future Roadmap
 
-* **Static Site Generation (SSG)**: Halaman di-render secara penuh saat proses *build*, sehingga server tidak perlu melakukan pemrosesan ulang saat pengunjung membuka halaman.
-* **Client-Side & Server-Side Image Optimization**: Foto dari HP/kamera otomatis dikompres dan dikonversi ke format **WebP / AVIF** di browser admin sebelum diunggah, serta disajikan secara optimal oleh Vercel Image Engine.
-* **Font Optimization**: Penggunaan `next/font/google` dengan strategi `display: swap` untuk mencegah keterlambatan rendering teks (*layout shift*).
-* **Lazy Loading & Code Splitting**: Komponen dan berkas JavaScript dimuat secara bertahap sesuai kebutuhan halaman.
-
----
-
-## 📈 Skalabilitas & Jalur Pengembangan Masa Depan
-
-* **Kemampuan Skalabilitas**: Karena disajikan via Edge CDN, website sanggup melayani ribuan pengunjung harian tanpa penurunan kecepatan.
-* **Jalur Migrasi Fleksibel**: Jika kebutuhan sekolah berkembang pesat di masa mendatang (misal membutuhkan portal nilai siswa atau fitur multi-user kompleks), arsitektur ini mudah ditransisikan ke database relasional (seperti Supabase / PostgreSQL) atau Headless CMS penuh.
+* **Edge CDN Scalability**: Capable of handling thousands of daily visitors with zero server degradation.
+* **Seamless Migration Path**: Easily extensible to relational databases (e.g., Supabase / PostgreSQL) or full Headless CMS if advanced multi-role needs arise.
 
 ### 🔮 Future Roadmap
-- [ ] **Pencarian Publik**: Fitur pencarian berita kegiatan terintegrasi.
-- [ ] **Drafting & Scheduled Publishing**: Fitur simpan draf dan publikasi terjadwal.
-- [ ] **Analytics Dashboard**: Integrasi Vercel Analytics untuk statistik pengunjung.
-- [ ] **Multi-User Editor Role**: Pembagian peran pengelola (Editor & Super Admin).
+- [ ] **Public Search**: Integrated search bar for activities and news.
+- [ ] **Drafting & Scheduled Publishing**: Save drafts and schedule automated post releases.
+- [ ] **Analytics Dashboard**: Integrated privacy-friendly visitor analytics.
+- [ ] **Multi-User Editor Roles**: Granular RBAC (Editor vs. Super Admin).
 
 ---
 
-## 💻 Cara Menjalankan Proyek Secara Lokal
+## 💻 Local Development Setup
 
 ```bash
-# 1. Clone repositori
+# 1. Clone repository
 git clone https://github.com/mustafidh08/Web-SLB-Tunas-Harapan-Samarinda.git
 
-# 2. Masuk ke direktori proyek
+# 2. Enter project directory
 cd slb-tunas-harapan
 
-# 3. Install dependensi
+# 3. Install dependencies
 npm install
 
-# 4. Jalankan server pengembangan
+# 4. Start local development server
 npm run dev
 ```
 
-Buka [http://localhost:3000](http://localhost:3000) di browser Anda.
+Open [http://localhost:3000](http://localhost:3000) in your browser to view the site.
 
 ---
 
-*Dikembangkan untuk SLB Tunas Harapan Samarinda — Mewujudkan Akses Informasi Inklusif, Modern, dan Andal.*
+*Empowering SLB Tunas Harapan Samarinda — Delivering Inclusive, Fast, and Secure Special Needs Education Information.*

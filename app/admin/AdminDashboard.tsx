@@ -74,12 +74,21 @@ export default function AdminDashboard() {
   const [submittingGaleri, setSubmittingGaleri] = useState(false);
   const [msgGaleri, setMsgGaleri] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
-  // Load Simpanan Token & Session Login dari LocalStorage
+  // Check HttpOnly Cookie Session dari Server
   useEffect(() => {
-    const savedLogin = sessionStorage.getItem("slb_admin_session");
-    if (savedLogin === "true") {
-      setIsLoggedIn(true);
-    }
+    const checkSession = async () => {
+      try {
+        const res = await fetch("/api/admin/login");
+        const data = await res.json();
+        if (data.success && data.isLoggedIn) {
+          setIsLoggedIn(true);
+        }
+      } catch {
+        // Ignore
+      }
+    };
+    checkSession();
+
     const savedToken = localStorage.getItem("slb_github_token") || "";
     setGithubToken(savedToken);
   }, []);
@@ -132,7 +141,6 @@ export default function AdminDashboard() {
 
       if (data.success) {
         setIsLoggedIn(true);
-        sessionStorage.setItem("slb_admin_session", "true");
       } else {
         setLoginError(data.message || "Password salah!");
       }
@@ -143,9 +151,13 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/admin/login", { method: "DELETE" });
+    } catch {
+      // Ignore
+    }
     setIsLoggedIn(false);
-    sessionStorage.removeItem("slb_admin_session");
   };
 
   // Convert File to Base64 & WebP format
@@ -414,7 +426,7 @@ export default function AdminDashboard() {
 
           <div className="pt-3 border-t border-gray-100 text-center">
             <span className="text-[11px] text-gray-500 font-medium leading-relaxed block">
-              🛡️ <strong>Proteksi Keamanan:</strong> Maksimal 5x percobaan salah. Akses IP Anda akan diblokir otomatis selama 15 menit jika batas kesempatan terlampaui.
+              🛡️ <strong>Proteksi Keamanan:</strong> Maksimal 3x percobaan salah. Akses IP Anda akan diblokir otomatis selama 15 menit jika batas kesempatan terlampaui.
             </span>
           </div>
         </div>
