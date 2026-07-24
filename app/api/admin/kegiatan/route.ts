@@ -16,6 +16,8 @@ const REPO_OWNER = "mustafidh08";
 const REPO_NAME = "Web-SLB-Tunas-Harapan-Samarinda";
 const BRANCH = "main";
 
+export const dynamic = "force-dynamic";
+
 // Helper verifikasi otorisasi admin (Password ATAU HttpOnly Session Cookie)
 function isAuthorized(request: Request, passwordFromReq?: string): boolean {
   const expectedPassword = process.env.ADMIN_PASSWORD || "slbtunasharapan";

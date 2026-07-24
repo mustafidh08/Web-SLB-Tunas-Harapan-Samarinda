@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { checkRateLimit, sanitizeInputString } from "@/lib/security";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(request: Request) {
   try {
     // 1. Rate Limiting: Maksimal 3 pesan per 5 menit per IP untuk cegah SPAM / Bot Flood

@@ -12,6 +12,8 @@ import {
 const MAX_LOGIN_ATTEMPTS = 3; // Maksimal 3x percobaan login salah
 const BLOCK_WINDOW_MS = 15 * 60 * 1000; // 15 Menit
 
+export const dynamic = "force-dynamic";
+
 // GET: Cek apakah session cookie httpOnly masih valid
 export async function GET(request: Request) {
   const cookieHeader = request.headers.get("cookie") || "";
