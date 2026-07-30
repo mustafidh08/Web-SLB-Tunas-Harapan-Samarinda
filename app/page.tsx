@@ -402,8 +402,10 @@ export default function BerandaPage() {
         <div className="absolute top-0 right-0 w-80 h-80 bg-[var(--color-accent)]/20 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-80 h-80 bg-[var(--color-primary)]/10 rounded-full blur-3xl -ml-20 -mb-20 pointer-events-none" />
 
-        <div className="container-custom relative z-10 text-center space-y-6 max-w-3xl">
-          <Badge variant="yellow">Kunjungan & Pendaftaran</Badge>
+        <div className="container-custom relative z-10 text-center flex flex-col items-center max-w-3xl mx-auto">
+          <div className="flex justify-center w-full mb-3">
+            <Badge variant="yellow">Kunjungan & Pendaftaran</Badge>
+          </div>
           
           <KineticText
             text="Kenali Kami Lebih Dekat secara Langsung"
