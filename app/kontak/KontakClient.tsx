@@ -118,7 +118,7 @@ export default function KontakClient() {
                     
                     <ul className="space-y-6" role="list">
                       <li className="flex gap-4 items-start">
-                        <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center flex-shrink-0 text-[var(--color-primary)]">
+                        <div className="w-10 h-10 rounded-xl bg-white dark:bg-[#0B0F17] shadow-sm flex items-center justify-center flex-shrink-0 text-[var(--color-primary)] border border-gray-100 dark:border-[#222F43]">
                            <MapPin size={20} />
                         </div>
                         <div>
@@ -130,7 +130,7 @@ export default function KontakClient() {
                       </li>
 
                       <li className="flex gap-4 items-start">
-                        <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center flex-shrink-0 text-[var(--color-secondary)]">
+                        <div className="w-10 h-10 rounded-xl bg-white dark:bg-[#0B0F17] shadow-sm flex items-center justify-center flex-shrink-0 text-[var(--color-secondary)] dark:text-[#4ADE80] border border-gray-100 dark:border-[#222F43]">
                            <Phone size={20} />
                         </div>
                         <div>
@@ -140,7 +140,7 @@ export default function KontakClient() {
                               href="https://wa.me/628125332760" 
                               target="_blank" 
                               rel="noopener noreferrer"
-                              className="text-sm text-[var(--color-secondary-dark)] hover:underline font-semibold flex items-center gap-1"
+                              className="text-sm text-[var(--color-secondary-dark)] dark:text-[#4ADE80] hover:underline font-semibold flex items-center gap-1"
                               aria-label="Hubungi WhatsApp Sekolah 1"
                             >
                               0812-5332-760 (Admin 1)
@@ -149,7 +149,7 @@ export default function KontakClient() {
                               href="https://wa.me/6285250402074" 
                               target="_blank" 
                               rel="noopener noreferrer"
-                              className="text-sm text-[var(--color-secondary-dark)] hover:underline font-semibold flex items-center gap-1"
+                              className="text-sm text-[var(--color-secondary-dark)] dark:text-[#4ADE80] hover:underline font-semibold flex items-center gap-1"
                               aria-label="Hubungi WhatsApp Sekolah 2"
                             >
                               0852-5040-2074 (Admin 2)
@@ -159,7 +159,7 @@ export default function KontakClient() {
                       </li>
 
                       <li className="flex gap-4 items-start">
-                        <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center flex-shrink-0 text-[var(--color-primary)]">
+                        <div className="w-10 h-10 rounded-xl bg-white dark:bg-[#0B0F17] shadow-sm flex items-center justify-center flex-shrink-0 text-[var(--color-primary)] border border-gray-100 dark:border-[#222F43]">
                           <Mail size={20} />
                         </div>
                         <div>
@@ -174,7 +174,7 @@ export default function KontakClient() {
                       </li>
 
                       <li className="flex gap-4 items-start">
-                        <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center flex-shrink-0 text-[var(--color-accent-dark)]">
+                        <div className="w-10 h-10 rounded-xl bg-white dark:bg-[#0B0F17] shadow-sm flex items-center justify-center flex-shrink-0 text-[var(--color-accent-dark)] dark:text-amber-400 border border-gray-100 dark:border-[#222F43]">
                           <Clock size={20} />
                         </div>
                         <div>
@@ -187,8 +187,8 @@ export default function KontakClient() {
                     </ul>
                   </div>
                   
-                  <div className="bg-[var(--color-secondary-tint)] p-4 rounded-xl border border-green-100/50">
-                    <p className="text-xs text-[var(--color-secondary-dark)] font-medium leading-relaxed">
+                  <div className="bg-[var(--color-secondary-tint)] dark:bg-emerald-950/50 p-4 rounded-xl border border-green-100/50 dark:border-emerald-800/80">
+                    <p className="text-xs text-[var(--color-secondary-dark)] dark:text-[#4ADE80] font-medium leading-relaxed">
                       💡 <strong>Catatan Kunjungan:</strong> Harap membuat janji temu terlebih dahulu melalui WhatsApp/telepon sebelum berkunjung langsung demi memastikan kelancaran pertemuan dengan staff/kepala sekolah.
                     </p>
                   </div>
@@ -262,7 +262,7 @@ export default function KontakClient() {
                           required
                           value={formData.nama}
                           onChange={handleChange}
-                          className="w-full px-3.5 py-2.5 text-sm border border-gray-250 dark:border-[#2A3B54] bg-white dark:bg-[#0B0F17] text-[var(--color-text-dark)] rounded-xl focus:outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary-tint)] transition-all"
+                          className="w-full px-3.5 py-2.5 text-sm border border-gray-250 dark:border-[#2A3B54] bg-white dark:bg-[#0B0F17] text-[var(--color-text-dark)] placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary-tint)] transition-all"
                           placeholder="Contoh: Budi Santoso"
                         />
                       </div>
@@ -278,7 +278,7 @@ export default function KontakClient() {
                           required
                           value={formData.whatsapp}
                           onChange={handleChange}
-                          className="w-full px-3.5 py-2.5 text-sm border border-gray-250 dark:border-[#2A3B54] bg-white dark:bg-[#0B0F17] text-[var(--color-text-dark)] rounded-xl focus:outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary-tint)] transition-all"
+                          className="w-full px-3.5 py-2.5 text-sm border border-gray-250 dark:border-[#2A3B54] bg-white dark:bg-[#0B0F17] text-[var(--color-text-dark)] placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary-tint)] transition-all"
                           placeholder="Contoh: 081234567890"
                         />
                       </div>
@@ -295,7 +295,7 @@ export default function KontakClient() {
                         required
                         value={formData.email}
                         onChange={handleChange}
-                        className="w-full px-3.5 py-2.5 text-sm border border-gray-250 dark:border-[#2A3B54] bg-white dark:bg-[#0B0F17] text-[var(--color-text-dark)] rounded-xl focus:outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary-tint)] transition-all"
+                        className="w-full px-3.5 py-2.5 text-sm border border-gray-250 dark:border-[#2A3B54] bg-white dark:bg-[#0B0F17] text-[var(--color-text-dark)] placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary-tint)] transition-all"
                         placeholder="Contoh: budi@gmail.com"
                       />
                     </div>
@@ -311,7 +311,7 @@ export default function KontakClient() {
                         rows={4}
                         value={formData.pesan}
                         onChange={handleChange}
-                        className="w-full px-3.5 py-2.5 text-sm border border-gray-250 dark:border-[#2A3B54] bg-white dark:bg-[#0B0F17] text-[var(--color-text-dark)] rounded-xl focus:outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary-tint)] transition-all resize-none"
+                        className="w-full px-3.5 py-2.5 text-sm border border-gray-250 dark:border-[#2A3B54] bg-white dark:bg-[#0B0F17] text-[var(--color-text-dark)] placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary-tint)] transition-all resize-none"
                         placeholder="Tuliskan pertanyaan, konsultasi, atau jadwal kunjungan yang diinginkan..."
                       />
                     </div>
