@@ -3,7 +3,8 @@
 import { useState } from "react";
 import SectionTitle from "@/components/ui/SectionTitle";
 import { dataFAQs } from "@/content/data/faqs";
-import { ChevronDown, ChevronUp, HelpCircle } from "lucide-react";
+import { ChevronDown, HelpCircle } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function FaqSection() {
   const [faqTerbuka, setFaqTerbuka] = useState<Record<string, boolean>>({
@@ -23,7 +24,7 @@ export default function FaqSection() {
   );
 
   return (
-    <section className="section-py bg-gray-50 border-t border-gray-200" aria-label="Pertanyaan Umum">
+    <section className="section-py bg-gray-50 border-t border-gray-200 overflow-hidden" aria-label="Pertanyaan Umum">
       <div className="container-custom max-w-3xl">
         <SectionTitle 
           label="Tanya Jawab" 
@@ -56,22 +57,36 @@ export default function FaqSection() {
                       {faq.pertanyaan}
                     </span>
                   </div>
-                  <div className="flex-shrink-0 text-[var(--color-text-mid)]">
-                    {terbuka ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-                  </div>
+                  <motion.div
+                    animate={{ rotate: terbuka ? 180 : 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="flex-shrink-0 text-[var(--color-text-mid)]"
+                  >
+                    <ChevronDown size={18} />
+                  </motion.div>
                 </button>
 
-                {/* Accordion Content Panel */}
-                <div
-                  id={`content-${faq.id}`}
-                  className={`transition-all duration-300 ease-in-out ${terbuka ? "max-h-[500px] border-t border-gray-150 py-4 px-5 bg-white opacity-100" : "max-h-0 opacity-0 overflow-hidden"}`}
-                  role="region"
-                  aria-labelledby={`btn-${faq.id}`}
-                >
-                  <p className="text-sm sm:text-base text-[var(--color-text-mid)] leading-relaxed">
-                    {faq.jawaban}
-                  </p>
-                </div>
+                {/* Accordion Content Panel dengan Framer Motion Height Animation */}
+                <AnimatePresence initial={false}>
+                  {terbuka && (
+                    <motion.div
+                      id={`content-${faq.id}`}
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                      role="region"
+                      aria-labelledby={`btn-${faq.id}`}
+                      className="overflow-hidden border-t border-gray-150 bg-white"
+                    >
+                      <div className="py-4 px-5">
+                        <p className="text-sm sm:text-base text-[var(--color-text-mid)] leading-relaxed">
+                          {faq.jawaban}
+                        </p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             );
           })}

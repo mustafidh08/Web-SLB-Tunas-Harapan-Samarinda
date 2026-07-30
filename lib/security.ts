@@ -119,7 +119,7 @@ interface RateLimitRecord {
 
 const loginAttemptsStore = new Map<string, RateLimitRecord>();
 
-export function checkRateLimit(ip: string, maxAttempts = 3, windowMs = 15 * 60 * 1000): { allowed: boolean; remainingMs?: number } {
+export function checkRateLimit(ip: string, maxAttempts = 3, _windowMs = 15 * 60 * 1000): { allowed: boolean; remainingMs?: number } {
   const now = Date.now();
   const record = loginAttemptsStore.get(ip);
 
@@ -134,7 +134,7 @@ export function checkRateLimit(ip: string, maxAttempts = 3, windowMs = 15 * 60 *
   return { allowed: true };
 }
 
-export function getRateLimitStatus(ip: string, maxAttempts = 3, windowMs = 15 * 60 * 1000) {
+export function getRateLimitStatus(ip: string, maxAttempts = 3, _windowMs = 15 * 60 * 1000) {
   const now = Date.now();
   const record = loginAttemptsStore.get(ip);
 

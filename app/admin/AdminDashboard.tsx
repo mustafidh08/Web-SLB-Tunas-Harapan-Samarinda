@@ -40,14 +40,19 @@ interface FotoGaleriItem {
 }
 
 export default function AdminDashboard() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  // State Autentikasi Admin & Tab Active
   const [passwordInput, setPasswordInput] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [loginError, setLoginError] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loginLoading, setLoginLoading] = useState(false);
-
+  const [loginError, setLoginError] = useState("");
   const [activeTab, setActiveTab] = useState<"kegiatan" | "galeri" | "pengaturan">("kegiatan");
-  const [githubToken, setGithubToken] = useState("");
+  const [githubToken, setGithubToken] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("slb_github_token") || "";
+    }
+    return "";
+  });
 
   // Data List & Search
   const [kegiatanList, setKegiatanList] = useState<KegiatanPost[]>([]);
@@ -77,6 +82,9 @@ export default function AdminDashboard() {
   const [submittingGaleri, setSubmittingGaleri] = useState(false);
   const [msgGaleri, setMsgGaleri] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
+  // State Setting & Token
+  const [msgToken, setMsgToken] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
   // Check HttpOnly Cookie Session dari Server
   useEffect(() => {
     const checkSession = async () => {
@@ -91,9 +99,6 @@ export default function AdminDashboard() {
       }
     };
     checkSession();
-
-    const savedToken = localStorage.getItem("slb_github_token") || "";
-    setGithubToken(savedToken);
   }, []);
 
   // Fetch Data List Berita & Galeri
@@ -123,7 +128,9 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     if (isLoggedIn) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchKegiatanList();
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchGaleriList();
     }
   }, [isLoggedIn]);

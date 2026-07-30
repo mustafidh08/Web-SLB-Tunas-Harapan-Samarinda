@@ -26,10 +26,12 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Tutup menu saat navigasi
-  useEffect(() => {
+  // Tutup menu saat navigasi rute berubah
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname);
     setIsOpen(false);
-  }, [pathname]);
+  }
 
   // Cegah scroll body saat menu mobile terbuka
   useEffect(() => {

@@ -5,6 +5,11 @@ import Image from "next/image";
 import SectionTitle from "@/components/ui/SectionTitle";
 import { dataGaleri, labelKategori, KategoriGaleri } from "@/content/data/galeri";
 import { X, ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
+import KineticText from "@/components/ui/KineticText";
+import TiltCard from "@/components/ui/TiltCard";
+import ParallaxImage from "@/components/ui/ParallaxImage";
+import MagneticButton from "@/components/ui/MagneticButton";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function GaleriClient() {
   const [kategoriAktif, setKategoriAktif] = useState<KategoriGaleri>("semua");
@@ -17,31 +22,33 @@ export default function GaleriClient() {
   );
 
   // Reset limit tampil setiap kategori berubah
-  useEffect(() => {
+  const [prevKategori, setPrevKategori] = useState(kategoriAktif);
+  if (prevKategori !== kategoriAktif) {
+    setPrevKategori(kategoriAktif);
     setLimitTampil(12);
-  }, [kategoriAktif]);
+  }
 
-  // Foto yang dirender di layar (membatasi pemuatan awal demi performa optimal)
+  // Foto yang dirender di layar
   const fotoTerrender = fotoTerfilter.slice(0, limitTampil);
 
   // Navigasi lightbox
   const handleTutupLightbox = () => setIndexLightbox(null);
 
+  const totalFoto = fotoTerfilter.length;
+
   const handlePrev = useCallback(() => {
-    if (indexLightbox === null) return;
     setIndexLightbox((prevIndex) => {
       if (prevIndex === null) return null;
-      return prevIndex === 0 ? fotoTerfilter.length - 1 : prevIndex - 1;
+      return prevIndex === 0 ? totalFoto - 1 : prevIndex - 1;
     });
-  }, [indexLightbox, fotoTerfilter.length]);
+  }, [totalFoto]);
 
   const handleNext = useCallback(() => {
-    if (indexLightbox === null) return;
     setIndexLightbox((prevIndex) => {
       if (prevIndex === null) return null;
-      return prevIndex === fotoTerfilter.length - 1 ? 0 : prevIndex + 1;
+      return prevIndex === totalFoto - 1 ? 0 : prevIndex + 1;
     });
-  }, [indexLightbox, fotoTerfilter.length]);
+  }, [totalFoto]);
 
   // Keyboard navigation untuk Lightbox (aksesibilitas)
   useEffect(() => {
@@ -67,19 +74,23 @@ export default function GaleriClient() {
   return (
     <>
       {/* HEADER SECTION */}
-      <section className="bg-gray-100 pt-40 pb-12 border-b border-gray-200">
+      <section className="bg-gradient-to-b from-gray-100 to-white pt-40 pb-12 border-b border-gray-200 overflow-hidden">
         <div className="container-custom">
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-[var(--color-text-dark)]" style={{ fontFamily: "var(--font-heading)" }}>
-            Galeri Foto Sekolah
-          </h1>
+          <KineticText
+            text="Galeri Foto Sekolah"
+            as="h1"
+            className="text-3xl sm:text-4xl font-extrabold text-[var(--color-text-dark)]"
+            highlightWords={["Galeri", "Foto"]}
+            highlightClass="text-[var(--color-primary)]"
+          />
           <p className="text-sm sm:text-base text-[var(--color-text-mid)] mt-2">
-            Melihat kondisi fisik, fasilitas belajar, ruang terapi, toilet, serta dokumentasi kegiatan siswa-siswi SLB Tunas Harapan secara riil.
+            Melihat kondisi fisik, fasilitas belajar, ruang terapi, toilet disabilitas, serta dokumentasi kegiatan siswa-siswi SLB Tunas Harapan secara riil.
           </p>
         </div>
       </section>
 
       {/* FILTER & GRID GALERI */}
-      <section className="section-py bg-white">
+      <section className="section-py bg-white overflow-hidden">
         <div className="container-custom">
           <SectionTitle 
             label="Visual Fasilitas" 
@@ -100,9 +111,9 @@ export default function GaleriClient() {
                   key={key}
                   onClick={() => {
                     setKategoriAktif(key);
-                    setIndexLightbox(null); // Reset lightbox state
+                    setIndexLightbox(null);
                   }}
-                  className={`px-4 py-2 text-xs sm:text-sm font-semibold rounded-full border transition-all duration-200 cursor-pointer whitespace-nowrap focus-visible:outline-none`}
+                  className={`px-4 py-2 text-xs sm:text-sm font-semibold rounded-full border transition-all duration-300 cursor-pointer whitespace-nowrap focus-visible:outline-none transform active:scale-95`}
                   style={{
                     background: aktif ? "var(--color-secondary)" : "transparent",
                     color: aktif ? "#ffffff" : "var(--color-text-mid)",
@@ -120,54 +131,66 @@ export default function GaleriClient() {
             })}
           </div>
 
-          {/* Grid Foto */}
+          {/* Grid Foto with TiltCard & Motion Stagger */}
           <div 
             id="gallery-grid"
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
             role="tabpanel"
             aria-labelledby={`tab-${kategoriAktif}`}
           >
-            {fotoTerrender.map((foto, index) => (
-              <div 
-                key={foto.id} 
-                className="card group cursor-pointer relative overflow-hidden aspect-[4/3]"
-                onClick={() => setIndexLightbox(index)}
-              >
-                <Image
-                  src={foto.src}
-                  alt={foto.alt}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  loading="lazy"
-                />
-                
-                {/* Overlay Hover Effect */}
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-350 flex flex-col items-center justify-center text-white p-4">
-                  <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-2 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-350">
-                    <ZoomIn size={20} />
-                  </div>
-                  <span className="font-bold text-sm text-center transform translate-y-2 group-hover:translate-y-0 transition-transform duration-350" style={{ fontFamily: "var(--font-heading)" }}>
-                    {foto.judul}
-                  </span>
-                  <span className="text-[10px] uppercase tracking-widest text-white/80 mt-1">
-                    {labelKategori[foto.kategori]}
-                  </span>
-                </div>
-              </div>
-            ))}
+            <AnimatePresence mode="popLayout">
+              {fotoTerrender.map((foto, index) => (
+                <motion.div
+                  key={foto.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <TiltCard glowColor="rgba(45, 122, 45, 0.2)" className="rounded-2xl overflow-hidden aspect-[4/3] h-full">
+                    <div 
+                      className="card group cursor-pointer relative overflow-hidden aspect-[4/3] h-full"
+                      onClick={() => setIndexLightbox(index)}
+                    >
+                      <ParallaxImage
+                        src={foto.src}
+                        alt={foto.alt}
+                        containerClassName="relative w-full h-full"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      />
+                      
+                      {/* Overlay Hover Effect */}
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center text-white p-4 z-10 backdrop-blur-xs">
+                        <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-2 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                          <ZoomIn size={20} />
+                        </div>
+                        <span className="font-bold text-sm text-center transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300" style={{ fontFamily: "var(--font-heading)" }}>
+                          {foto.judul}
+                        </span>
+                        <span className="text-[10px] uppercase tracking-widest text-white/80 mt-1">
+                          {labelKategori[foto.kategori]}
+                        </span>
+                      </div>
+                    </div>
+                  </TiltCard>
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
 
           {/* Tombol Muat Lebih Banyak */}
           {fotoTerfilter.length > limitTampil && (
             <div className="flex justify-center mt-12">
-              <button
-                onClick={() => setLimitTampil((prev) => prev + 12)}
-                className="px-6 py-3 text-sm font-semibold rounded-full border border-[var(--color-secondary)] text-[var(--color-secondary)] hover:bg-[var(--color-secondary)] hover:text-white transition-all duration-300 cursor-pointer shadow-sm hover:shadow-md focus-visible:outline-none"
-                style={{ fontFamily: "var(--font-heading)" }}
-              >
-                Muat Lebih Banyak ({fotoTerfilter.length - limitTampil} Foto Tersisa)
-              </button>
+              <MagneticButton>
+                <button
+                  onClick={() => setLimitTampil((prev) => prev + 12)}
+                  className="px-6 py-3 text-sm font-semibold rounded-full border border-[var(--color-secondary)] text-[var(--color-secondary)] hover:bg-[var(--color-secondary)] hover:text-white transition-all duration-300 cursor-pointer shadow-sm hover:shadow-md focus-visible:outline-none"
+                  style={{ fontFamily: "var(--font-heading)" }}
+                >
+                  Muat Lebih Banyak ({fotoTerfilter.length - limitTampil} Foto Tersisa)
+                </button>
+              </MagneticButton>
             </div>
           )}
 
@@ -180,69 +203,80 @@ export default function GaleriClient() {
         </div>
       </section>
 
-      {/* LIGHTBOX OVERLAY */}
-      {indexLightbox !== null && fotoTerfilter[indexLightbox] && (
-        <div 
-          className="lightbox-overlay"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Detail Tampilan Gambar"
-        >
-          {/* Tombol Tutup */}
-          <button
-            onClick={handleTutupLightbox}
-            className="absolute top-4 right-4 p-2 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-colors z-50 cursor-pointer"
-            aria-label="Tutup popup gambar"
+      {/* LIGHTBOX OVERLAY WITH MOTION ANIMATION */}
+      <AnimatePresence>
+        {indexLightbox !== null && fotoTerfilter[indexLightbox] && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="lightbox-overlay backdrop-blur-md bg-black/90 fixed inset-0 z-[9999] flex items-center justify-center p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Detail Tampilan Gambar"
           >
-            <X size={24} />
-          </button>
+            {/* Tombol Tutup */}
+            <button
+              onClick={handleTutupLightbox}
+              className="absolute top-4 right-4 p-2 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-colors z-50 cursor-pointer"
+              aria-label="Tutup popup gambar"
+            >
+              <X size={24} />
+            </button>
 
-          {/* Tombol Kiri */}
-          <button
-            onClick={handlePrev}
-            className="absolute left-4 p-3 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-colors z-50 cursor-pointer"
-            aria-label="Gambar sebelumnya"
-          >
-            <ChevronLeft size={28} />
-          </button>
+            {/* Tombol Kiri */}
+            <button
+              onClick={handlePrev}
+              className="absolute left-4 p-3 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-colors z-50 cursor-pointer"
+              aria-label="Gambar sebelumnya"
+            >
+              <ChevronLeft size={28} />
+            </button>
 
-          {/* Kontainer Gambar Utama */}
-          <div className="relative w-full max-w-4xl max-h-[80vh] px-4 flex flex-col items-center justify-center">
-            <div className="relative w-full aspect-[4/3] max-h-[70vh] rounded-xl overflow-hidden shadow-2xl border border-white/10">
-              <Image
-                src={fotoTerfilter[indexLightbox].src}
-                alt={fotoTerfilter[indexLightbox].alt}
-                fill
-                className="object-contain"
-                sizes="(max-width: 1280px) 100vw, 1024px"
-                priority
-              />
-            </div>
-            
-            {/* Keterangan Teks di Bawah Gambar */}
-            <div className="text-center text-white mt-4 max-w-2xl space-y-1">
-              <h4 className="font-bold text-lg" style={{ fontFamily: "var(--font-heading)" }}>
-                {fotoTerfilter[indexLightbox].judul}
-              </h4>
-              <p className="text-xs text-white/60">
-                Kategori: {labelKategori[fotoTerfilter[indexLightbox].kategori]}
-              </p>
-              <p className="text-sm text-white/80 italic pt-1">
-                {fotoTerfilter[indexLightbox].alt}
-              </p>
-            </div>
-          </div>
+            {/* Kontainer Gambar Utama */}
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="relative w-full max-w-4xl max-h-[80vh] px-4 flex flex-col items-center justify-center"
+            >
+              <div className="relative w-full aspect-[4/3] max-h-[70vh] rounded-xl overflow-hidden shadow-2xl border border-white/10">
+                <Image
+                  src={fotoTerfilter[indexLightbox].src}
+                  alt={fotoTerfilter[indexLightbox].alt}
+                  fill
+                  className="object-contain"
+                  sizes="(max-width: 1280px) 100vw, 1024px"
+                  priority
+                />
+              </div>
+              
+              {/* Keterangan Teks */}
+              <div className="text-center text-white mt-4 max-w-2xl space-y-1">
+                <h4 className="font-bold text-lg" style={{ fontFamily: "var(--font-heading)" }}>
+                  {fotoTerfilter[indexLightbox].judul}
+                </h4>
+                <p className="text-xs text-white/60">
+                  Kategori: {labelKategori[fotoTerfilter[indexLightbox].kategori]}
+                </p>
+                <p className="text-sm text-white/80 italic pt-1">
+                  {fotoTerfilter[indexLightbox].alt}
+                </p>
+              </div>
+            </motion.div>
 
-          {/* Tombol Kanan */}
-          <button
-            onClick={handleNext}
-            className="absolute right-4 p-3 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-colors z-50 cursor-pointer"
-            aria-label="Gambar berikutnya"
-          >
-            <ChevronRight size={28} />
-          </button>
-        </div>
-      )}
+            {/* Tombol Kanan */}
+            <button
+              onClick={handleNext}
+              className="absolute right-4 p-3 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-colors z-50 cursor-pointer"
+              aria-label="Gambar berikutnya"
+            >
+              <ChevronRight size={28} />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }
