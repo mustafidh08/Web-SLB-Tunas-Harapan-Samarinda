@@ -143,32 +143,32 @@ export default function BerandaPage() {
       </section>
 
       {/* 3. ANIMATED STATS BANNER */}
-      <section className="py-12 bg-gradient-to-r from-[var(--color-primary)] via-[var(--color-primary-dark)] to-[var(--color-secondary-dark)] text-white shadow-xl">
+      <section className="py-12 bg-[var(--color-primary)] text-white shadow-md">
         <div className="container-custom">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             <div className="p-4 space-y-1">
-              <p className="text-3xl md:text-5xl font-black text-[#FFEA00] drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+              <p className="text-3xl md:text-5xl font-black text-[var(--color-accent)]">
                 <CountUpNumber end={100} suffix="+" />
               </p>
-              <p className="text-xs md:text-sm font-medium opacity-95">Siswa Istimewa</p>
+              <p className="text-xs md:text-sm font-semibold opacity-95">Siswa Istimewa</p>
             </div>
             <div className="p-4 space-y-1">
-              <p className="text-3xl md:text-5xl font-black text-[#FFEA00] drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+              <p className="text-3xl md:text-5xl font-black text-[var(--color-accent)]">
                 <CountUpNumber end={15} suffix="+" />
               </p>
-              <p className="text-xs md:text-sm font-medium opacity-95">Tenaga Pendidik</p>
+              <p className="text-xs md:text-sm font-semibold opacity-95">Tenaga Pendidik</p>
             </div>
             <div className="p-4 space-y-1">
-              <p className="text-3xl md:text-5xl font-black text-[#FFEA00] drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+              <p className="text-3xl md:text-5xl font-black text-[var(--color-accent)]">
                 <CountUpNumber end={5} suffix=" Unit" />
               </p>
-              <p className="text-xs md:text-sm font-medium opacity-95">Pelatihan Vokasional</p>
+              <p className="text-xs md:text-sm font-semibold opacity-95">Pelatihan Vokasional</p>
             </div>
             <div className="p-4 space-y-1">
-              <p className="text-3xl md:text-5xl font-black text-[#FFEA00] drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+              <p className="text-3xl md:text-5xl font-black text-[var(--color-accent)]">
                 <CountUpNumber end={100} suffix="%" />
               </p>
-              <p className="text-xs md:text-sm font-medium opacity-95">Komitmen Inklusif</p>
+              <p className="text-xs md:text-sm font-semibold opacity-95">Komitmen Inklusif</p>
             </div>
           </div>
         </div>
