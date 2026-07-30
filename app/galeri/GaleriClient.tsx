@@ -113,11 +113,12 @@ export default function GaleriClient() {
                     setKategoriAktif(key);
                     setIndexLightbox(null);
                   }}
-                  className={`px-4 py-2 text-xs sm:text-sm font-semibold rounded-full border transition-all duration-300 cursor-pointer whitespace-nowrap focus-visible:outline-none transform active:scale-95`}
+                  className={`px-4 py-2 text-xs sm:text-sm font-semibold rounded-full border transition-all duration-300 cursor-pointer whitespace-nowrap focus-visible:outline-none transform active:scale-95 ${
+                    aktif
+                      ? "bg-[var(--color-secondary)] border-[var(--color-secondary)] text-white dark:text-gray-950 font-bold"
+                      : "bg-transparent border-gray-200 dark:border-[#222F43] text-[var(--color-text-mid)] hover:border-[var(--color-secondary)]"
+                  }`}
                   style={{
-                    background: aktif ? "var(--color-secondary)" : "transparent",
-                    color: aktif ? "#ffffff" : "var(--color-text-mid)",
-                    borderColor: aktif ? "var(--color-secondary)" : "var(--color-border)",
                     fontFamily: "var(--font-heading)"
                   }}
                   role="tab"

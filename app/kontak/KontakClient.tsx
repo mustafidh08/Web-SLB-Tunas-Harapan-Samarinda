@@ -220,7 +220,7 @@ export default function KontakClient() {
                           href={`https://wa.me/628125332760?text=${encodeURIComponent(`Halo SLB Tunas Harapan Samarinda, saya ${lastSubmitted.nama} ingin menanyakan perihal: ${lastSubmitted.pesan}`)}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-xs font-bold rounded-full bg-[var(--color-secondary)] text-white hover:bg-[var(--color-secondary-dark)] transition-colors shadow-sm"
+                          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-xs font-bold rounded-full bg-[var(--color-secondary)] text-white dark:text-gray-950 hover:bg-[var(--color-secondary-dark)] transition-colors shadow-sm"
                         >
                           <MessageSquare size={14} />
                           Kirim Juga via WhatsApp

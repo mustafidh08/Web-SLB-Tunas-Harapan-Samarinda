@@ -37,8 +37,11 @@
 
 /* Dark Mode Color Palette — Deep OLED Slate (#0B0F17) & Surface (#161F2E) */
 .dark {
+  --color-secondary: #4ADE80;
+  --color-secondary-dark: #22C55E;
+  --color-secondary-light: #86EFAC;
+  --color-secondary-tint: rgba(74, 222, 128, 0.18);
   --color-primary-tint: rgba(204, 31, 42, 0.22);
-  --color-secondary-tint: rgba(45, 122, 45, 0.22);
   --color-accent-tint: rgba(245, 200, 0, 0.22);
 
   --color-background: #0B0F17;
@@ -187,6 +190,10 @@ img {
   background: var(--color-secondary);
   color: #ffffff;
   transform: translateY(-1px);
+}
+
+.dark .btn-secondary:hover {
+  color: #0B0F17;
 }
 
 .btn-outline-white {
