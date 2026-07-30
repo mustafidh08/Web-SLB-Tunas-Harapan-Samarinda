@@ -224,8 +224,9 @@ img {
 }
 
 .dark .badge-green {
-  background: rgba(45, 122, 45, 0.3);
-  color: #4ADE80;
+  background: rgba(74, 222, 128, 0.18) !important;
+  color: #4ADE80 !important;
+  border: 1px solid rgba(74, 222, 128, 0.35) !important;
 }
 
 .badge-red {
@@ -234,8 +235,9 @@ img {
 }
 
 .dark .badge-red {
-  background: rgba(204, 31, 42, 0.3);
-  color: #F87171;
+  background: rgba(204, 31, 42, 0.22) !important;
+  color: #F87171 !important;
+  border: 1px solid rgba(204, 31, 42, 0.35) !important;
 }
 
 .badge-yellow {
@@ -244,8 +246,9 @@ img {
 }
 
 .dark .badge-yellow {
-  background: rgba(245, 200, 0, 0.3);
-  color: #FDE047;
+  background: rgba(245, 200, 0, 0.22) !important;
+  color: #FDE047 !important;
+  border: 1px solid rgba(245, 200, 0, 0.4) !important;
 }
 
 /* Section title decoration */
