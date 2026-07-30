@@ -3,7 +3,7 @@
 import { useState } from "react";
 import SectionTitle from "@/components/ui/SectionTitle";
 import Button from "@/components/ui/Button";
-import { MapPin, Phone, Mail, Clock, Send, CheckCircle, AlertCircle } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, Send, CheckCircle, AlertCircle, MessageSquare } from "lucide-react";
 import KineticText from "@/components/ui/KineticText";
 import TiltCard from "@/components/ui/TiltCard";
 import MagneticButton from "@/components/ui/MagneticButton";
@@ -18,6 +18,7 @@ export default function KontakClient() {
   const [kirimSukses, setKirimSukses] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [lastSubmitted, setLastSubmitted] = useState<{ nama: string; email: string; whatsapp: string; pesan: string } | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -46,15 +47,24 @@ export default function KontakClient() {
       }
 
       // Gunakan data tersanitasi dari server
-      const { nama, email, whatsapp, pesan } = data.sanitizedData;
+      const sanitized = data.sanitizedData;
+      setLastSubmitted(sanitized);
+      setKirimSukses(true);
 
-      const subject = `Pertanyaan dari ${nama} (via Website SLB)`;
-      const body = `Halo SLB Tunas Harapan Samarinda,\n\nSaya ingin menanyakan perihal sekolah.\n\nBerikut detail kontak saya:\n- Nama: ${nama}\n- WhatsApp/HP: ${whatsapp}\n- Email Pengirim: ${email}\n\nPesan:\n${pesan}\n\nTerima kasih.`;
+      // Coba buka mailto di window terpisah agar tidak menghentikan state React
+      const subject = `Pertanyaan dari ${sanitized.nama} (via Website SLB)`;
+      const body = `Halo SLB Tunas Harapan Samarinda,\n\nSaya ingin menanyakan perihal sekolah.\n\nBerikut detail kontak saya:\n- Nama: ${sanitized.nama}\n- WhatsApp/HP: ${sanitized.whatsapp}\n- Email Pengirim: ${sanitized.email}\n\nPesan:\n${sanitized.pesan}\n\nTerima kasih.`;
       
       const mailtoUrl = `mailto:slbtunasharapan.smr@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-      window.location.href = mailtoUrl;
+      
+      setTimeout(() => {
+        try {
+          window.location.href = mailtoUrl;
+        } catch {
+          // Fallback safe
+        }
+      }, 300);
 
-      setKirimSukses(true);
       setFormData({
         nama: "",
         email: "",
@@ -184,132 +194,145 @@ export default function KontakClient() {
               </div>
             </TiltCard>
 
-            {/* Form Kontak V1.5 (Col 7) */}
-            <TiltCard glowColor="rgba(204, 31, 42, 0.2)" className="lg:col-span-7 rounded-2xl h-full">
-              <div className="bg-white p-6 sm:p-8 rounded-2xl border border-gray-150 shadow-sm flex flex-col justify-center h-full">
-                {kirimSukses ? (
-                  <div className="text-center py-10 space-y-4">
-                    <div className="w-16 h-16 rounded-full bg-[var(--color-secondary-tint)] text-[var(--color-secondary)] flex items-center justify-center mx-auto">
-                      <CheckCircle size={40} />
-                    </div>
+            {/* Form Kontak (Col 7 - Tanpa TiltCard agar input text stabil & nyaman) */}
+            <div className="lg:col-span-7 bg-white p-6 sm:p-8 rounded-2xl border border-gray-150 shadow-sm flex flex-col justify-center h-full">
+              {kirimSukses ? (
+                <div className="text-center py-8 space-y-5">
+                  <div className="w-16 h-16 rounded-full bg-[var(--color-secondary-tint)] text-[var(--color-secondary)] flex items-center justify-center mx-auto shadow-inner">
+                    <CheckCircle size={40} />
+                  </div>
+                  
+                  <div className="space-y-2">
                     <h3 className="text-2xl font-bold text-[var(--color-text-dark)]" style={{ fontFamily: "var(--font-heading)" }}>
                       Pesan Anda Terkirim!
                     </h3>
                     <p className="text-sm text-[var(--color-text-mid)] max-w-md mx-auto leading-relaxed">
-                      Terima kasih telah menghubungi kami. Pesan Anda telah diterima oleh administrasi SLB Tunas Harapan. Kami akan membalas secepatnya melalui email atau WhatsApp Anda.
+                      Terima kasih telah menghubungi kami, <span className="font-semibold text-[var(--color-text-dark)]">{lastSubmitted?.nama}</span>. Aplikasi email Anda akan terbuka secara otomatis untuk mengirim pesan.
                     </p>
-                    <MagneticButton>
+                  </div>
+
+                  {lastSubmitted && (
+                    <div className="pt-2 flex flex-col sm:flex-row justify-center gap-3">
+                      <a
+                        href={`https://wa.me/628125332760?text=${encodeURIComponent(`Halo SLB Tunas Harapan Samarinda, saya ${lastSubmitted.nama} ingin menanyakan perihal: ${lastSubmitted.pesan}`)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-xs font-bold rounded-full bg-[var(--color-secondary)] text-white hover:bg-[var(--color-secondary-dark)] transition-colors shadow-sm"
+                      >
+                        <MessageSquare size={14} />
+                        Kirim Juga via WhatsApp
+                      </a>
                       <button
                         onClick={() => setKirimSukses(false)}
-                        className="btn btn-secondary text-xs px-4 py-2 mt-4 cursor-pointer"
+                        className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-xs font-bold rounded-full border border-gray-250 text-[var(--color-text-dark)] hover:bg-gray-100 transition-colors cursor-pointer"
                       >
-                        Kirim Pesan Lainnya
+                        Tulis Pesan Baru
                       </button>
-                    </MagneticButton>
-                  </div>
-                ) : (
-                  <form onSubmit={handleSubmit} className="space-y-5" aria-label="Form Hubungi Kami">
-                    <h3 className="text-xl font-bold text-[var(--color-text-dark)]" style={{ fontFamily: "var(--font-heading)" }}>
-                      Kirim Pesan Langsung
-                    </h3>
-                    <p className="text-xs text-[var(--color-text-mid)]">
-                      Silakan isi formulir di bawah ini, tim kami akan merespons dalam waktu 1-2 hari kerja.
-                    </p>
-
-                    {errorMsg && (
-                      <div className="p-3 bg-red-50 text-red-700 text-xs font-semibold rounded-xl border border-red-200 flex items-center gap-2">
-                        <AlertCircle size={16} />
-                        <span>{errorMsg}</span>
-                      </div>
-                    )}
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-1">
-                        <label htmlFor="nama" className="block text-xs font-semibold text-[var(--color-text-dark)]">
-                          Nama Lengkap
-                        </label>
-                        <input
-                          type="text"
-                          id="nama"
-                          name="nama"
-                          required
-                          value={formData.nama}
-                          onChange={handleChange}
-                          className="w-full px-3 py-2 text-sm border border-gray-250 rounded-lg focus:outline-none focus:border-[var(--color-primary)] transition-colors"
-                          placeholder="Contoh: Budi Santoso"
-                        />
-                      </div>
-
-                      <div className="space-y-1">
-                        <label htmlFor="whatsapp" className="block text-xs font-semibold text-[var(--color-text-dark)]">
-                          No. WhatsApp / HP
-                        </label>
-                        <input
-                          type="tel"
-                          id="whatsapp"
-                          name="whatsapp"
-                          required
-                          value={formData.whatsapp}
-                          onChange={handleChange}
-                          className="w-full px-3 py-2 text-sm border border-gray-250 rounded-lg focus:outline-none focus:border-[var(--color-primary)] transition-colors"
-                          placeholder="Contoh: 081234567890"
-                        />
-                      </div>
                     </div>
+                  )}
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-5" aria-label="Form Hubungi Kami">
+                  <h3 className="text-xl font-bold text-[var(--color-text-dark)]" style={{ fontFamily: "var(--font-heading)" }}>
+                    Kirim Pesan Langsung
+                  </h3>
+                  <p className="text-xs text-[var(--color-text-mid)]">
+                    Silakan isi formulir di bawah ini, tim kami akan merespons dalam waktu 1-2 hari kerja.
+                  </p>
 
+                  {errorMsg && (
+                    <div className="p-3 bg-red-50 text-red-700 text-xs font-semibold rounded-xl border border-red-200 flex items-center gap-2">
+                      <AlertCircle size={16} />
+                      <span>{errorMsg}</span>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1">
-                      <label htmlFor="email" className="block text-xs font-semibold text-[var(--color-text-dark)]">
-                        Alamat Email
+                      <label htmlFor="nama" className="block text-xs font-semibold text-[var(--color-text-dark)]">
+                        Nama Lengkap
                       </label>
                       <input
-                        type="email"
-                        id="email"
-                        name="email"
+                        type="text"
+                        id="nama"
+                        name="nama"
                         required
-                        value={formData.email}
+                        value={formData.nama}
                         onChange={handleChange}
-                        className="w-full px-3 py-2 text-sm border border-gray-250 rounded-lg focus:outline-none focus:border-[var(--color-primary)] transition-colors"
-                        placeholder="Contoh: budi@gmail.com"
+                        className="w-full px-3.5 py-2.5 text-sm border border-gray-250 rounded-xl focus:outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary-tint)] transition-all"
+                        placeholder="Contoh: Budi Santoso"
                       />
                     </div>
 
                     <div className="space-y-1">
-                      <label htmlFor="pesan" className="block text-xs font-semibold text-[var(--color-text-dark)]">
-                        Isi Pesan Anda
+                      <label htmlFor="whatsapp" className="block text-xs font-semibold text-[var(--color-text-dark)]">
+                        No. WhatsApp / HP
                       </label>
-                      <textarea
-                        id="pesan"
-                        name="pesan"
+                      <input
+                        type="tel"
+                        id="whatsapp"
+                        name="whatsapp"
                         required
-                        rows={4}
-                        value={formData.pesan}
+                        value={formData.whatsapp}
                         onChange={handleChange}
-                        className="w-full px-3 py-2 text-sm border border-gray-250 rounded-lg focus:outline-none focus:border-[var(--color-primary)] transition-colors resize-none"
-                        placeholder="Tuliskan pertanyaan, konsultasi, atau jadwal kunjungan yang diinginkan..."
+                        className="w-full px-3.5 py-2.5 text-sm border border-gray-250 rounded-xl focus:outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary-tint)] transition-all"
+                        placeholder="Contoh: 081234567890"
                       />
                     </div>
+                  </div>
 
-                    <MagneticButton className="w-full">
-                      <Button
-                        type="submit"
-                        variant="primary"
-                        disabled={isSubmitting}
-                        className="w-full justify-center gap-2 cursor-pointer"
-                      >
-                        {isSubmitting ? (
-                          <span>Memproses Keamanan...</span>
-                        ) : (
-                          <>
-                            <span>Kirim Pesan</span>
-                            <Send size={14} />
-                          </>
-                        )}
-                      </Button>
-                    </MagneticButton>
-                  </form>
-                )}
-              </div>
-            </TiltCard>
+                  <div className="space-y-1">
+                    <label htmlFor="email" className="block text-xs font-semibold text-[var(--color-text-dark)]">
+                      Alamat Email
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      required
+                      value={formData.email}
+                      onChange={handleChange}
+                      className="w-full px-3.5 py-2.5 text-sm border border-gray-250 rounded-xl focus:outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary-tint)] transition-all"
+                      placeholder="Contoh: budi@gmail.com"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label htmlFor="pesan" className="block text-xs font-semibold text-[var(--color-text-dark)]">
+                      Isi Pesan Anda
+                    </label>
+                    <textarea
+                      id="pesan"
+                      name="pesan"
+                      required
+                      rows={4}
+                      value={formData.pesan}
+                      onChange={handleChange}
+                      className="w-full px-3.5 py-2.5 text-sm border border-gray-250 rounded-xl focus:outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary-tint)] transition-all resize-none"
+                      placeholder="Tuliskan pertanyaan, konsultasi, atau jadwal kunjungan yang diinginkan..."
+                    />
+                  </div>
+
+                  <MagneticButton className="w-full">
+                    <Button
+                      type="submit"
+                      variant="primary"
+                      disabled={isSubmitting}
+                      className="w-full justify-center gap-2 cursor-pointer py-3 text-sm font-bold shadow-md"
+                    >
+                      {isSubmitting ? (
+                        <span>Memproses Keamanan...</span>
+                      ) : (
+                        <>
+                          <span>Kirim Pesan</span>
+                          <Send size={14} />
+                        </>
+                      )}
+                    </Button>
+                  </MagneticButton>
+                </form>
+              )}
+            </div>
           </div>
 
           {/* Google Maps Embed Section */}

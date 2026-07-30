@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { checkRateLimit, sanitizeInputString } from "@/lib/security";
+import { checkRateLimit, recordFailedLoginAttempt, sanitizeInputString } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
 
@@ -39,6 +39,9 @@ export async function POST(request: Request) {
     if (!emailRegex.test(email)) {
       return NextResponse.json({ success: false, message: "Format alamat email tidak valid" }, { status: 400 });
     }
+
+    // Catat pengiriman pesan untuk rate limiting
+    recordFailedLoginAttempt(`kontak-${ip}`, 3, 5 * 60 * 1000);
 
     return NextResponse.json({
       success: true,
