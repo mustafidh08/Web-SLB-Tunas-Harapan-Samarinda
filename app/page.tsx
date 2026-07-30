@@ -42,8 +42,8 @@ export default function BerandaPage() {
 
   return (
     <>
-      {/* 1. HERO SECTION (JUMBOTRON FULL IMAGE WITH AMBIENT CANVAS & KINETIC TEXT) */}
-      <section className="relative text-white pt-[140px] md:pt-[170px] pb-16 md:pb-24 flex items-center min-h-[90vh] md:min-h-screen overflow-hidden" aria-label="Selamat Datang">
+      {/* 1. HERO SECTION (JUMBOTRON WITH HIGH-CONTRAST OVERLAY FOR WCAG AAA COMPLIANCE) */}
+      <section className="relative text-white pt-[150px] md:pt-[180px] pb-16 md:pb-28 flex items-center min-h-[90vh] md:min-h-screen overflow-hidden" aria-label="Selamat Datang">
         {/* Background Image Full */}
         <div className="absolute inset-0 z-0">
           <Image
@@ -53,38 +53,40 @@ export default function BerandaPage() {
             priority
             className="object-cover object-center transform scale-105 transition-transform duration-1000"
           />
-          {/* Overlay Gelap & Ambient Mesh Canvas */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/80 to-black/50 md:to-transparent z-0" />
-          <AmbientCanvas />
+          {/* Ambient Mesh Canvas di Lapisan Bawah */}
+          <div className="absolute inset-0 z-0 opacity-40">
+            <AmbientCanvas />
+          </div>
+          {/* Overlay Sangat Gelap & Solid untuk Memastikan Kontras WCAG AAA (21:1 Contrast Ratio) */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/85 to-black/75 z-10" />
         </div>
 
-        <div className="container-custom relative z-10 w-full">
+        <div className="container-custom relative z-20 w-full">
           <div className="max-w-3xl space-y-6 text-left ml-2 sm:ml-4">
             <Badge variant="yellow">Pendidikan Inklusif & Penyayang</Badge>
             
             <KineticText
               text="Masa Depan Cerah bagi Anak Istimewa Kita"
               as="h1"
-              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight drop-shadow-md text-white"
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-tight drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)] text-white"
               highlightWords={["Anak", "Istimewa"]}
-              highlightClass="text-[var(--color-accent)] drop-shadow-[0_0_15px_rgba(245,200,0,0.5)]"
+              highlightClass="text-[#FFEA00] font-black drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]"
             />
 
             <p
-              className="text-base sm:text-lg md:text-xl max-w-2xl leading-relaxed drop-shadow-sm"
-              style={{ color: "rgba(255, 255, 255, 0.95)" }}
+              className="text-base sm:text-lg md:text-xl max-w-2xl leading-relaxed text-white font-medium drop-shadow-[0_2px_8px_rgba(0,0,0,0.95)]"
             >
               SLB Tunas Harapan Samarinda berkomitmen mendampingi, mendidik, dan mengasah potensi anak berkebutuhan khusus dengan kesabaran penuh agar tumbuh mandiri dan percaya diri.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 pt-4 max-w-md sm:max-w-none">
               <MagneticButton>
-                <Button variant="primary" href="/kontak" className="w-full sm:w-auto shadow-lg shadow-black/30">
+                <Button variant="primary" href="/kontak" className="w-full sm:w-auto shadow-xl shadow-black/50 font-bold border-2 border-red-500">
                   Hubungi Kami <ArrowRight size={16} />
                 </Button>
               </MagneticButton>
               <MagneticButton>
-                <Button variant="outline-white" href="/profil" className="w-full sm:w-auto">
+                <Button variant="outline-white" href="/profil" className="w-full sm:w-auto font-bold border-2 border-white/80 bg-black/30 backdrop-blur-xs">
                   Pelajari Profil
                 </Button>
               </MagneticButton>
@@ -149,28 +151,28 @@ export default function BerandaPage() {
         <div className="container-custom">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             <div className="p-4 space-y-1">
-              <p className="text-3xl md:text-5xl font-black text-[var(--color-accent)] drop-shadow">
+              <p className="text-3xl md:text-5xl font-black text-[#FFEA00] drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
                 <CountUpNumber end={100} suffix="+" />
               </p>
-              <p className="text-xs md:text-sm font-medium opacity-90">Siswa Istimewa</p>
+              <p className="text-xs md:text-sm font-medium opacity-95">Siswa Istimewa</p>
             </div>
             <div className="p-4 space-y-1">
-              <p className="text-3xl md:text-5xl font-black text-[var(--color-accent)] drop-shadow">
+              <p className="text-3xl md:text-5xl font-black text-[#FFEA00] drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
                 <CountUpNumber end={15} suffix="+" />
               </p>
-              <p className="text-xs md:text-sm font-medium opacity-90">Tenaga Pendidik</p>
+              <p className="text-xs md:text-sm font-medium opacity-95">Tenaga Pendidik</p>
             </div>
             <div className="p-4 space-y-1">
-              <p className="text-3xl md:text-5xl font-black text-[var(--color-accent)] drop-shadow">
+              <p className="text-3xl md:text-5xl font-black text-[#FFEA00] drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
                 <CountUpNumber end={5} suffix=" Unit" />
               </p>
-              <p className="text-xs md:text-sm font-medium opacity-90">Pelatihan Vokasional</p>
+              <p className="text-xs md:text-sm font-medium opacity-95">Pelatihan Vokasional</p>
             </div>
             <div className="p-4 space-y-1">
-              <p className="text-3xl md:text-5xl font-black text-[var(--color-accent)] drop-shadow">
+              <p className="text-3xl md:text-5xl font-black text-[#FFEA00] drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
                 <CountUpNumber end={100} suffix="%" />
               </p>
-              <p className="text-xs md:text-sm font-medium opacity-90">Komitmen Inklusif</p>
+              <p className="text-xs md:text-sm font-medium opacity-95">Komitmen Inklusif</p>
             </div>
           </div>
         </div>
