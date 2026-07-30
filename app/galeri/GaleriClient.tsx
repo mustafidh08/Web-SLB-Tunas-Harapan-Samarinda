@@ -74,7 +74,7 @@ export default function GaleriClient() {
   return (
     <>
       {/* HEADER SECTION */}
-      <section className="bg-gradient-to-b from-gray-100 to-white pt-44 md:pt-48 pb-12 border-b border-gray-200 overflow-hidden">
+      <section className="bg-gradient-to-b from-gray-100 to-white dark:from-[#161F2E] dark:to-[#0B0F17] pt-44 md:pt-48 pb-12 border-b border-gray-200 dark:border-[#222F43] overflow-hidden transition-colors duration-300">
         <div className="container-custom">
           <KineticText
             text="Galeri Foto Sekolah"
@@ -90,7 +90,7 @@ export default function GaleriClient() {
       </section>
 
       {/* FILTER & GRID GALERI */}
-      <section className="section-py bg-white overflow-hidden">
+      <section className="section-py bg-white dark:bg-[#0B0F17] overflow-hidden transition-colors duration-300">
         <div className="container-custom">
           <SectionTitle 
             label="Visual Fasilitas" 

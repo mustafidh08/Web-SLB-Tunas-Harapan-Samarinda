@@ -18,7 +18,7 @@ export default function KegiatanPage() {
   return (
     <>
       {/* HEADER SECTION */}
-      <section className="bg-gradient-to-b from-gray-100 to-white pt-44 md:pt-48 pb-12 border-b border-gray-200 overflow-hidden">
+      <section className="bg-gradient-to-b from-gray-100 to-white dark:from-[#161F2E] dark:to-[#0B0F17] pt-44 md:pt-48 pb-12 border-b border-gray-200 dark:border-[#222F43] overflow-hidden transition-colors duration-300">
         <div className="container-custom">
           <KineticText
             text="Kegiatan & Berita Sekolah"
@@ -34,7 +34,7 @@ export default function KegiatanPage() {
       </section>
 
       {/* LIST KEGIATAN */}
-      <section className="section-py bg-white overflow-hidden">
+      <section className="section-py bg-white dark:bg-[#0B0F17] overflow-hidden transition-colors duration-300">
         <div className="container-custom">
           <SectionTitle 
             label="Kabar SLB Tunas Harapan" 
@@ -46,7 +46,7 @@ export default function KegiatanPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {posts.map((post) => (
                 <TiltCard key={post.slug} glowColor="rgba(204, 31, 42, 0.2)" className="rounded-2xl h-full">
-                  <article className="card flex flex-col h-full bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                  <article className="card flex flex-col h-full bg-white dark:bg-[#161F2E] border border-gray-150 dark:border-[#222F43] rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                     {/* Thumbnail */}
                     <div className="relative aspect-[16/10] overflow-hidden bg-gray-100">
                       <ParallaxImage 
