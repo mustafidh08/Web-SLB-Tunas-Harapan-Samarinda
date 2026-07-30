@@ -385,8 +385,8 @@ export default function AdminDashboard() {
   // IF NOT LOGGED IN
   if (!isLoggedIn) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4 pt-40 pb-20">
-        <div className="bg-white p-8 rounded-3xl shadow-xl border border-gray-200 max-w-md w-full space-y-6">
+      <div className="min-h-screen bg-gray-100 dark:bg-[#0B0F17] flex items-center justify-center p-4 pt-40 pb-20 transition-colors duration-300">
+        <div className="bg-white dark:bg-[#161F2E] p-8 rounded-3xl shadow-xl border border-gray-200 dark:border-[#222F43] max-w-md w-full space-y-6">
           <div className="text-center space-y-2">
             <div className="w-16 h-16 bg-[var(--color-primary-tint)] text-[var(--color-primary)] rounded-2xl flex items-center justify-center mx-auto shadow-inner">
               <Key size={32} />
@@ -412,7 +412,7 @@ export default function AdminDashboard() {
                   value={passwordInput}
                   onChange={(e) => setPasswordInput(e.target.value)}
                   placeholder="Masukkan password admin..."
-                  className="w-full pl-4 pr-11 py-3 text-sm border border-gray-300 rounded-xl focus:outline-none focus:border-[var(--color-primary)] transition-colors"
+                  className="w-full pl-4 pr-11 py-3 text-sm border border-gray-300 dark:border-[#2A3B54] bg-white dark:bg-[#0B0F17] text-[var(--color-text-dark)] rounded-xl focus:outline-none focus:border-[var(--color-primary)] transition-colors"
                 />
                 <button
                   type="button"
@@ -457,12 +457,12 @@ export default function AdminDashboard() {
 
   // IF LOGGED IN
   return (
-    <div className="min-h-screen bg-gray-50 pt-40 pb-20">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0B0F17] pt-44 pb-20 transition-colors duration-300">
       <div className="container-custom max-w-5xl">
         {/* HEADER DASHBOARD */}
-        <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-200 mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="bg-white dark:bg-[#161F2E] p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-200 dark:border-[#222F43] mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-50 text-[var(--color-secondary-dark)] text-xs font-bold rounded-full mb-2 border border-green-200">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-50 dark:bg-green-950/40 text-[var(--color-secondary-dark)] dark:text-green-300 text-xs font-bold rounded-full mb-2 border border-green-200 dark:border-green-800">
               <CheckCircle2 size={14} /> Terhubung sebagai Pengelola Publikasi (CRUD Aktif)
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-[var(--color-text-dark)]" style={{ fontFamily: "var(--font-heading)" }}>
@@ -475,20 +475,20 @@ export default function AdminDashboard() {
 
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl transition-colors self-start md:self-center cursor-pointer"
+            className="flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-900/60 border border-red-200 dark:border-red-800 rounded-xl transition-colors self-start md:self-center cursor-pointer"
           >
             <LogOut size={16} /> Keluar Admin
           </button>
         </div>
 
         {/* NAVIGATION TABS */}
-        <div className="flex border-b border-gray-200 mb-8 gap-2 overflow-x-auto">
+        <div className="flex border-b border-gray-200 dark:border-[#222F43] mb-8 gap-2 overflow-x-auto">
           <button
             onClick={() => { setActiveTab("kegiatan"); resetFormKegiatan(); }}
             className={`flex items-center gap-2 px-6 py-3 text-sm font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
               activeTab === "kegiatan"
-                ? "border-[var(--color-primary)] text-[var(--color-primary)] bg-white rounded-t-xl"
-                : "border-transparent text-[var(--color-text-mid)] hover:text-[var(--color-text-dark)]"
+                ? "border-[var(--color-primary)] text-[var(--color-primary)] bg-white dark:bg-[#161F2E] rounded-t-xl"
+                : "border-transparent text-[var(--color-text-mid)] hover:text-[var(--color-text-dark)] hover:bg-gray-100 dark:hover:bg-[#161F2E]"
             }`}
           >
             <Newspaper size={18} /> Kelola Berita & Kegiatan
@@ -497,8 +497,8 @@ export default function AdminDashboard() {
             onClick={() => { setActiveTab("galeri"); resetFormGaleri(); }}
             className={`flex items-center gap-2 px-6 py-3 text-sm font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
               activeTab === "galeri"
-                ? "border-[var(--color-primary)] text-[var(--color-primary)] bg-white rounded-t-xl"
-                : "border-transparent text-[var(--color-text-mid)] hover:text-[var(--color-text-dark)]"
+                ? "border-[var(--color-primary)] text-[var(--color-primary)] bg-white dark:bg-[#161F2E] rounded-t-xl"
+                : "border-transparent text-[var(--color-text-mid)] hover:text-[var(--color-text-dark)] hover:bg-gray-100 dark:hover:bg-[#161F2E]"
             }`}
           >
             <ImageIcon size={18} /> Kelola Foto Galeri
@@ -507,8 +507,8 @@ export default function AdminDashboard() {
             onClick={() => setActiveTab("pengaturan")}
             className={`flex items-center gap-2 px-6 py-3 text-sm font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
               activeTab === "pengaturan"
-                ? "border-[var(--color-primary)] text-[var(--color-primary)] bg-white rounded-t-xl"
-                : "border-transparent text-[var(--color-text-mid)] hover:text-[var(--color-text-dark)]"
+                ? "border-[var(--color-primary)] text-[var(--color-primary)] bg-white dark:bg-[#161F2E] rounded-t-xl"
+                : "border-transparent text-[var(--color-text-mid)] hover:text-[var(--color-text-dark)] hover:bg-gray-100 dark:hover:bg-[#161F2E]"
             }`}
           >
             <Settings size={18} /> Pengaturan GitHub Token
@@ -524,7 +524,7 @@ export default function AdminDashboard() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={`Cari di daftar ${activeTab === "kegiatan" ? "berita kegiatan" : "foto galeri"}...`}
-              className="w-full pl-11 pr-4 py-3 bg-white text-sm border border-gray-200 rounded-2xl focus:outline-none focus:border-[var(--color-primary)] shadow-sm"
+              className="w-full pl-11 pr-4 py-3 bg-white dark:bg-[#161F2E] text-sm text-[var(--color-text-dark)] border border-gray-200 dark:border-[#222F43] rounded-2xl focus:outline-none focus:border-[var(--color-primary)] shadow-sm"
             />
           </div>
         )}
@@ -533,7 +533,7 @@ export default function AdminDashboard() {
         {activeTab === "kegiatan" && (
           <div className="space-y-8">
             {/* FORM KEGIATAN */}
-            <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-200">
+            <div className="bg-white dark:bg-[#161F2E] p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-200 dark:border-[#222F43]">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold flex items-center gap-2 text-[var(--color-text-dark)]" style={{ fontFamily: "var(--font-heading)" }}>
                   <FileText className="text-[var(--color-primary)]" />

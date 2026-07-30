@@ -279,16 +279,28 @@ img {
   color: var(--color-primary-dark);
 }
 
+.dark .prose-slb h2 {
+  color: #E53935;
+}
+
 .prose-slb h3 {
   font-size: 1.25rem;
   margin-top: 1.5rem;
   margin-bottom: 0.75rem;
 }
 
+.dark .prose-slb h3 {
+  color: #F8FAFC;
+}
+
 .prose-slb p {
   margin-bottom: 1.25rem;
   color: var(--color-text-mid);
   line-height: 1.8;
+}
+
+.dark .prose-slb p {
+  color: #CBD5E1;
 }
 
 .prose-slb ul {
@@ -300,6 +312,14 @@ img {
 .prose-slb li {
   margin-bottom: 0.5rem;
   color: var(--color-text-mid);
+}
+
+.dark .prose-slb li {
+  color: #CBD5E1;
+}
+
+.dark .prose-slb strong {
+  color: #F8FAFC;
 }
 
 /* Accordion */

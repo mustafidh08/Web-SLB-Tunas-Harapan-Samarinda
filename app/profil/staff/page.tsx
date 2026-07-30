@@ -13,7 +13,7 @@ export default function StaffPage() {
   return (
     <>
       {/* HEADER SECTION */}
-      <section className="bg-gray-100 pt-40 pb-12 border-b border-gray-200">
+      <section className="bg-gradient-to-b from-gray-100 to-white dark:from-[#161F2E] dark:to-[#0B0F17] pt-44 md:pt-48 pb-12 border-b border-gray-200 dark:border-[#222F43] transition-colors duration-300">
         <div className="container-custom">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
@@ -32,7 +32,7 @@ export default function StaffPage() {
       </section>
 
       {/* STAFF LIST SECTION */}
-      <section className="section-py bg-white">
+      <section className="section-py bg-white dark:bg-[#0B0F17] transition-colors duration-300">
         <div className="container-custom">
           <SectionTitle 
             label="Keluarga Besar Sekolah" 
@@ -42,9 +42,9 @@ export default function StaffPage() {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {dataStaff.map((staff) => (
-              <div key={staff.id} className="card group flex flex-col h-full">
+              <div key={staff.id} className="card group flex flex-col h-full bg-white dark:bg-[#161F2E] border border-gray-150 dark:border-[#222F43]">
                 {/* Foto guru */}
-                <div className="relative aspect-[4/5] bg-gray-100 overflow-hidden">
+                <div className="relative aspect-[4/5] bg-gray-100 dark:bg-[#0B0F17] overflow-hidden">
                   <Image
                     src={staff.foto}
                     alt={`Foto ${staff.nama}`}
@@ -73,7 +73,7 @@ export default function StaffPage() {
                     </h3>
                     {staff.pendidikan && staff.jurusan && (
                       <div className="flex flex-wrap gap-1.5 pt-0.5 pb-1">
-                        <span className="px-2 py-0.5 text-[10px] font-semibold bg-gray-100 text-gray-700 rounded">
+                        <span className="px-2 py-0.5 text-[10px] font-semibold bg-gray-100 dark:bg-[#0B0F17] text-gray-700 dark:text-gray-300 rounded border border-gray-200 dark:border-[#222F43]">
                           {staff.pendidikan} - {staff.jurusan}
                         </span>
                       </div>
@@ -92,7 +92,7 @@ export default function StaffPage() {
       </section>
 
       {/* AJAKAN BERGABUNG (CTA) */}
-      <section className="bg-gray-50 py-12 border-t border-gray-100">
+      <section className="bg-gray-50 dark:bg-[#161F2E] py-12 border-t border-gray-100 dark:border-[#222F43] transition-colors duration-300">
         <div className="container-custom text-center space-y-4">
           <h2 className="text-xl sm:text-2xl font-bold text-[var(--color-text-dark)]" style={{ fontFamily: "var(--font-heading)" }}>
             Ada Pertanyaan Khusus untuk Pengajar Kami?

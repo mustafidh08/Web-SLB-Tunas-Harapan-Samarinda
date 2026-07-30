@@ -39,7 +39,7 @@ export default async function DetailKegiatanPage({ params }: PageProps) {
   return (
     <>
       {/* HEADER SECTION */}
-      <section className="bg-gray-100 pt-40 pb-8 border-b border-gray-200">
+      <section className="bg-gradient-to-b from-gray-100 to-white dark:from-[#161F2E] dark:to-[#0B0F17] pt-44 md:pt-48 pb-8 border-b border-gray-200 dark:border-[#222F43] overflow-hidden transition-colors duration-300">
         <div className="container-custom">
           <div className="flex flex-col gap-3">
             <Link 
@@ -66,10 +66,10 @@ export default async function DetailKegiatanPage({ params }: PageProps) {
       </section>
 
       {/* DETAIL CONTENT */}
-      <section className="section-py bg-white">
+      <section className="section-py bg-white dark:bg-[#0B0F17] overflow-hidden transition-colors duration-300">
         <div className="container-custom max-w-3xl">
           {/* Main Cover Image */}
-          <div className="relative aspect-[16/10] w-full rounded-2xl overflow-hidden shadow-md mb-8 bg-gray-50">
+          <div className="relative aspect-[16/10] w-full rounded-2xl overflow-hidden shadow-md mb-8 bg-gray-50 dark:bg-[#161F2E] border border-gray-150 dark:border-[#222F43]">
             <Image
               src={post.foto}
               alt={post.judul}
@@ -81,12 +81,12 @@ export default async function DetailKegiatanPage({ params }: PageProps) {
           </div>
 
           {/* Article Body */}
-          <article className="prose-slb prose max-w-none" role="main">
+          <article className="prose-slb prose max-w-none text-[var(--color-text-dark)]" role="main">
             <MDXRemote source={post.konten} />
           </article>
 
           {/* Share/Actions bar */}
-          <div className="border-t border-gray-200 mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[var(--color-text-mid)]">
+          <div className="border-t border-gray-200 dark:border-[#222F43] mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[var(--color-text-mid)]">
             <div className="flex items-center gap-2 text-xs">
               <Tag size={12} className="text-[var(--color-text-light)]" />
               <span className="font-semibold">Kategori:</span>
@@ -95,7 +95,7 @@ export default async function DetailKegiatanPage({ params }: PageProps) {
             
             <div className="flex items-center gap-2">
               <button 
-                className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg border border-gray-200 dark:border-[#222F43] hover:bg-gray-50 dark:hover:bg-[#161F2E] text-[var(--color-text-dark)] transition-colors"
                 aria-label="Bagikan artikel ini"
               >
                 <Share2 size={12} />
@@ -105,7 +105,7 @@ export default async function DetailKegiatanPage({ params }: PageProps) {
           </div>
 
           {/* CTA di bawah berita */}
-          <div className="bg-[var(--color-accent-tint)] border border-amber-100 rounded-2xl p-6 mt-12 text-center space-y-4">
+          <div className="bg-[var(--color-accent-tint)] dark:bg-[#161F2E] border border-amber-100 dark:border-[#222F43] rounded-2xl p-6 mt-12 text-center space-y-4 shadow-sm">
             <h2 className="font-bold text-base text-[var(--color-text-dark)]" style={{ fontFamily: "var(--font-heading)" }}>
               Ingin berkunjung atau menanyakan pendaftaran?
             </h2>
