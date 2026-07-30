@@ -23,11 +23,11 @@ export default function SectionTitle({
     <div className={`flex flex-col ${alignClass} mb-10`}>
       {label && (
         <span
-          className="inline-block text-xs font-semibold tracking-widest uppercase mb-3 px-3 py-1 rounded-full"
-          style={{
-            background: light ? "rgba(255,255,255,0.15)" : "var(--color-primary-tint)",
-            color: light ? "#ffffff" : "var(--color-primary)",
-          }}
+          className={`inline-block text-xs font-semibold tracking-widest uppercase mb-3 px-3.5 py-1 rounded-full border transition-colors duration-300 ${
+            light
+              ? "bg-white/15 text-white border-white/20"
+              : "bg-[var(--color-primary-tint)] text-[var(--color-primary)] border-[var(--color-primary)]/20 dark:bg-red-950/70 dark:text-red-400 dark:border-red-800/80"
+          }`}
         >
           {label}
         </span>
