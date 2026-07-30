@@ -428,7 +428,7 @@ export default function BerandaPage() {
                 href="https://wa.me/628125332760"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 font-bold text-sm text-[var(--color-secondary)] hover:underline px-4 py-2"
+                className="flex items-center gap-2 font-bold text-sm text-[var(--color-secondary)] dark:text-[#4ADE80] hover:underline px-4 py-2"
               >
                 Hubungi via WhatsApp →
               </a>

@@ -21,7 +21,7 @@ export default function Footer() {
   return (
     <footer
       role="contentinfo"
-      style={{ backgroundColor: "var(--color-text-dark)", color: "white" }}
+      className="bg-[#111827] dark:bg-[#070A0F] text-white border-t border-gray-800 dark:border-[#1E293B] transition-colors duration-300"
     >
       {/* Main footer */}
       <div className="container-custom py-16 md:py-24">
