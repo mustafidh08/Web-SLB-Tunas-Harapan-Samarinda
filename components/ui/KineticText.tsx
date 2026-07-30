@@ -9,6 +9,7 @@ interface KineticTextProps {
   delay?: number;
   highlightWords?: string[];
   highlightClass?: string;
+  defaultColorClass?: string;
 }
 
 const motionComponents = {
@@ -26,6 +27,7 @@ export default function KineticText({
   delay = 0,
   highlightWords = [],
   highlightClass = "text-[var(--color-accent)]",
+  defaultColorClass = "",
 }: KineticTextProps) {
   const words = text.split(" ");
 
@@ -73,11 +75,13 @@ export default function KineticText({
           (hw) => hw.toLowerCase() === cleanWord.toLowerCase() || word.toLowerCase().includes(hw.toLowerCase())
         );
 
+        const wordClass = isHighlighted ? highlightClass : (defaultColorClass || "text-inherit");
+
         return (
           <motion.span
             key={index}
             variants={wordVariants}
-            className={`inline-block transform-gpu ${isHighlighted ? highlightClass : ""}`}
+            className={`inline-block transform-gpu ${wordClass}`}
           >
             {word}
           </motion.span>

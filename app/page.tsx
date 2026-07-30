@@ -8,7 +8,6 @@ import { getAllKegiatanMeta, formatTanggalID } from "@/lib/mdx";
 import { dataTestimoni } from "@/content/data/testimoni";
 import FaqSection from "@/components/home/FaqSection";
 import KineticText from "@/components/ui/KineticText";
-import AmbientCanvas from "@/components/ui/AmbientCanvas";
 import TiltCard from "@/components/ui/TiltCard";
 import ParallaxImage from "@/components/ui/ParallaxImage";
 import CountUpNumber from "@/components/ui/CountUpNumber";
@@ -53,12 +52,8 @@ export default function BerandaPage() {
             priority
             className="object-cover object-center transform scale-105 transition-transform duration-1000"
           />
-          {/* Ambient Mesh Canvas di Lapisan Bawah */}
-          <div className="absolute inset-0 z-0 opacity-40">
-            <AmbientCanvas />
-          </div>
-          {/* Overlay Sangat Gelap & Solid untuk Memastikan Kontras WCAG AAA (21:1 Contrast Ratio) */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/85 to-black/75 z-10" />
+          {/* Overlay Gelap Gradien */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/75 to-black/40 md:to-transparent z-10" />
         </div>
 
         <div className="container-custom relative z-20 w-full">
@@ -68,9 +63,10 @@ export default function BerandaPage() {
             <KineticText
               text="Masa Depan Cerah bagi Anak Istimewa Kita"
               as="h1"
-              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-tight drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)] text-white"
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight drop-shadow-md text-white"
+              defaultColorClass="text-white"
               highlightWords={["Anak", "Istimewa"]}
-              highlightClass="text-[#FFEA00] font-black drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]"
+              highlightClass="text-[var(--color-accent)] font-extrabold"
             />
 
             <p
