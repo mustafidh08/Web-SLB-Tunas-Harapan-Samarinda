@@ -42,7 +42,7 @@ export default function BerandaPage() {
   return (
     <>
       {/* 1. HERO SECTION (JUMBOTRON WITH HIGH-CONTRAST OVERLAY FOR WCAG AAA COMPLIANCE) */}
-      <section className="relative text-white pt-[175px] md:pt-[210px] pb-16 md:pb-28 flex items-center min-h-[90vh] md:min-h-screen overflow-hidden" aria-label="Selamat Datang">
+      <section className="relative text-white pt-[150px] md:pt-[180px] pb-16 md:pb-28 flex items-center min-h-[90vh] md:min-h-screen overflow-hidden" aria-label="Selamat Datang">
         {/* Background Image Full */}
         <div className="absolute inset-0 z-0">
           <Image
