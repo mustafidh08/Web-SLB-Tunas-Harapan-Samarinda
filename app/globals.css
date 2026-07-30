@@ -211,58 +211,66 @@ img {
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: 0.25rem 0.75rem;
+  padding: 0.3rem 0.8rem;
   border-radius: 999px;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.02em;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid transparent;
 }
 
 .badge-green {
-  background: var(--color-secondary-tint);
-  color: var(--color-secondary-dark);
+  background: #E8F5E8;
+  color: #166534;
+  border-color: #BBF7D0;
 }
 
 .dark .badge-green {
-  background: rgba(34, 197, 94, 0.22) !important;
-  color: #4ADE80 !important;
-  border: 1px solid rgba(74, 222, 128, 0.45) !important;
+  background: rgba(16, 75, 38, 0.92) !important;
+  color: #86EFAC !important;
+  border: 1.5px solid rgba(74, 222, 128, 0.6) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
 .badge-red {
-  background: var(--color-primary-tint);
-  color: var(--color-primary-dark);
+  background: #FEE2E2;
+  color: #991B1B;
+  border-color: #FCA5A5;
 }
 
 .dark .badge-red {
-  background: rgba(204, 31, 42, 0.28) !important;
-  color: #F87171 !important;
-  border: 1px solid rgba(248, 113, 113, 0.45) !important;
+  background: rgba(136, 19, 26, 0.92) !important;
+  color: #FECDD3 !important;
+  border: 1.5px solid rgba(248, 113, 113, 0.6) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
 .badge-yellow {
-  background: var(--color-accent-tint);
-  color: #8B6800;
+  background: #FEF3C7;
+  color: #92400E;
+  border-color: #FDE68A;
 }
 
 .dark .badge-yellow {
-  background: rgba(245, 200, 0, 0.22) !important;
-  color: #FDE047 !important;
-  border: 1px solid rgba(245, 200, 0, 0.45) !important;
+  background: rgba(115, 82, 0, 0.92) !important;
+  color: #FEF08A !important;
+  border: 1.5px solid rgba(245, 200, 0, 0.6) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
 .badge-gray {
   background: #F1F5F9;
   color: #475569;
+  border-color: #E2E8F0;
 }
 
 .dark .badge-gray {
-  background: rgba(148, 163, 184, 0.2) !important;
-  color: #CBD5E1 !important;
-  border: 1px solid rgba(148, 163, 184, 0.4) !important;
+  background: rgba(30, 41, 59, 0.92) !important;
+  color: #E2E8F0 !important;
+  border: 1.5px solid rgba(148, 163, 184, 0.6) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
 /* Section title decoration */
