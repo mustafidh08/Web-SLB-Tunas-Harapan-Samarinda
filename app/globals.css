@@ -36,7 +36,7 @@
 }
 
 /* Dark Mode Color Palette — Deep OLED Slate (#0B0F17) & Surface (#161F2E) */
-.dark {
+html.dark, .dark {
   --color-secondary: #4ADE80;
   --color-secondary-dark: #22C55E;
   --color-secondary-light: #86EFAC;

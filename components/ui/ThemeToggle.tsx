@@ -19,25 +19,25 @@ export default function ThemeToggle({ className = "" }: { className?: string }) 
       <AnimatePresence mode="wait" initial={false}>
         {resolvedTheme === "dark" ? (
           <motion.div
-            key="moon"
+            key="sun"
             initial={{ rotate: -90, scale: 0, opacity: 0 }}
             animate={{ rotate: 0, scale: 1, opacity: 1 }}
             exit={{ rotate: 90, scale: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="flex items-center justify-center text-amber-300"
+            className="flex items-center justify-center text-amber-400"
           >
-            <Moon size={18} className="fill-amber-300/20" />
+            <Sun size={18} className="fill-amber-400/20" />
           </motion.div>
         ) : (
           <motion.div
-            key="sun"
+            key="moon"
             initial={{ rotate: 90, scale: 0, opacity: 0 }}
             animate={{ rotate: 0, scale: 1, opacity: 1 }}
             exit={{ rotate: -90, scale: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="flex items-center justify-center text-amber-500"
+            className="flex items-center justify-center text-slate-700"
           >
-            <Sun size={18} className="fill-amber-500/20" />
+            <Moon size={18} className="fill-slate-700/20" />
           </motion.div>
         )}
       </AnimatePresence>
