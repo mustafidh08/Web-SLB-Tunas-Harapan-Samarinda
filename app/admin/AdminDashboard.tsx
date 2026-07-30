@@ -521,6 +521,7 @@ export default function AdminDashboard() {
             <Search size={18} className="absolute left-4 top-3.5 text-gray-400" />
             <input
               type="text"
+              aria-label="Cari di daftar berita kegiatan atau foto galeri"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={`Cari di daftar ${activeTab === "kegiatan" ? "berita kegiatan" : "foto galeri"}...`}
