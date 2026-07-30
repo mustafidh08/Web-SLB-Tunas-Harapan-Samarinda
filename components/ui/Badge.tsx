@@ -10,7 +10,7 @@ export default function Badge({ children, variant = "green" }: BadgeProps) {
     green: "badge-green",
     red: "badge-red",
     yellow: "badge-yellow",
-    gray: "bg-[#F1F5F9] text-[#475569]",
+    gray: "badge-gray",
   }[variant];
 
   return <span className={`badge ${variantClass}`}>{children}</span>;
