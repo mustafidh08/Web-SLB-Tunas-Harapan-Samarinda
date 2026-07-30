@@ -81,7 +81,7 @@ export default function KontakClient() {
   return (
     <>
       {/* HEADER SECTION (WITH SAFE TOP PADDING AGAINST FIXED NAVBAR) */}
-      <section className="bg-gradient-to-b from-gray-100 to-white pt-44 md:pt-48 pb-12 border-b border-gray-200 overflow-hidden">
+      <section className="bg-gradient-to-b from-gray-100 to-white dark:from-[#161F2E] dark:to-[#0B0F17] pt-44 md:pt-48 pb-12 border-b border-gray-200 dark:border-[#222F43] overflow-hidden">
         <div className="container-custom">
           <KineticText
             text="Hubungi Kami"
@@ -97,7 +97,7 @@ export default function KontakClient() {
       </section>
 
       {/* DETAIL KONTAK & FORM & MAP */}
-      <section className="section-py bg-white overflow-hidden">
+      <section className="section-py bg-white dark:bg-[#0B0F17] overflow-hidden">
         <div className="container-custom">
           <SectionTitle 
             label="Hubungi & Kunjungi" 
@@ -109,7 +109,7 @@ export default function KontakClient() {
             {/* Info Kontak & Jam Operasional (Col 5) */}
             <div className="lg:col-span-5 h-full">
               <TiltCard glowColor="rgba(45, 122, 45, 0.2)" className="rounded-2xl h-full">
-                <div className="flex flex-col justify-between space-y-8 bg-gray-50 p-6 sm:p-8 rounded-2xl border border-gray-150 h-full">
+                <div className="flex flex-col justify-between space-y-8 bg-gray-50 dark:bg-[#161F2E] p-6 sm:p-8 rounded-2xl border border-gray-150 dark:border-[#222F43] h-full">
                   <div className="space-y-6">
                     <h3 className="text-xl font-bold text-[var(--color-text-dark)]" style={{ fontFamily: "var(--font-heading)" }}>
                       Informasi Kontak
@@ -198,7 +198,7 @@ export default function KontakClient() {
 
             {/* Form Kontak (Col 7 - Grid Wrapper Khusus) */}
             <div className="lg:col-span-7 h-full">
-              <div className="bg-white p-6 sm:p-8 rounded-2xl border border-gray-150 shadow-sm flex flex-col justify-center h-full">
+              <div className="bg-white dark:bg-[#161F2E] p-6 sm:p-8 rounded-2xl border border-gray-150 dark:border-[#222F43] shadow-sm flex flex-col justify-center h-full">
                 {kirimSukses ? (
                   <div className="text-center py-8 space-y-5">
                     <div className="w-16 h-16 rounded-full bg-[var(--color-secondary-tint)] text-[var(--color-secondary)] flex items-center justify-center mx-auto shadow-inner">
@@ -227,7 +227,7 @@ export default function KontakClient() {
                         </a>
                         <button
                           onClick={() => setKirimSukses(false)}
-                          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-xs font-bold rounded-full border border-gray-250 text-[var(--color-text-dark)] hover:bg-gray-100 transition-colors cursor-pointer"
+                          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-xs font-bold rounded-full border border-gray-250 dark:border-[#2A3B54] text-[var(--color-text-dark)] hover:bg-gray-100 dark:hover:bg-[#0B0F17] transition-colors cursor-pointer"
                         >
                           Tulis Pesan Baru
                         </button>
@@ -244,7 +244,7 @@ export default function KontakClient() {
                     </p>
 
                     {errorMsg && (
-                      <div className="p-3 bg-red-50 text-red-700 text-xs font-semibold rounded-xl border border-red-200 flex items-center gap-2">
+                      <div className="p-3 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 text-xs font-semibold rounded-xl border border-red-200 dark:border-red-800 flex items-center gap-2">
                         <AlertCircle size={16} />
                         <span>{errorMsg}</span>
                       </div>
@@ -262,7 +262,7 @@ export default function KontakClient() {
                           required
                           value={formData.nama}
                           onChange={handleChange}
-                          className="w-full px-3.5 py-2.5 text-sm border border-gray-250 rounded-xl focus:outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary-tint)] transition-all"
+                          className="w-full px-3.5 py-2.5 text-sm border border-gray-250 dark:border-[#2A3B54] bg-white dark:bg-[#0B0F17] text-[var(--color-text-dark)] rounded-xl focus:outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary-tint)] transition-all"
                           placeholder="Contoh: Budi Santoso"
                         />
                       </div>
@@ -278,7 +278,7 @@ export default function KontakClient() {
                           required
                           value={formData.whatsapp}
                           onChange={handleChange}
-                          className="w-full px-3.5 py-2.5 text-sm border border-gray-250 rounded-xl focus:outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary-tint)] transition-all"
+                          className="w-full px-3.5 py-2.5 text-sm border border-gray-250 dark:border-[#2A3B54] bg-white dark:bg-[#0B0F17] text-[var(--color-text-dark)] rounded-xl focus:outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary-tint)] transition-all"
                           placeholder="Contoh: 081234567890"
                         />
                       </div>
@@ -295,7 +295,7 @@ export default function KontakClient() {
                         required
                         value={formData.email}
                         onChange={handleChange}
-                        className="w-full px-3.5 py-2.5 text-sm border border-gray-250 rounded-xl focus:outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary-tint)] transition-all"
+                        className="w-full px-3.5 py-2.5 text-sm border border-gray-250 dark:border-[#2A3B54] bg-white dark:bg-[#0B0F17] text-[var(--color-text-dark)] rounded-xl focus:outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary-tint)] transition-all"
                         placeholder="Contoh: budi@gmail.com"
                       />
                     </div>
@@ -311,7 +311,7 @@ export default function KontakClient() {
                         rows={4}
                         value={formData.pesan}
                         onChange={handleChange}
-                        className="w-full px-3.5 py-2.5 text-sm border border-gray-250 rounded-xl focus:outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary-tint)] transition-all resize-none"
+                        className="w-full px-3.5 py-2.5 text-sm border border-gray-250 dark:border-[#2A3B54] bg-white dark:bg-[#0B0F17] text-[var(--color-text-dark)] rounded-xl focus:outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary-tint)] transition-all resize-none"
                         placeholder="Tuliskan pertanyaan, konsultasi, atau jadwal kunjungan yang diinginkan..."
                       />
                     </div>

@@ -24,7 +24,7 @@ export default function FaqSection() {
   );
 
   return (
-    <section className="section-py bg-gray-50 border-t border-gray-200 overflow-hidden" aria-label="Pertanyaan Umum">
+    <section className="section-py bg-gray-50 dark:bg-[#0B0F17] border-t border-gray-200 dark:border-[#222F43] overflow-hidden" aria-label="Pertanyaan Umum">
       <div className="container-custom max-w-3xl">
         <SectionTitle 
           label="Tanya Jawab" 
@@ -38,7 +38,7 @@ export default function FaqSection() {
             return (
               <div 
                 key={faq.id}
-                className="bg-white border border-gray-150 rounded-xl overflow-hidden transition-all duration-200 hover:shadow-sm"
+                className="bg-white dark:bg-[#161F2E] border border-gray-150 dark:border-[#222F43] rounded-xl overflow-hidden transition-all duration-200 hover:shadow-sm"
                 role="listitem"
               >
                 <button
@@ -77,7 +77,7 @@ export default function FaqSection() {
                       transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                       role="region"
                       aria-labelledby={`btn-${faq.id}`}
-                      className="overflow-hidden border-t border-gray-150 bg-white"
+                      className="overflow-hidden border-t border-gray-150 dark:border-[#222F43] bg-white dark:bg-[#161F2E]"
                     >
                       <div className="py-4 px-5">
                         <p className="text-sm sm:text-base text-[var(--color-text-mid)] leading-relaxed">

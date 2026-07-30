@@ -6,6 +6,7 @@ import Footer from "@/components/layout/Footer";
 import LenisProvider from "@/components/ui/LenisProvider";
 import ScrollProgress from "@/components/ui/ScrollProgress";
 import PageTransition from "@/components/ui/PageTransition";
+import { ThemeProvider } from "@/components/ui/ThemeProvider";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -76,7 +77,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Schema.org JSON-LD Structured Data untuk Google Search
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "School",
@@ -115,18 +115,37 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        {/* Anti-FOUC Script untuk Sinkronisasi Tema Tanpa Flash Screen */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var saved = localStorage.getItem('theme');
+                  var systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                  if (saved === 'dark' || (!saved && systemDark) || (saved === 'system' && systemDark)) {
+                    document.documentElement.classList.add('dark');
+                  } else {
+                    document.documentElement.classList.remove('dark');
+                  }
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
       </head>
-      <body className="min-h-full flex flex-col bg-[#F8F9FA] antialiased">
-        <LenisProvider>
-          <ScrollProgress />
-          <Navbar />
-          <main id="main-content" className="flex-1">
-            <PageTransition>{children}</PageTransition>
-          </main>
-          <Footer />
-        </LenisProvider>
+      <body className="min-h-full flex flex-col bg-[var(--color-background)] text-[var(--color-text-dark)] antialiased transition-colors duration-300">
+        <ThemeProvider>
+          <LenisProvider>
+            <ScrollProgress />
+            <Navbar />
+            <main id="main-content" className="flex-1">
+              <PageTransition>{children}</PageTransition>
+            </main>
+            <Footer />
+          </LenisProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
 }
-

@@ -92,14 +92,14 @@ export default function BerandaPage() {
       </section>
 
       {/* 2. SAMBUTAN KEPALA SEKOLAH (WITH PARALLAX & CLIP-PATH REVEAL) */}
-      <section className="section-py bg-white overflow-hidden" aria-label="Sambutan Kepala Sekolah">
+      <section className="section-py bg-white dark:bg-[#0B0F17] overflow-hidden" aria-label="Sambutan Kepala Sekolah">
         <div className="container-custom">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
             <div className="lg:col-span-4 flex justify-center">
               <ParallaxImage
                 src="/images/staff/Pak Baderi.png"
                 alt="Foto Kepala Sekolah Baderi, S.Pd."
-                containerClassName="relative w-64 h-80 rounded-2xl overflow-hidden shadow-2xl border-4 border-white"
+                containerClassName="relative w-64 h-80 rounded-2xl overflow-hidden shadow-2xl border-4 border-white dark:border-[#222F43]"
                 sizes="256px"
               />
             </div>
@@ -175,7 +175,7 @@ export default function BerandaPage() {
       </section>
 
       {/* 4. VALUE / KEUNGGULAN SEKOLAH (WITH SPOTLIGHT TILT CARDS) */}
-      <section className="section-py bg-gray-50 overflow-hidden" aria-label="Keunggulan Kami">
+      <section className="section-py bg-gray-50 dark:bg-[#0B0F17] overflow-hidden" aria-label="Keunggulan Kami">
         <div className="container-custom">
           <SectionTitle
             label="Kenapa Kami?"
@@ -185,12 +185,12 @@ export default function BerandaPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <TiltCard glowColor="rgba(204, 31, 42, 0.2)" className="rounded-2xl h-full">
-              <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-full flex flex-col justify-between">
+              <div className="bg-white dark:bg-[#161F2E] p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-[#222F43] h-full flex flex-col justify-between">
                 <div>
                   <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-5" style={{ background: "var(--color-primary-tint)", color: "var(--color-primary)" }}>
                     <Heart size={24} />
                   </div>
-                  <h3 className="text-lg font-bold mb-2">Guru Penuh Kasih</h3>
+                  <h3 className="text-lg font-bold mb-2 text-[var(--color-text-dark)]">Guru Penuh Kasih</h3>
                   <p className="text-sm text-[var(--color-text-mid)] leading-relaxed">
                     Dididik oleh tenaga pengajar berpengalaman dan berdedikasi tinggi yang memahami psikologi & kebutuhan khusus anak.
                   </p>
@@ -199,12 +199,12 @@ export default function BerandaPage() {
             </TiltCard>
 
             <TiltCard glowColor="rgba(45, 122, 45, 0.2)" className="rounded-2xl h-full">
-              <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-full flex flex-col justify-between">
+              <div className="bg-white dark:bg-[#161F2E] p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-[#222F43] h-full flex flex-col justify-between">
                 <div>
                   <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-5" style={{ background: "var(--color-secondary-tint)", color: "var(--color-secondary)" }}>
                     <BookOpen size={24} />
                   </div>
-                  <h3 className="text-lg font-bold mb-2">Kurikulum Adaptif</h3>
+                  <h3 className="text-lg font-bold mb-2 text-[var(--color-text-dark)]">Kurikulum Adaptif</h3>
                   <p className="text-sm text-[var(--color-text-mid)] leading-relaxed">
                     Menerapkan metode pembelajaran yang fleksibel dan terfokus pada kemampuan motorik, kognitif, dan komunikasi praktis.
                   </p>

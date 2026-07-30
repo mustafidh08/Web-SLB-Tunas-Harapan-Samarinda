@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Menu, X, Phone } from "lucide-react";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 
 const navLinks = [
   { href: "/", label: "Beranda" },
@@ -47,8 +48,8 @@ export default function Navbar() {
   return (
     <>
       <header
-        className="fixed top-0 left-0 right-0 z-50 bg-white transition-shadow duration-300"
-        style={{ boxShadow: scrolled ? "0 2px 16px rgba(0,0,0,0.10)" : "0 1px 0 #E2E8F0" }}
+        className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-[#0B0F17]/95 backdrop-blur-md transition-all duration-300 border-b border-gray-200 dark:border-[#222F43]"
+        style={{ boxShadow: scrolled ? "0 4px 20px rgba(0,0,0,0.12)" : "none" }}
         role="banner"
       >
         {/* Top bar — info kontak singkat */}
@@ -81,17 +82,17 @@ export default function Navbar() {
 
         {/* Main navbar */}
         <nav
-          className="container-custom flex items-center justify-between py-10 md:py-12"
+          className="container-custom flex items-center justify-between py-3 sm:py-4"
           aria-label="Navigasi utama"
         >
           {/* Logo */}
           <Link
             href="/"
-            className="flex items-center gap-3 group focus-visible:outline-none ml-2 sm:ml-4 py-2"
+            className="flex items-center gap-3 group focus-visible:outline-none ml-2 sm:ml-4 py-1"
             aria-label="SLB Tunas Harapan — Kembali ke Beranda"
             id="navbar-logo"
           >
-            <div className="relative w-11 h-11 flex-shrink-0 rounded-full overflow-hidden ring-[1px] ring-gray-200 transition-transform group-hover:scale-105 bg-white">
+            <div className="relative w-10 h-10 sm:w-11 sm:h-11 flex-shrink-0 rounded-full overflow-hidden ring-1 ring-gray-200 dark:ring-[#222F43] transition-transform group-hover:scale-105 bg-white">
               <Image
                 src="/images/logo/logo.jpg"
                 alt="Logo SLB Tunas Harapan"
@@ -115,17 +116,17 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Nav Links */}
-          <ul className="hidden lg:flex items-center gap-3" role="list">
+          <ul className="hidden lg:flex items-center gap-2" role="list">
             {navLinks.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className="relative px-4 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 group"
+                  className="relative px-3.5 py-2 text-sm font-semibold rounded-lg transition-all duration-200 group text-[var(--color-text-dark)] hover:bg-gray-100 dark:hover:bg-[#161F2E]"
                   style={{
                     color: isActive(link.href)
                       ? "var(--color-primary)"
-                      : "var(--color-text-dark)",
-                    background: isActive(link.href) ? "var(--color-primary-tint)" : "transparent",
+                      : undefined,
+                    background: isActive(link.href) ? "var(--color-primary-tint)" : undefined,
                     fontFamily: "var(--font-heading)",
                   }}
                   aria-current={isActive(link.href) ? "page" : undefined}
@@ -135,7 +136,7 @@ export default function Navbar() {
                   {/* Underline aksen kuning */}
                   {isActive(link.href) && (
                     <span
-                      className="absolute bottom-0 left-4 right-4 h-0.5 rounded-full"
+                      className="absolute bottom-0 left-3.5 right-3.5 h-0.5 rounded-full"
                       style={{ background: "var(--color-accent)" }}
                     />
                   )}
@@ -144,11 +145,14 @@ export default function Navbar() {
             ))}
           </ul>
 
-          {/* CTA Daftar + Hamburger */}
-          <div className="flex items-center gap-4 mr-2 sm:mr-4 py-2">
+          {/* CTA + Theme Toggle + Hamburger */}
+          <div className="flex items-center gap-3 mr-2 sm:mr-4 py-1">
+            {/* Theme Toggle Button */}
+            <ThemeToggle />
+
             <Link
               href="/kontak"
-              className="hidden lg:inline-flex items-center justify-center bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-sm font-bold py-2.5 px-6 rounded-lg transition-all duration-200 shadow-md shadow-red-900/10 cursor-pointer focus-visible:outline-none"
+              className="hidden lg:inline-flex items-center justify-center bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-sm font-bold py-2 px-5 rounded-lg transition-all duration-200 shadow-md cursor-pointer focus-visible:outline-none"
               style={{ color: "#ffffff" }}
               id="nav-cta-daftar"
             >
@@ -158,8 +162,7 @@ export default function Navbar() {
             {/* Hamburger button */}
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="lg:hidden p-2 rounded-lg transition-colors hover:bg-gray-100"
-              style={{ color: "var(--color-text-dark)" }}
+              className="lg:hidden p-2 rounded-lg transition-colors hover:bg-gray-100 dark:hover:bg-[#161F2E] text-[var(--color-text-dark)]"
               aria-label={isOpen ? "Tutup menu navigasi" : "Buka menu navigasi"}
               aria-expanded={isOpen}
               aria-controls="mobile-menu"
@@ -177,17 +180,17 @@ export default function Navbar() {
           className="fixed inset-0 z-40 lg:hidden"
           onClick={() => setIsOpen(false)}
           aria-hidden="true"
-          style={{ background: "rgba(0,0,0,0.4)" }}
+          style={{ background: "rgba(0,0,0,0.6)" }}
         />
       )}
 
       {/* Mobile Menu Drawer */}
       <div
         id="mobile-menu"
-        className="fixed top-0 right-0 bottom-0 z-50 lg:hidden bg-white w-72 flex flex-col transition-transform duration-300 ease-in-out"
+        className="fixed top-0 right-0 bottom-0 z-50 lg:hidden bg-white dark:bg-[#0B0F17] w-72 flex flex-col transition-transform duration-300 ease-in-out border-l border-gray-200 dark:border-[#222F43]"
         style={{
           transform: isOpen ? "translateX(0)" : "translateX(100%)",
-          boxShadow: "-4px 0 24px rgba(0,0,0,0.12)",
+          boxShadow: "-4px 0 24px rgba(0,0,0,0.25)",
         }}
         role="dialog"
         aria-modal="true"
@@ -195,8 +198,7 @@ export default function Navbar() {
       >
         {/* Drawer header */}
         <div
-          className="flex items-center justify-between px-5 py-4 border-b"
-          style={{ borderColor: "var(--color-border)" }}
+          className="flex items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-[#222F43]"
         >
           <span
             className="font-bold text-base"
@@ -204,13 +206,16 @@ export default function Navbar() {
           >
             Menu
           </span>
-          <button
-            onClick={() => setIsOpen(false)}
-            className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
-            aria-label="Tutup menu"
-          >
-            <X size={20} />
-          </button>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <button
+              onClick={() => setIsOpen(false)}
+              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#161F2E] text-[var(--color-text-dark)] transition-colors"
+              aria-label="Tutup menu"
+            >
+              <X size={20} />
+            </button>
+          </div>
         </div>
 
         {/* Drawer nav links */}
@@ -220,10 +225,10 @@ export default function Navbar() {
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all"
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all text-[var(--color-text-dark)] hover:bg-gray-100 dark:hover:bg-[#161F2E]"
                   style={{
-                    background: isActive(link.href) ? "var(--color-primary-tint)" : "transparent",
-                    color: isActive(link.href) ? "var(--color-primary)" : "var(--color-text-dark)",
+                    background: isActive(link.href) ? "var(--color-primary-tint)" : undefined,
+                    color: isActive(link.href) ? "var(--color-primary)" : undefined,
                     fontFamily: "var(--font-heading)",
                   }}
                   aria-current={isActive(link.href) ? "page" : undefined}
@@ -242,7 +247,7 @@ export default function Navbar() {
         </nav>
 
         {/* Drawer footer CTA */}
-        <div className="p-5 border-t" style={{ borderColor: "var(--color-border)" }}>
+        <div className="p-5 border-t border-gray-200 dark:border-[#222F43]">
           <Link
             href="/kontak"
             className="btn btn-primary w-full justify-center"

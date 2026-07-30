@@ -31,9 +31,22 @@
   --color-text-mid: #475569;
   --color-text-light: #94A3B8;
 
-  /* Font — menggunakan CSS variable yang di-inject oleh next/font di layout.tsx */
   --font-heading: var(--font-poppins), sans-serif;
   --font-body: var(--font-poppins), sans-serif;
+}
+
+/* Dark Mode Color Palette — Deep OLED Slate (#0B0F17) & Surface (#161F2E) */
+.dark {
+  --color-primary-tint: rgba(204, 31, 42, 0.22);
+  --color-secondary-tint: rgba(45, 122, 45, 0.22);
+  --color-accent-tint: rgba(245, 200, 0, 0.22);
+
+  --color-background: #0B0F17;
+  --color-surface: #161F2E;
+  --color-border: #222F43;
+  --color-text-dark: #F8FAFC;
+  --color-text-mid: #CBD5E1;
+  --color-text-light: #94A3B8;
 }
 
 /* =====================================================
