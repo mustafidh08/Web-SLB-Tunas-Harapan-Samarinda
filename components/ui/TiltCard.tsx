@@ -47,10 +47,10 @@ export default function TiltCard({
   };
 
   return (
-    <div className="perspective-1000 w-full h-full">
+    <div className={`perspective-1000 w-full h-full ${className}`}>
       <motion.div
         ref={cardRef}
-        className={`relative overflow-hidden transition-transform duration-200 ease-out transform-gpu ${className}`}
+        className="relative overflow-hidden transition-transform duration-200 ease-out transform-gpu w-full h-full rounded-[inherit]"
         style={{
           transformStyle: "preserve-3d",
           transform: `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`,

@@ -33,7 +33,7 @@ export default function ProfilPage() {
   return (
     <>
       {/* HEADER SECTION */}
-      <section className="bg-gradient-to-b from-gray-100 to-white pt-40 pb-12 border-b border-gray-200 overflow-hidden">
+      <section className="bg-gradient-to-b from-gray-100 to-white pt-44 md:pt-48 pb-12 border-b border-gray-200 overflow-hidden">
         <div className="container-custom">
           <KineticText
             text="Profil SLB Tunas Harapan"
