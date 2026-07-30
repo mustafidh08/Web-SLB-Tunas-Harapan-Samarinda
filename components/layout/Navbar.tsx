@@ -43,51 +43,51 @@ export default function Navbar() {
   return (
     <>
       <header
-        className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-[#0B0F17]/95 backdrop-blur-md transition-all duration-300 border-b border-gray-200 dark:border-[#222F43]"
-        style={{ boxShadow: scrolled ? "0 4px 20px rgba(0,0,0,0.12)" : "none" }}
+        className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-[#0B0F17]/95 backdrop-blur-md transition-all duration-300 border-b border-gray-200/80 dark:border-[#222F43]/80"
+        style={{ boxShadow: scrolled ? "0 4px 24px rgba(0,0,0,0.08)" : "none" }}
         role="banner"
       >
         {/* Top bar — info kontak singkat */}
         <div
-          className="hidden md:block text-xs py-1.5"
+          className="hidden md:block text-xs py-2 border-b border-white/10"
           style={{ background: "var(--color-primary)", color: "white" }}
         >
-          <div className="container-custom flex justify-between items-center px-4">
+          <div className="max-w-7xl mx-auto flex justify-between items-center px-6 sm:px-10 lg:px-12">
             <a
               href="https://maps.app.goo.gl/DADHJaKVpLwwskSy9"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:underline flex items-center gap-1"
+              className="hover:underline flex items-center gap-1.5 font-medium tracking-wide"
               aria-label="Buka lokasi SLB Tunas Harapan di Google Maps"
             >
               <span>📍 Jl. Swadaya - Gg. Soponyono IV RT.16, Palaran, Samarinda</span>
             </a>
             <a
               href="https://wa.me/628125332760"
-              className="flex items-center gap-1.5 hover:underline transition-opacity"
+              className="flex items-center gap-1.5 hover:underline transition-opacity font-medium tracking-wide"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Hubungi via WhatsApp"
             >
-              <Phone size={12} />
+              <Phone size={13} />
               <span>+62 812-5332-760</span>
             </a>
           </div>
         </div>
 
-        {/* Main navbar */}
+        {/* Main navbar — Miri UI Style Layout (Airy Whitespace & Wide Spacing) */}
         <nav
-          className="container-custom flex items-center justify-between py-3 sm:py-4"
+          className="max-w-7xl mx-auto flex items-center justify-between py-3.5 sm:py-4 px-6 sm:px-10 lg:px-12"
           aria-label="Navigasi utama"
         >
-          {/* Logo */}
+          {/* Far-Left Logo */}
           <Link
             href="/"
-            className="flex items-center gap-3 group focus-visible:outline-none ml-2 sm:ml-4 py-1"
+            className="flex items-center gap-3.5 group focus-visible:outline-none py-1"
             aria-label="SLB Tunas Harapan — Kembali ke Beranda"
             id="navbar-logo"
           >
-            <div className="relative w-10 h-10 sm:w-11 sm:h-11 flex-shrink-0 rounded-full overflow-hidden ring-1 ring-gray-200 dark:ring-[#222F43] transition-transform group-hover:scale-105 bg-white">
+            <div className="relative w-10 h-10 sm:w-11 sm:h-11 flex-shrink-0 rounded-full overflow-hidden ring-1 ring-gray-200 dark:ring-[#222F43] transition-transform group-hover:scale-105 bg-white shadow-sm">
               <Image
                 src="/images/logo/logo.jpg"
                 alt="Logo SLB Tunas Harapan"
@@ -99,40 +99,37 @@ export default function Navbar() {
             </div>
             <div className="leading-tight">
               <span
-                className="block text-sm sm:text-base font-bold"
+                className="block text-sm sm:text-base font-bold tracking-tight"
                 style={{ color: "var(--color-primary)", fontFamily: "var(--font-heading)" }}
               >
                 SLB Tunas Harapan
               </span>
-              <span className="block text-[10px] sm:text-xs text-[var(--color-text-mid)]">
+              <span className="block text-[10px] sm:text-xs text-[var(--color-text-mid)] font-medium">
                 Palaran, Samarinda
               </span>
             </div>
           </Link>
 
-          {/* Desktop Nav Links */}
-          <ul className="hidden lg:flex items-center gap-2" role="list">
+          {/* Desktop Nav Links — Wide Miri-UI Spacing (gap-6 lg:gap-8) */}
+          <ul className="hidden lg:flex items-center gap-6 xl:gap-8" role="list">
             {navLinks.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className="relative px-3.5 py-2 text-sm font-semibold rounded-lg transition-all duration-200 group text-[var(--color-text-dark)] hover:bg-gray-100 dark:hover:bg-[#161F2E]"
+                  className="relative py-2 text-sm font-semibold tracking-wide transition-all duration-200 text-[var(--color-text-dark)] hover:text-[var(--color-primary)]"
                   style={{
-                    color: isActive(link.href)
-                      ? "var(--color-primary)"
-                      : undefined,
-                    background: isActive(link.href) ? "var(--color-primary-tint)" : undefined,
+                    color: isActive(link.href) ? "var(--color-primary)" : undefined,
                     fontFamily: "var(--font-heading)",
                   }}
                   aria-current={isActive(link.href) ? "page" : undefined}
                   id={`nav-${link.href.replace("/", "") || "beranda"}`}
                 >
                   {link.label}
-                  {/* Underline aksen kuning */}
+                  {/* Underline aksen aktif */}
                   {isActive(link.href) && (
                     <span
-                      className="absolute bottom-0 left-3.5 right-3.5 h-0.5 rounded-full"
-                      style={{ background: "var(--color-accent)" }}
+                      className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
+                      style={{ background: "var(--color-primary)" }}
                     />
                   )}
                 </Link>
@@ -140,14 +137,14 @@ export default function Navbar() {
             ))}
           </ul>
 
-          {/* CTA + Theme Toggle + Hamburger */}
-          <div className="flex items-center gap-3 mr-2 sm:mr-4 py-1">
+          {/* Far-Right Actions (ThemeToggle + Pill CTA Button) */}
+          <div className="flex items-center gap-4 sm:gap-6 py-1">
             {/* Theme Toggle Button */}
             <ThemeToggle />
 
             <Link
               href="/kontak"
-              className="hidden lg:inline-flex items-center justify-center bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-sm font-bold py-2 px-5 rounded-lg transition-all duration-200 shadow-md cursor-pointer focus-visible:outline-none"
+              className="hidden lg:inline-flex items-center justify-center bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-sm font-bold py-2.5 px-6 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg active:scale-95 cursor-pointer focus-visible:outline-none"
               style={{ color: "#ffffff" }}
               id="nav-cta-daftar"
             >
@@ -199,7 +196,7 @@ export default function Navbar() {
             className="font-bold text-base"
             style={{ color: "var(--color-primary)", fontFamily: "var(--font-heading)" }}
           >
-            Menu
+            Menu Navigasi
           </span>
           <div className="flex items-center gap-2">
             <ThemeToggle />
