@@ -13,17 +13,23 @@ export default function KontakClient() {
     nama: "",
     email: "",
     whatsapp: "",
+    topik: "Pendaftaran Siswa Baru (PPDB / Konsultasi Inklusi)",
     pesan: "",
   });
   const [kirimSukses, setKirimSukses] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
-  const [lastSubmitted, setLastSubmitted] = useState<{ nama: string; email: string; whatsapp: string; pesan: string } | null>(null);
+  const [lastSubmitted, setLastSubmitted] = useState<{ nama: string; email: string; whatsapp: string; pesan: string; topik?: string } | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
+
+  // Goal Gradient Calculation: Memulai dari 50% ketika pengguna mulai mengetik (Artificial Head Start)
+  const isStarted = Boolean(formData.nama || formData.whatsapp || formData.pesan);
+  const isComplete = Boolean(formData.nama && formData.whatsapp && formData.pesan);
+  const progressPercent = !isStarted ? 0 : isComplete ? 100 : 50;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,7 +41,10 @@ export default function KontakClient() {
       const res = await fetch("/api/kontak", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          pesan: `[Topik: ${formData.topik}] ${formData.pesan}`,
+        }),
       });
 
       const data = await res.json();
@@ -48,12 +57,12 @@ export default function KontakClient() {
 
       // Gunakan data tersanitasi dari server
       const sanitized = data.sanitizedData;
-      setLastSubmitted(sanitized);
+      setLastSubmitted({ ...sanitized, topik: formData.topik });
       setKirimSukses(true);
 
       // Coba buka mailto di window terpisah agar tidak menghentikan state React
-      const subject = `Pertanyaan dari ${sanitized.nama} (via Website SLB)`;
-      const body = `Halo SLB Tunas Harapan Samarinda,\n\nSaya ingin menanyakan perihal sekolah.\n\nBerikut detail kontak saya:\n- Nama: ${sanitized.nama}\n- WhatsApp/HP: ${sanitized.whatsapp}\n- Email Pengirim: ${sanitized.email}\n\nPesan:\n${sanitized.pesan}\n\nTerima kasih.`;
+      const subject = `[${formData.topik}] Pertanyaan dari ${sanitized.nama}`;
+      const body = `Halo SLB Tunas Harapan Samarinda,\n\nSaya ingin menanyakan perihal: ${formData.topik}.\n\nBerikut detail kontak saya:\n- Nama: ${sanitized.nama}\n- WhatsApp/HP: ${sanitized.whatsapp}\n- Email Pengirim: ${sanitized.email}\n\nPesan:\n${sanitized.pesan}\n\nTerima kasih.`;
       
       const mailtoUrl = `mailto:slbtunasharapan.smr@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       
@@ -69,6 +78,7 @@ export default function KontakClient() {
         nama: "",
         email: "",
         whatsapp: "",
+        topik: "Pendaftaran Siswa Baru (PPDB / Konsultasi Inklusi)",
         pesan: "",
       });
     } catch {
@@ -123,9 +133,14 @@ export default function KontakClient() {
                         </div>
                         <div>
                           <h4 className="font-bold text-sm text-[var(--color-text-dark)]">Alamat Sekolah</h4>
-                          <p className="text-sm text-[var(--color-text-mid)] mt-1 leading-relaxed">
-                            Jl. Swadaya - Gg. Soponyono IV RT.16,<br />Handil Bakti, Kec. Palaran,<br />Samarinda, Kalimantan Timur 75242
-                          </p>
+                          <a
+                            href="https://maps.app.goo.gl/DADHJaKVpLwwskSy9"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm text-[var(--color-text-mid)] hover:text-[var(--color-primary)] transition-colors block mt-1 leading-relaxed"
+                          >
+                            Jl. Swadaya - Gg. Soponyono IV RT.16, Handil Bakti, Kec. Palaran, Samarinda, Kaltim 75242
+                          </a>
                         </div>
                       </li>
 
@@ -191,48 +206,69 @@ export default function KontakClient() {
             <div className="lg:col-span-7 h-full">
               <div className="bg-white dark:bg-[#161F2E] p-6 sm:p-8 rounded-2xl border border-gray-150 dark:border-[#222F43] shadow-sm flex flex-col justify-center h-full">
                 {kirimSukses ? (
-                  <div className="text-center py-8 space-y-5">
-                    <div className="w-16 h-16 rounded-full bg-[var(--color-secondary-tint)] text-[var(--color-secondary)] flex items-center justify-center mx-auto shadow-inner">
-                      <CheckCircle size={40} />
+                  /* Peak-End Rule: Celebratory & Reassuring Success State */
+                  <div className="text-center py-8 space-y-5 animate-in fade-in zoom-in-95 duration-300">
+                    <div className="w-20 h-20 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto shadow-lg animate-bounce">
+                      <CheckCircle size={48} />
                     </div>
                     
                     <div className="space-y-2">
-                      <h3 className="text-2xl font-bold text-[var(--color-text-dark)]" style={{ fontFamily: "var(--font-heading)" }}>
-                        Pesan Anda Terkirim!
+                      <h3 className="text-2xl font-extrabold text-[var(--color-text-dark)]" style={{ fontFamily: "var(--font-heading)" }}>
+                        🎉 Pesan Berhasil Terkirim!
                       </h3>
                       <p className="text-sm text-[var(--color-text-mid)] max-w-md mx-auto leading-relaxed">
-                        Terima kasih telah menghubungi kami, <span className="font-semibold text-[var(--color-text-dark)]">{lastSubmitted?.nama}</span>. Aplikasi email Anda akan terbuka secara otomatis untuk mengirim pesan.
+                        Terima kasih Bapak/Ibu <span className="font-bold text-[var(--color-text-dark)]">{lastSubmitted?.nama}</span>. Pesan Anda perihal <span className="font-semibold text-emerald-600 dark:text-emerald-400">{lastSubmitted?.topik}</span> telah diterima oleh tim SLB Tunas Harapan.
                       </p>
                     </div>
 
                     {lastSubmitted && (
-                      <div className="pt-2 flex flex-col sm:flex-row justify-center gap-3">
+                      <div className="pt-3 flex flex-col sm:flex-row justify-center gap-3">
                         <a
-                          href={`https://wa.me/6285250402074?text=${encodeURIComponent(`Halo SLB Tunas Harapan Samarinda, saya ${lastSubmitted.nama} ingin menanyakan perihal: ${lastSubmitted.pesan}`)}`}
+                          href={`https://wa.me/6285250402074?text=${encodeURIComponent(`Halo SLB Tunas Harapan Samarinda, saya ${lastSubmitted.nama} (perihal: ${lastSubmitted.topik}). Pesan saya: ${lastSubmitted.pesan}`)}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-xs font-bold rounded-full bg-[var(--color-secondary)] text-white dark:text-gray-950 hover:bg-[var(--color-secondary-dark)] transition-colors shadow-sm"
+                          className="inline-flex items-center justify-center gap-2 px-6 py-3 text-xs font-bold rounded-full bg-emerald-600 hover:bg-emerald-700 text-white active:scale-95 transition-all shadow-md"
                         >
-                          <MessageSquare size={14} />
-                          Kirim Juga via WhatsApp
+                          <MessageSquare size={16} />
+                          Lanjut Bicara di WhatsApp Admin
                         </a>
                         <button
                           onClick={() => setKirimSukses(false)}
-                          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-xs font-bold rounded-full border border-gray-250 dark:border-[#2A3B54] text-[var(--color-text-dark)] hover:bg-gray-100 dark:hover:bg-[#0B0F17] transition-colors cursor-pointer"
+                          className="inline-flex items-center justify-center gap-2 px-5 py-3 text-xs font-bold rounded-full border border-gray-250 dark:border-[#2A3B54] text-[var(--color-text-dark)] hover:bg-gray-100 dark:hover:bg-[#0B0F17] active:scale-95 transition-all cursor-pointer"
                         >
-                          Tulis Pesan Baru
+                          Kirim Pesan Lain
                         </button>
                       </div>
                     )}
                   </div>
                 ) : (
                   <form onSubmit={handleSubmit} className="space-y-5" aria-label="Form Hubungi Kami">
-                    <h3 className="text-xl font-bold text-[var(--color-text-dark)]" style={{ fontFamily: "var(--font-heading)" }}>
-                      Kirim Pesan Langsung
-                    </h3>
-                    <p className="text-xs text-[var(--color-text-mid)]">
-                      Silakan isi formulir di bawah ini, tim kami akan merespons dalam waktu 1-2 hari kerja.
-                    </p>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-xl font-bold text-[var(--color-text-dark)]" style={{ fontFamily: "var(--font-heading)" }}>
+                          Formulir Konsultasi & Pesan
+                        </h3>
+                        <p className="text-xs text-[var(--color-text-mid)] mt-0.5">
+                          Silakan isi formulir di bawah ini untuk terhubung langsung dengan pihak sekolah.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Goal Gradient Effect: Progress Meter dengan Artificial Head Start (50%) */}
+                    {isStarted && (
+                      <div className="space-y-1.5 bg-gray-50 dark:bg-[#0B0F17] p-3 rounded-xl border border-gray-200 dark:border-[#2A3B54]">
+                        <div className="flex justify-between text-[11px] font-bold text-[var(--color-text-dark)]">
+                          <span>{isComplete ? "✨ Form Lengkap & Siap Dikirim" : "📋 Progres Pengisian"}</span>
+                          <span className="text-[var(--color-primary)] font-mono">{progressPercent}%</span>
+                        </div>
+                        <div className="w-full h-2 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-[var(--color-primary)] to-emerald-500 transition-all duration-300 rounded-full"
+                            style={{ width: `${progressPercent}%` }}
+                          />
+                        </div>
+                      </div>
+                    )}
 
                     {errorMsg && (
                       <div className="p-3 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 text-xs font-semibold rounded-xl border border-red-200 dark:border-red-800 flex items-center gap-2">
@@ -240,6 +276,34 @@ export default function KontakClient() {
                         <span>{errorMsg}</span>
                       </div>
                     )}
+
+                    {/* Smart Default: Dropdown Topik Keperluan */}
+                    <div className="space-y-1">
+                      <label htmlFor="topik" className="block text-xs font-semibold text-[var(--color-text-dark)]">
+                        Topik / Keperluan Konsultasi
+                      </label>
+                      <select
+                        id="topik"
+                        name="topik"
+                        value={formData.topik}
+                        onChange={handleChange}
+                        className="w-full px-3.5 py-2.5 text-sm border border-gray-250 dark:border-[#2A3B54] bg-white dark:bg-[#0B0F17] text-[var(--color-text-dark)] rounded-xl focus:outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary-tint)] transition-all cursor-pointer"
+                      >
+                        <option value="Pendaftaran Siswa Baru (PPDB / Konsultasi Inklusi)">
+                          Pendaftaran Siswa Baru (PPDB / Konsultasi Inklusi)
+                        </option>
+                        <option value="Informasi Program SDLB / SMPLB / SMALB">
+                          Informasi Program SDLB / SMPLB / SMALB
+                        </option>
+                        <option value="Kunjungan Sekolah / Observasi">
+                          Jadwal Kunjungan Sekolah / Observasi
+                        </option>
+                        <option value="Kerjasama Instansi / Beasiswa / Donasi">
+                          Kerjasama Instansi / Beasiswa / Donasi
+                        </option>
+                        <option value="Lainnya">Lainnya</option>
+                      </select>
+                    </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-1">
@@ -270,20 +334,19 @@ export default function KontakClient() {
                           value={formData.whatsapp}
                           onChange={handleChange}
                           className="w-full px-3.5 py-2.5 text-sm border border-gray-250 dark:border-[#2A3B54] bg-white dark:bg-[#0B0F17] text-[var(--color-text-dark)] placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary-tint)] transition-all"
-                          placeholder="Contoh: 081234567890"
+                          placeholder="Contoh: 085250402074"
                         />
                       </div>
                     </div>
 
                     <div className="space-y-1">
                       <label htmlFor="email" className="block text-xs font-semibold text-[var(--color-text-dark)]">
-                        Alamat Email
+                        Alamat Email (Opsional)
                       </label>
                       <input
                         type="email"
                         id="email"
                         name="email"
-                        required
                         value={formData.email}
                         onChange={handleChange}
                         className="w-full px-3.5 py-2.5 text-sm border border-gray-250 dark:border-[#2A3B54] bg-white dark:bg-[#0B0F17] text-[var(--color-text-dark)] placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary-tint)] transition-all"
@@ -293,7 +356,7 @@ export default function KontakClient() {
 
                     <div className="space-y-1">
                       <label htmlFor="pesan" className="block text-xs font-semibold text-[var(--color-text-dark)]">
-                        Isi Pesan Anda
+                        Isi Pesan / Pertanyaan Anda
                       </label>
                       <textarea
                         id="pesan"
@@ -303,7 +366,7 @@ export default function KontakClient() {
                         value={formData.pesan}
                         onChange={handleChange}
                         className="w-full px-3.5 py-2.5 text-sm border border-gray-250 dark:border-[#2A3B54] bg-white dark:bg-[#0B0F17] text-[var(--color-text-dark)] placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary-tint)] transition-all resize-none"
-                        placeholder="Tuliskan pertanyaan, konsultasi, atau jadwal kunjungan yang diinginkan..."
+                        placeholder="Tuliskan pertanyaan, konsultasi pendaftaran, atau jadwal kunjungan yang diinginkan..."
                       />
                     </div>
 
@@ -318,7 +381,7 @@ export default function KontakClient() {
                           <span>Memproses Keamanan...</span>
                         ) : (
                           <>
-                            <span>Kirim Pesan</span>
+                            <span>Kirim Pesan Sekarang</span>
                             <Send size={14} />
                           </>
                         )}

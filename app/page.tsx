@@ -427,6 +427,16 @@ export default function BerandaPage() {
             </MagneticButton>
             <MagneticButton>
               <a
+                href="/Profil%20Sekolah%202026.docx"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 font-bold text-sm text-[var(--color-primary)] dark:text-red-400 hover:underline px-4 py-2"
+              >
+                📄 Unduh Profil & Brosur Sekolah
+              </a>
+            </MagneticButton>
+            <MagneticButton>
+              <a
                 href="https://wa.me/6285250402074"
                 target="_blank"
                 rel="noopener noreferrer"

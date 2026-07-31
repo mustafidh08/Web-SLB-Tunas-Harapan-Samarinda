@@ -7,6 +7,7 @@ import LenisProvider from "@/components/ui/LenisProvider";
 import ScrollProgress from "@/components/ui/ScrollProgress";
 import PageTransition from "@/components/ui/PageTransition";
 import { ThemeProvider } from "@/components/ui/ThemeProvider";
+import FloatingContactBar from "@/components/ui/FloatingContactBar";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -143,6 +144,7 @@ export default function RootLayout({
               <PageTransition>{children}</PageTransition>
             </main>
             <Footer />
+            <FloatingContactBar />
           </LenisProvider>
         </ThemeProvider>
       </body>
