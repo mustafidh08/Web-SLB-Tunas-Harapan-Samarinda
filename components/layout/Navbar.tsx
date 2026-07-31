@@ -63,14 +63,14 @@ export default function Navbar() {
               <span>📍 Jl. Swadaya - Gg. Soponyono IV RT.16, Palaran, Samarinda</span>
             </a>
             <a
-              href="https://wa.me/628125332760"
+              href="https://wa.me/6285250402074"
               className="flex items-center gap-1.5 hover:underline transition-opacity font-medium tracking-wide"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Hubungi via WhatsApp"
             >
               <Phone size={13} />
-              <span>+62 812-5332-760</span>
+              <span>+62 852-5040-2074</span>
             </a>
           </div>
         </div>
@@ -249,14 +249,14 @@ export default function Navbar() {
             Hubungi Kami
           </Link>
           <a
-            href="https://wa.me/628125332760"
+            href="https://wa.me/6285250402074"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-center gap-2 mt-3 text-sm font-medium"
             style={{ color: "var(--color-secondary)" }}
           >
             <Phone size={14} />
-            <span>0812-5332-760 / 0852-5040-2074</span>
+            <span>0852-5040-2074</span>
           </a>
         </div>
       </div>

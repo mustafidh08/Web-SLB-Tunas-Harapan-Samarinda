@@ -100,7 +100,7 @@ export default function RootLayout({
       latitude: -0.5533427,
       longitude: 117.1552402,
     },
-    telephone: "+628125332760",
+    telephone: "+6285250402074",
     priceRange: "Free",
   };
 

@@ -137,22 +137,13 @@ export default function KontakClient() {
                           <h4 className="font-bold text-sm text-[var(--color-text-dark)]">Telepon / WhatsApp</h4>
                           <div className="flex flex-col gap-1 mt-1">
                             <a 
-                              href="https://wa.me/628125332760" 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="text-sm text-[var(--color-secondary-dark)] dark:text-[#4ADE80] hover:underline font-semibold flex items-center gap-1"
-                              aria-label="Hubungi WhatsApp Sekolah 1"
-                            >
-                              0812-5332-760 (Admin 1)
-                            </a>
-                            <a 
                               href="https://wa.me/6285250402074" 
                               target="_blank" 
                               rel="noopener noreferrer"
                               className="text-sm text-[var(--color-secondary-dark)] dark:text-[#4ADE80] hover:underline font-semibold flex items-center gap-1"
-                              aria-label="Hubungi WhatsApp Sekolah 2"
+                              aria-label="Hubungi WhatsApp Sekolah"
                             >
-                              0852-5040-2074 (Admin 2)
+                              0852-5040-2074
                             </a>
                           </div>
                         </div>
@@ -217,7 +208,7 @@ export default function KontakClient() {
                     {lastSubmitted && (
                       <div className="pt-2 flex flex-col sm:flex-row justify-center gap-3">
                         <a
-                          href={`https://wa.me/628125332760?text=${encodeURIComponent(`Halo SLB Tunas Harapan Samarinda, saya ${lastSubmitted.nama} ingin menanyakan perihal: ${lastSubmitted.pesan}`)}`}
+                          href={`https://wa.me/6285250402074?text=${encodeURIComponent(`Halo SLB Tunas Harapan Samarinda, saya ${lastSubmitted.nama} ingin menanyakan perihal: ${lastSubmitted.pesan}`)}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-xs font-bold rounded-full bg-[var(--color-secondary)] text-white dark:text-gray-950 hover:bg-[var(--color-secondary-dark)] transition-colors shadow-sm"

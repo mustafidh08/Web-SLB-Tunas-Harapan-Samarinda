@@ -143,7 +143,7 @@ export default function Footer() {
               </li>
               <li>
                 <a
-                  href="https://wa.me/628125332760"
+                  href="https://wa.me/6285250402074"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-3 hover:text-white transition-colors"
@@ -154,7 +154,7 @@ export default function Footer() {
                     className="flex-shrink-0"
                     style={{ color: "var(--color-accent)" }}
                   />
-                  <span>0812-5332-760 / 0852-5040-2074</span>
+                  <span>0852-5040-2074</span>
                 </a>
               </li>
               <li>
