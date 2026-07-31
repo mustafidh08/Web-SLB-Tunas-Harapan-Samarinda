@@ -543,7 +543,7 @@ export default function AdminDashboard() {
                 {isEditingKegiatan && (
                   <button
                     onClick={resetFormKegiatan}
-                    className="flex items-center gap-1 text-xs text-gray-500 hover:text-red-600 bg-gray-100 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
+                    className="flex items-center gap-1 text-xs text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 bg-gray-100 dark:bg-[#0B0F17] hover:bg-red-50 dark:hover:bg-red-950/50 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
                   >
                     <X size={14} /> Batal Edit
                   </button>
@@ -552,7 +552,7 @@ export default function AdminDashboard() {
 
               {msgKegiatan && (
                 <div className={`p-4 rounded-2xl mb-6 text-xs sm:text-sm font-semibold flex items-center gap-3 ${
-                  msgKegiatan.type === "success" ? "bg-green-50 text-green-800 border border-green-200" : "bg-red-50 text-red-800 border border-red-200"
+                  msgKegiatan.type === "success" ? "bg-green-50 dark:bg-green-950/40 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-800" : "bg-red-50 dark:bg-red-950/40 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800"
                 }`}>
                   {msgKegiatan.type === "success" ? <CheckCircle2 size={20} /> : <AlertCircle size={20} />}
                   <span>{msgKegiatan.text}</span>
@@ -570,7 +570,7 @@ export default function AdminDashboard() {
                       value={judulKegiatan}
                       onChange={(e) => setJudulKegiatan(e.target.value)}
                       placeholder="Contoh: Peringatan Hari Disabilitas Internasional 2026 di SLB Tunas Harapan"
-                      className="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-xl focus:outline-none focus:border-[var(--color-primary)]"
+                      className="w-full px-4 py-2.5 text-sm border border-gray-300 dark:border-[#2A3B54] bg-white dark:bg-[#0B0F17] text-[var(--color-text-dark)] rounded-xl focus:outline-none focus:border-[var(--color-primary)] transition-colors"
                     />
                   </div>
 
@@ -582,7 +582,7 @@ export default function AdminDashboard() {
                       required
                       value={tanggalKegiatan}
                       onChange={(e) => setTanggalKegiatan(e.target.value)}
-                      className="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-xl focus:outline-none focus:border-[var(--color-primary)]"
+                      className="w-full px-4 py-2.5 text-sm border border-gray-300 dark:border-[#2A3B54] bg-white dark:bg-[#0B0F17] text-[var(--color-text-dark)] rounded-xl focus:outline-none focus:border-[var(--color-primary)] transition-colors"
                     />
                   </div>
                 </div>
@@ -596,29 +596,29 @@ export default function AdminDashboard() {
                     value={ringkasanKegiatan}
                     onChange={(e) => setRingkasanKegiatan(e.target.value)}
                     placeholder="Tuliskan 1-2 kalimat rangkuman kegiatan..."
-                    className="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-xl focus:outline-none focus:border-[var(--color-primary)] resize-none"
+                    className="w-full px-4 py-2.5 text-sm border border-gray-300 dark:border-[#2A3B54] bg-white dark:bg-[#0B0F17] text-[var(--color-text-dark)] rounded-xl focus:outline-none focus:border-[var(--color-primary)] resize-none transition-colors"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <label className="block text-xs font-bold text-[var(--color-text-dark)]">Upload Sampul Foto Kegiatan</label>
-                  <div className="border-2 border-dashed border-gray-300 hover:border-[var(--color-primary)] p-6 rounded-2xl text-center bg-gray-50 transition-colors">
+                  <div className="border-2 border-dashed border-gray-300 dark:border-[#2A3B54] hover:border-[var(--color-primary)] p-6 rounded-2xl text-center bg-gray-50 dark:bg-[#0B0F17]/50 transition-colors">
                     {previewCover ? (
                       <div className="space-y-3">
                         <img src={previewCover} alt="Preview Cover" className="max-h-56 mx-auto rounded-xl shadow-md object-cover" />
                         <button
                           type="button"
                           onClick={() => { setPreviewCover(""); setGambarCoverBase64(""); }}
-                          className="text-xs text-red-600 underline font-semibold cursor-pointer"
+                          className="text-xs text-red-600 dark:text-red-400 underline font-semibold cursor-pointer"
                         >
                           Ganti Sampul Foto
                         </button>
                       </div>
                     ) : (
                       <label className="cursor-pointer flex flex-col items-center justify-center">
-                        <Upload size={32} className="text-gray-400 mb-2" />
+                        <Upload size={32} className="text-gray-400 dark:text-gray-500 mb-2" />
                         <span className="text-xs font-bold text-[var(--color-primary)]">Klik untuk Upload Gambar Sampul</span>
-                        <span className="text-[10px] text-gray-500 font-semibold mt-1">✨ Otomatis dikompres & dikonversi ke WebP (Super Ringan)</span>
+                        <span className="text-[10px] text-gray-500 dark:text-gray-400 font-semibold mt-1">✨ Otomatis dikompres & dikonversi ke WebP (Super Ringan)</span>
                         <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, false)} className="hidden" />
                       </label>
                     )}
@@ -634,7 +634,7 @@ export default function AdminDashboard() {
                     value={kontenKegiatan}
                     onChange={(e) => setKontenKegiatan(e.target.value)}
                     placeholder="Tuliskan cerita lengkap kegiatan di sini..."
-                    className="w-full p-4 text-sm border border-gray-300 rounded-xl focus:outline-none focus:border-[var(--color-primary)] leading-relaxed font-sans"
+                    className="w-full p-4 text-sm border border-gray-300 dark:border-[#2A3B54] bg-white dark:bg-[#0B0F17] text-[var(--color-text-dark)] rounded-xl focus:outline-none focus:border-[var(--color-primary)] leading-relaxed font-sans transition-colors"
                   />
                 </div>
 
@@ -656,22 +656,22 @@ export default function AdminDashboard() {
             </div>
 
             {/* DAFTAR BERITA KEGIATAN SAAT INI (READ / UPDATE / DELETE LIST) */}
-            <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-200 space-y-4">
+            <div className="bg-white dark:bg-[#161F2E] p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-200 dark:border-[#222F43] space-y-4">
               <h3 className="text-lg font-bold text-[var(--color-text-dark)]" style={{ fontFamily: "var(--font-heading)" }}>
                 Daftar Berita & Kegiatan Sekolah ({filteredKegiatan.length})
               </h3>
 
               {filteredKegiatan.length === 0 ? (
-                <p className="text-xs text-gray-500 italic py-4 text-center">Belum ada berita ditemukan.</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 italic py-4 text-center">Belum ada berita ditemukan.</p>
               ) : (
-                <div className="divide-y divide-gray-100">
+                <div className="divide-y divide-gray-100 dark:divide-[#222F43]">
                   {filteredKegiatan.map((post) => (
-                    <div key={post.slug} className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50/50 p-2 rounded-xl transition-colors">
+                    <div key={post.slug} className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50/50 dark:hover:bg-[#0B0F17]/50 p-2 rounded-xl transition-colors">
                       <div className="flex items-center gap-4">
-                        <img src={post.gambarCover} alt={post.judul} className="w-16 h-16 rounded-xl object-cover flex-shrink-0 border border-gray-200" />
+                        <img src={post.gambarCover} alt={post.judul} className="w-16 h-16 rounded-xl object-cover flex-shrink-0 border border-gray-200 dark:border-[#222F43]" />
                         <div>
                           <h4 className="font-bold text-sm text-[var(--color-text-dark)] line-clamp-1">{post.judul}</h4>
-                          <span className="text-[11px] text-gray-500 block mt-0.5">{post.tanggal}</span>
+                          <span className="text-[11px] text-gray-500 dark:text-gray-400 block mt-0.5">{post.tanggal}</span>
                           <p className="text-xs text-[var(--color-text-mid)] line-clamp-1 mt-1">{post.ringkasan}</p>
                         </div>
                       </div>
@@ -681,20 +681,20 @@ export default function AdminDashboard() {
                           href={`/kegiatan/${post.slug}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="p-2 text-gray-500 hover:text-blue-600 bg-gray-100 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
+                          className="p-2 text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 bg-gray-100 dark:bg-[#0B0F17] hover:bg-blue-50 dark:hover:bg-blue-950/50 rounded-lg transition-colors cursor-pointer"
                           title="Lihat Berita"
                         >
                           <ExternalLink size={16} />
                         </a>
                         <button
                           onClick={() => handleEditKegiatan(post)}
-                          className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg border border-amber-200 transition-colors cursor-pointer"
+                          className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/60 rounded-lg border border-amber-200 dark:border-amber-800 transition-colors cursor-pointer"
                         >
                           <Edit3 size={14} /> Edit
                         </button>
                         <button
                           onClick={() => handleDeleteKegiatan(post.slug, post.judul)}
-                          className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 rounded-lg border border-red-200 transition-colors cursor-pointer"
+                          className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-900/60 rounded-lg border border-red-200 dark:border-red-800 transition-colors cursor-pointer"
                         >
                           <Trash2 size={14} /> Hapus
                         </button>
@@ -711,7 +711,7 @@ export default function AdminDashboard() {
         {activeTab === "galeri" && (
           <div className="space-y-8">
             {/* FORM GALERI */}
-            <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-200">
+            <div className="bg-white dark:bg-[#161F2E] p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-200 dark:border-[#222F43]">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold flex items-center gap-2 text-[var(--color-text-dark)]" style={{ fontFamily: "var(--font-heading)" }}>
                   <ImageIcon className="text-[var(--color-secondary)]" />
@@ -720,7 +720,7 @@ export default function AdminDashboard() {
                 {isEditingGaleri && (
                   <button
                     onClick={resetFormGaleri}
-                    className="flex items-center gap-1 text-xs text-gray-500 hover:text-red-600 bg-gray-100 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
+                    className="flex items-center gap-1 text-xs text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 bg-gray-100 dark:bg-[#0B0F17] hover:bg-red-50 dark:hover:bg-red-950/50 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
                   >
                     <X size={14} /> Batal Edit
                   </button>
@@ -729,7 +729,7 @@ export default function AdminDashboard() {
 
               {msgGaleri && (
                 <div className={`p-4 rounded-2xl mb-6 text-xs sm:text-sm font-semibold flex items-center gap-3 ${
-                  msgGaleri.type === "success" ? "bg-green-50 text-green-800 border border-green-200" : "bg-red-50 text-red-800 border border-red-200"
+                  msgGaleri.type === "success" ? "bg-green-50 dark:bg-green-950/40 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-800" : "bg-red-50 dark:bg-red-950/40 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800"
                 }`}>
                   {msgGaleri.type === "success" ? <CheckCircle2 size={20} /> : <AlertCircle size={20} />}
                   <span>{msgGaleri.text}</span>
@@ -747,7 +747,7 @@ export default function AdminDashboard() {
                       value={judulFoto}
                       onChange={(e) => setJudulFoto(e.target.value)}
                       placeholder="Contoh: Kegiatan Praktek Memasak Siswa SMALB"
-                      className="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-xl focus:outline-none focus:border-[var(--color-secondary)]"
+                      className="w-full px-4 py-2.5 text-sm border border-gray-300 dark:border-[#2A3B54] bg-white dark:bg-[#0B0F17] text-[var(--color-text-dark)] rounded-xl focus:outline-none focus:border-[var(--color-secondary)] transition-colors"
                     />
                   </div>
 
@@ -757,7 +757,7 @@ export default function AdminDashboard() {
                       id="galeriKategori"
                       value={kategoriFoto}
                       onChange={(e) => setKategoriFoto(e.target.value)}
-                      className="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-xl focus:outline-none focus:border-[var(--color-secondary)] bg-white cursor-pointer"
+                      className="w-full px-4 py-2.5 text-sm border border-gray-300 dark:border-[#2A3B54] bg-white dark:bg-[#0B0F17] text-[var(--color-text-dark)] rounded-xl focus:outline-none focus:border-[var(--color-secondary)] cursor-pointer transition-colors"
                     >
                       <option value="kegiatan">Kegiatan Sekolah</option>
                       <option value="ruang-kelas">Ruang Kelas Belajar</option>
@@ -771,23 +771,23 @@ export default function AdminDashboard() {
 
                 <div className="space-y-2">
                   <label className="block text-xs font-bold text-[var(--color-text-dark)]">Upload File Foto Galeri</label>
-                  <div className="border-2 border-dashed border-gray-300 hover:border-[var(--color-secondary)] p-6 rounded-2xl text-center bg-gray-50 transition-colors">
+                  <div className="border-2 border-dashed border-gray-300 dark:border-[#2A3B54] hover:border-[var(--color-secondary)] p-6 rounded-2xl text-center bg-gray-50 dark:bg-[#0B0F17]/50 transition-colors">
                     {previewGaleri ? (
                       <div className="space-y-3">
                         <img src={previewGaleri} alt="Preview Galeri" className="max-h-56 mx-auto rounded-xl shadow-md object-cover" />
                         <button
                           type="button"
                           onClick={() => { setPreviewGaleri(""); setGambarGaleriBase64(""); }}
-                          className="text-xs text-red-600 underline font-semibold cursor-pointer"
+                          className="text-xs text-red-600 dark:text-red-400 underline font-semibold cursor-pointer"
                         >
                           Ganti Foto
                         </button>
                       </div>
                     ) : (
                       <label className="cursor-pointer flex flex-col items-center justify-center">
-                        <Upload size={32} className="text-gray-400 mb-2" />
-                        <span className="text-xs font-bold text-[var(--color-secondary-dark)]">Klik untuk Upload Foto Galeri</span>
-                        <span className="text-[10px] text-gray-500 font-semibold mt-1">✨ Otomatis dikompres & dikonversi ke WebP (Super Ringan)</span>
+                        <Upload size={32} className="text-gray-400 dark:text-gray-500 mb-2" />
+                        <span className="text-xs font-bold text-[var(--color-secondary-dark)] dark:text-[#4ADE80]">Klik untuk Upload Foto Galeri</span>
+                        <span className="text-[10px] text-gray-500 dark:text-gray-400 font-semibold mt-1">✨ Otomatis dikompres & dikonversi ke WebP (Super Ringan)</span>
                         <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, true)} className="hidden" />
                       </label>
                     )}
@@ -802,7 +802,7 @@ export default function AdminDashboard() {
                     value={altFoto}
                     onChange={(e) => setAltFoto(e.target.value)}
                     placeholder="Keterangan singkat visual foto untuk aksesibilitas..."
-                    className="w-full px-4 py-2 text-sm border border-gray-300 rounded-xl focus:outline-none focus:border-[var(--color-secondary)]"
+                    className="w-full px-4 py-2 text-sm border border-gray-300 dark:border-[#2A3B54] bg-white dark:bg-[#0B0F17] text-[var(--color-text-dark)] rounded-xl focus:outline-none focus:border-[var(--color-secondary)] transition-colors"
                   />
                 </div>
 
@@ -824,37 +824,37 @@ export default function AdminDashboard() {
             </div>
 
             {/* DAFTAR FOTO GALERI SAAT INI (READ / UPDATE / DELETE LIST) */}
-            <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-200 space-y-4">
+            <div className="bg-white dark:bg-[#161F2E] p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-200 dark:border-[#222F43] space-y-4">
               <h3 className="text-lg font-bold text-[var(--color-text-dark)]" style={{ fontFamily: "var(--font-heading)" }}>
                 Daftar Foto Galeri Sekolah ({filteredGaleri.length})
               </h3>
 
               {filteredGaleri.length === 0 ? (
-                <p className="text-xs text-gray-500 italic py-4 text-center">Belum ada foto galeri ditemukan.</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 italic py-4 text-center">Belum ada foto galeri ditemukan.</p>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                   {filteredGaleri.map((photo) => (
-                    <div key={photo.id} className="border border-gray-200 rounded-2xl p-3 bg-gray-50/50 flex flex-col justify-between space-y-3">
+                    <div key={photo.id} className="border border-gray-200 dark:border-[#222F43] rounded-2xl p-3 bg-gray-50/50 dark:bg-[#0B0F17]/50 flex flex-col justify-between space-y-3">
                       <div className="space-y-2">
-                        <img src={photo.src} alt={photo.judul} className="w-full h-36 rounded-xl object-cover border border-gray-200" />
+                        <img src={photo.src} alt={photo.judul} className="w-full h-36 rounded-xl object-cover border border-gray-200 dark:border-[#222F43]" />
                         <div>
-                          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 bg-gray-200 text-gray-700 rounded font-mono">
+                          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded font-mono">
                             {photo.kategori}
                           </span>
                           <h4 className="font-bold text-sm text-[var(--color-text-dark)] line-clamp-1 mt-1">{photo.judul}</h4>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2 pt-2 border-t border-gray-200/80">
+                      <div className="flex items-center gap-2 pt-2 border-t border-gray-200/80 dark:border-[#222F43]">
                         <button
                           onClick={() => handleEditGaleri(photo)}
-                          className="flex-1 flex items-center justify-center gap-1 py-1.5 text-xs font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg border border-amber-200 transition-colors cursor-pointer"
+                          className="flex-1 flex items-center justify-center gap-1 py-1.5 text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/60 rounded-lg border border-amber-200 dark:border-amber-800 transition-colors cursor-pointer"
                         >
                           <Edit3 size={14} /> Edit
                         </button>
                         <button
                           onClick={() => handleDeleteGaleri(photo.id, photo.judul)}
-                          className="flex-1 flex items-center justify-center gap-1 py-1.5 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 rounded-lg border border-red-200 transition-colors cursor-pointer"
+                          className="flex-1 flex items-center justify-center gap-1 py-1.5 text-xs font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-900/60 rounded-lg border border-red-200 dark:border-red-800 transition-colors cursor-pointer"
                         >
                           <Trash2 size={14} /> Hapus
                         </button>
@@ -869,13 +869,13 @@ export default function AdminDashboard() {
 
         {/* TAB 3: PENGATURAN & OTORISASI GITHUB */}
         {activeTab === "pengaturan" && (
-          <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-200 space-y-6">
+          <div className="bg-white dark:bg-[#161F2E] p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-200 dark:border-[#222F43] space-y-6">
             <h2 className="text-xl font-bold flex items-center gap-2 text-[var(--color-text-dark)]" style={{ fontFamily: "var(--font-heading)" }}>
-              <Settings className="text-blue-600" /> Pengaturan Otorisasi & Otomatisasi GitHub
+              <Settings className="text-blue-600 dark:text-blue-400" /> Pengaturan Otorisasi & Otomatisasi GitHub
             </h2>
 
-            <div className="bg-blue-50 border border-blue-200 p-4 sm:p-6 rounded-2xl text-xs sm:text-sm text-blue-900 leading-relaxed space-y-3">
-              <h3 className="font-bold flex items-center gap-2 text-blue-950">
+            <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900 p-4 sm:p-6 rounded-2xl text-xs sm:text-sm text-blue-900 dark:text-blue-200 leading-relaxed space-y-3">
+              <h3 className="font-bold flex items-center gap-2 text-blue-950 dark:text-blue-100">
                 <HelpCircle size={18} /> Otomatisasi CRUD Berita & Foto via GitHub
               </h3>
               <p>
@@ -893,10 +893,10 @@ export default function AdminDashboard() {
                 value={githubToken}
                 onChange={(e) => handleSaveToken(e.target.value)}
                 placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-                className="w-full px-4 py-3 text-sm border border-gray-300 rounded-xl font-mono focus:outline-none focus:border-blue-600"
+                className="w-full px-4 py-3 text-sm border border-gray-300 dark:border-[#2A3B54] bg-white dark:bg-[#0B0F17] text-[var(--color-text-dark)] rounded-xl font-mono focus:outline-none focus:border-blue-600 transition-colors"
               />
               <p className="text-[11px] text-[var(--color-text-light)]">
-                💡 <strong>Catatan:</strong> Jika Anda sudah memasukkan <code className="bg-gray-100 px-1 py-0.5 rounded text-blue-700">GITHUB_TOKEN</code> di menu Environment Variables Vercel, Anda dapat mengosongkan kolom di atas.
+                💡 <strong>Catatan:</strong> Jika Anda sudah memasukkan <code className="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded text-blue-700 dark:text-blue-300">GITHUB_TOKEN</code> di menu Environment Variables Vercel, Anda dapat mengosongkan kolom di atas.
               </p>
             </div>
           </div>
