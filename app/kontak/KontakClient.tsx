@@ -26,10 +26,37 @@ export default function KontakClient() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Goal Gradient Calculation: Memulai dari 50% ketika pengguna mulai mengetik (Artificial Head Start)
-  const isStarted = Boolean(formData.nama || formData.whatsapp || formData.pesan);
-  const isComplete = Boolean(formData.nama && formData.whatsapp && formData.pesan);
-  const progressPercent = !isStarted ? 0 : isComplete ? 100 : 50;
+  // Goal Gradient Calculation: Memulai dari 20% (Red) lalu meningkat dan bertransisi warna ke hijau saat terisi
+  const filledFieldsCount = [
+    Boolean(formData.nama.trim()),
+    Boolean(formData.whatsapp.trim()),
+    Boolean(formData.pesan.trim()),
+    Boolean(formData.email.trim()),
+  ].filter(Boolean).length;
+
+  const isFormValid = Boolean(formData.nama.trim() && formData.whatsapp.trim() && formData.pesan.trim());
+
+  let progressPercent = 20;
+  if (isFormValid) {
+    progressPercent = 100;
+  } else if (filledFieldsCount === 3) {
+    progressPercent = 80;
+  } else if (filledFieldsCount === 2) {
+    progressPercent = 60;
+  } else if (filledFieldsCount === 1) {
+    progressPercent = 40;
+  }
+
+  // Dynamic Color Transition (Red 20% -> Orange 40% -> Amber 60% -> Lime 80% -> Emerald 100%)
+  const getProgressStyle = (percent: number) => {
+    if (percent >= 100) return { bg: "bg-emerald-500", text: "text-emerald-600 dark:text-emerald-400", label: "✨ Form Lengkap & Siap Dikirim!" };
+    if (percent >= 80) return { bg: "bg-lime-500", text: "text-lime-600 dark:text-lime-400", label: "🚀 Hampir Selesai (Tinggal 1 Kolom Lagi)" };
+    if (percent >= 60) return { bg: "bg-amber-500", text: "text-amber-600 dark:text-amber-400", label: "⚡ Setengah Jalan (Lanjutkan Pengisian)" };
+    if (percent >= 40) return { bg: "bg-orange-500", text: "text-orange-600 dark:text-orange-400", label: "📝 Bagus! Terus Isi Kolom Berikutnya" };
+    return { bg: "bg-red-500", text: "text-red-600 dark:text-red-400", label: "📌 Mulai Pengisian Formulir (20%)" };
+  };
+
+  const progressInfo = getProgressStyle(progressPercent);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -254,21 +281,19 @@ export default function KontakClient() {
                       </div>
                     </div>
 
-                    {/* Goal Gradient Effect: Progress Meter dengan Artificial Head Start (50%) */}
-                    {isStarted && (
-                      <div className="space-y-1.5 bg-gray-50 dark:bg-[#0B0F17] p-3 rounded-xl border border-gray-200 dark:border-[#2A3B54]">
-                        <div className="flex justify-between text-[11px] font-bold text-[var(--color-text-dark)]">
-                          <span>{isComplete ? "✨ Form Lengkap & Siap Dikirim" : "📋 Progres Pengisian"}</span>
-                          <span className="text-[var(--color-primary)] font-mono">{progressPercent}%</span>
-                        </div>
-                        <div className="w-full h-2 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-gradient-to-r from-[var(--color-primary)] to-emerald-500 transition-all duration-300 rounded-full"
-                            style={{ width: `${progressPercent}%` }}
-                          />
-                        </div>
+                    {/* Goal Gradient Effect: Progress Meter Dinamis (Mulai 20% Red -> 100% Emerald Green) */}
+                    <div className="space-y-1.5 bg-gray-50 dark:bg-[#0B0F17] p-3 rounded-xl border border-gray-200 dark:border-[#2A3B54] transition-all">
+                      <div className="flex justify-between text-[11px] font-bold">
+                        <span className={progressInfo.text}>{progressInfo.label}</span>
+                        <span className={`${progressInfo.text} font-mono`}>{progressPercent}%</span>
                       </div>
-                    )}
+                      <div className="w-full h-2.5 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden p-0.5">
+                        <div
+                          className={`h-full ${progressInfo.bg} transition-all duration-500 ease-out rounded-full shadow-sm`}
+                          style={{ width: `${progressPercent}%` }}
+                        />
+                      </div>
+                    </div>
 
                     {errorMsg && (
                       <div className="p-3 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 text-xs font-semibold rounded-xl border border-red-200 dark:border-red-800 flex items-center gap-2">
