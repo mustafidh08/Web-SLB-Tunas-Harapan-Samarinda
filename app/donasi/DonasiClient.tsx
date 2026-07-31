@@ -177,7 +177,7 @@ export default function DonasiClient() {
           <div className="max-w-3xl mx-auto bg-gradient-to-r from-emerald-600 to-teal-700 text-white p-6 rounded-2xl shadow-lg flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="space-y-1 text-center sm:text-left">
               <span className="text-xs uppercase font-extrabold tracking-wider text-emerald-200">Dampak Kontribusi Anda</span>
-              <h4 className="text-lg font-bold">{currentImpact.judul}</h4>
+              <h4 className="text-lg font-bold !text-white" style={{ color: "#ffffff" }}>{currentImpact.judul}</h4>
               <p className="text-xs text-emerald-100 max-w-xl leading-relaxed">{currentImpact.deskripsi}</p>
             </div>
             <a
