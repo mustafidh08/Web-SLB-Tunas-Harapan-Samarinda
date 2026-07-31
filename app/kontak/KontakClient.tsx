@@ -87,15 +87,14 @@ export default function KontakClient() {
       setLastSubmitted({ ...sanitized, topik: formData.topik });
       setKirimSukses(true);
 
-      // Coba buka mailto di window terpisah agar tidak menghentikan state React
-      const subject = `[${formData.topik}] Pertanyaan dari ${sanitized.nama}`;
-      const body = `Halo SLB Tunas Harapan Samarinda,\n\nSaya ingin menanyakan perihal: ${formData.topik}.\n\nBerikut detail kontak saya:\n- Nama: ${sanitized.nama}\n- WhatsApp/HP: ${sanitized.whatsapp}\n- Email Pengirim: ${sanitized.email}\n\nPesan:\n${sanitized.pesan}\n\nTerima kasih.`;
+      // Otomatis buka WhatsApp Admin dengan format pesan rapi & terstruktur
+      const waMessage = `Halo SLB Tunas Harapan Samarinda,\n\nSaya ${sanitized.nama} ingin berkonsultasi perihal:\n📌 *${formData.topik}*\n\n*Detail Pengirim:*\n- Nama: ${sanitized.nama}\n- No. WhatsApp: ${sanitized.whatsapp}\n- Email: ${sanitized.email || "-"}\n\n*Isi Pesan / Pertanyaan:*\n${sanitized.pesan}\n\nTerima kasih.`;
       
-      const mailtoUrl = `mailto:slbtunasharapan.smr@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      const waUrl = `https://wa.me/6285250402074?text=${encodeURIComponent(waMessage)}`;
       
       setTimeout(() => {
         try {
-          window.location.href = mailtoUrl;
+          window.open(waUrl, "_blank", "noopener,noreferrer");
         } catch {
           // Fallback safe
         }
