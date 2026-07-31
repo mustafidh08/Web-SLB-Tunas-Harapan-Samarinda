@@ -136,10 +136,10 @@ export default function DonasiClient() {
                 <TiltCard key={program.id} glowColor="rgba(16, 185, 129, 0.2)" className="h-full">
                   <div
                     onClick={() => setSelectedNominal(program.nominal)}
-                    className={`relative cursor-pointer p-6 rounded-2xl border transition-all h-full flex flex-col justify-between ${
+                    className={`relative cursor-pointer p-6 rounded-2xl border-2 transition-all h-full flex flex-col justify-between ${
                       isSelected
-                        ? "bg-emerald-50/50 dark:bg-emerald-950/30 border-emerald-500 shadow-md ring-2 ring-emerald-500/20"
-                        : "bg-white dark:bg-[#161F2E] border-gray-200 dark:border-[#222F43] hover:border-gray-300 dark:hover:border-gray-700"
+                        ? "bg-emerald-50/50 dark:bg-emerald-950/30 border-emerald-500 shadow-lg shadow-emerald-500/10"
+                        : "bg-white dark:bg-[#161F2E] border-gray-200/80 dark:border-[#222F43] hover:border-gray-300 dark:hover:border-gray-700"
                     }`}
                   >
                     <div>

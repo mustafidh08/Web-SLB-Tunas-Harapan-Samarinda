@@ -47,10 +47,10 @@ export default function TiltCard({
   };
 
   return (
-    <div className={`perspective-1000 w-full h-full ${className}`}>
+    <div className={`perspective-1000 w-full h-full rounded-2xl ${className}`}>
       <motion.div
         ref={cardRef}
-        className="relative overflow-hidden transition-transform duration-200 ease-out transform-gpu w-full h-full rounded-[inherit]"
+        className="relative overflow-hidden transition-transform duration-200 ease-out transform-gpu w-full h-full rounded-2xl"
         style={{
           transformStyle: "preserve-3d",
           transform: `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`,
@@ -60,7 +60,7 @@ export default function TiltCard({
       >
         {/* Mouse Spotlight Layer */}
         <div
-          className="pointer-events-none absolute -inset-px transition-opacity duration-300 rounded-[inherit] z-10"
+          className="pointer-events-none absolute -inset-px transition-opacity duration-300 rounded-2xl z-10"
           style={{
             opacity: spotlightPos.opacity,
             background: `radial-gradient(600px circle at ${spotlightPos.x}% ${spotlightPos.y}%, ${glowColor}, transparent 60%)`,
