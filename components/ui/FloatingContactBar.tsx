@@ -36,20 +36,22 @@ export default function FloatingContactBar() {
               href="https://wa.me/6285250402074"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 flex items-center justify-center gap-2 py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-md transition-all min-h-[44px]"
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 active:scale-95 !text-white font-bold text-xs rounded-xl shadow-md transition-all min-h-[44px]"
+              style={{ color: "#ffffff" }}
               aria-label="Hubungi WhatsApp Admin Sekolah"
             >
-              <MessageCircle size={16} />
-              <span>WhatsApp Admin</span>
+              <MessageCircle size={16} className="text-white" />
+              <span style={{ color: "#ffffff" }}>WhatsApp Admin</span>
             </a>
 
             <a
               href="/kontak"
-              className="flex-1 flex items-center justify-center gap-2 py-2.5 px-3 bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] active:scale-95 text-white font-bold text-xs rounded-xl shadow-md transition-all min-h-[44px]"
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 px-3 bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] active:scale-95 !text-white font-bold text-xs rounded-xl shadow-md transition-all min-h-[44px]"
+              style={{ color: "#ffffff" }}
               aria-label="Konsultasi Pendaftaran PPDB"
             >
-              <PhoneCall size={16} />
-              <span>Konsultasi PPDB</span>
+              <PhoneCall size={16} className="text-white" />
+              <span style={{ color: "#ffffff" }}>Konsultasi PPDB</span>
             </a>
           </div>
         </motion.div>

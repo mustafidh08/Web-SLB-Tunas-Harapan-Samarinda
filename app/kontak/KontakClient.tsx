@@ -254,10 +254,11 @@ export default function KontakClient() {
                           href={`https://wa.me/6285250402074?text=${encodeURIComponent(`Halo SLB Tunas Harapan Samarinda, saya ${lastSubmitted.nama} (perihal: ${lastSubmitted.topik}). Pesan saya: ${lastSubmitted.pesan}`)}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center justify-center gap-2 px-6 py-3 text-xs font-bold rounded-full bg-emerald-600 hover:bg-emerald-700 text-white active:scale-95 transition-all shadow-md"
+                          className="inline-flex items-center justify-center gap-2 px-6 py-3 text-xs font-bold rounded-full bg-emerald-600 hover:bg-emerald-700 !text-white active:scale-95 transition-all shadow-md"
+                          style={{ color: "#ffffff" }}
                         >
-                          <MessageSquare size={16} />
-                          Lanjut Bicara di WhatsApp Admin
+                          <MessageSquare size={16} className="text-white" />
+                          <span style={{ color: "#ffffff" }}>Lanjut Bicara di WhatsApp Admin</span>
                         </a>
                         <button
                           onClick={() => setKirimSukses(false)}
