@@ -279,27 +279,29 @@ export default function DonasiClient() {
 
             {/* B. PEMBAYARAN QRIS (PROGRESSIVE DISCLOSURE - TERSEMBUNYI HINGGA DIKLIK) */}
             <div className="bg-white dark:bg-[#161F2E] p-6 rounded-2xl border border-gray-200 dark:border-[#222F43] shadow-sm">
-              <button
+              <div
                 onClick={() => setShowQris(!showQris)}
-                className="w-full flex items-center justify-between gap-4 p-2 text-left cursor-pointer group"
+                className="w-full flex flex-col items-start gap-4 cursor-pointer group"
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold">
+                <div className="flex items-start gap-3.5 w-full">
+                  <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold flex-shrink-0 mt-0.5">
                     <QrCode size={20} />
                   </div>
-                  <div>
-                    <h3 className="font-bold text-base text-[var(--color-text-dark)] group-hover:text-[var(--color-primary)] transition-colors">
+                  <div className="space-y-1 flex-1">
+                    <h3 className="font-bold text-base text-[var(--color-text-dark)] group-hover:text-[var(--color-primary)] transition-colors leading-snug">
                       Pembayaran Praktis via QRIS (QR Code)
                     </h3>
-                    <p className="text-xs text-[var(--color-text-mid)]">Scan dengan Mobile Banking (BCA, Mandiri, BRI, BSI, dll) atau e-Wallet (GoPay, OVO, Dana).</p>
+                    <p className="text-xs text-[var(--color-text-mid)] leading-relaxed">
+                      Scan dengan Mobile Banking (BCA, Mandiri, BRI, BSI, dll) atau e-Wallet (GoPay, OVO, Dana).
+                    </p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-250 dark:border-[#2A3B54] bg-gray-50 dark:bg-[#0B0F17] text-xs font-bold text-[var(--color-text-dark)]">
-                  <span>{showQris ? "Sembunyikan QRIS" : "Tampilkan QRIS"}</span>
+                <div className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl border border-gray-250 dark:border-[#2A3B54] bg-gray-50 dark:bg-[#0B0F17] text-xs font-bold text-[var(--color-text-dark)] group-hover:border-[var(--color-primary)] active:scale-98 transition-all min-h-[44px] shadow-xs">
+                  <span>{showQris ? "Sembunyikan Kode QRIS" : "Tampilkan Kode QRIS"}</span>
                   {showQris ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                 </div>
-              </button>
+              </div>
 
               {/* Expandable QRIS Section */}
               {showQris && (
