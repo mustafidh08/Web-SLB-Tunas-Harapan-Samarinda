@@ -142,13 +142,15 @@ export default function DonasiClient() {
                         : "bg-white dark:bg-[#161F2E] border-gray-200 dark:border-[#222F43] hover:border-gray-300 dark:hover:border-gray-700"
                     }`}
                   >
-                    {program.populer && (
-                      <span className="absolute -top-3 right-4 px-3 py-0.5 rounded-full bg-[var(--color-primary)] text-white text-[10px] font-extrabold uppercase tracking-wider shadow-sm">
-                        Paling Banyak Dipilih
-                      </span>
-                    )}
-
                     <div>
+                      {program.populer && (
+                        <div className="mb-3">
+                          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[var(--color-primary)] text-white text-[10px] font-extrabold uppercase tracking-wider shadow-xs">
+                            🔥 Paling Banyak Dipilih
+                          </span>
+                        </div>
+                      )}
+
                       <div className="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-4">
                         <IconComp size={24} />
                       </div>
@@ -180,9 +182,10 @@ export default function DonasiClient() {
             </div>
             <a
               href="#metode-pembayaran"
-              className="px-5 py-2.5 bg-white text-emerald-900 font-bold text-xs rounded-xl hover:bg-emerald-50 active:scale-95 transition-all flex-shrink-0 shadow"
+              className="px-5 py-2.5 bg-white font-bold text-xs rounded-xl hover:bg-emerald-50 active:scale-95 transition-all flex-shrink-0 shadow"
+              style={{ color: "#064e3b" }}
             >
-              Lanjut ke Pembayaran ↓
+              <span style={{ color: "#064e3b" }}>Lanjut ke Pembayaran ↓</span>
             </a>
           </div>
         </div>
