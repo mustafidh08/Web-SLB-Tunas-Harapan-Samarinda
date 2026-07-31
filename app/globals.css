@@ -39,10 +39,10 @@
 
 /* Dark Mode Color Palette — Deep OLED Slate (#0B0F17) & Surface (#161F2E) */
 html.dark, .dark {
-  --color-secondary: #4ADE80;
-  --color-secondary-dark: #22C55E;
-  --color-secondary-light: #86EFAC;
-  --color-secondary-tint: rgba(74, 222, 128, 0.18);
+  --color-secondary: #10B981;
+  --color-secondary-dark: #059669;
+  --color-secondary-light: #34D399;
+  --color-secondary-tint: rgba(16, 185, 129, 0.18);
   --color-primary-tint: rgba(204, 31, 42, 0.22);
   --color-accent-tint: rgba(245, 200, 0, 0.22);
 

@@ -130,7 +130,7 @@ export default function KontakClient() {
                       </li>
 
                       <li className="flex gap-4 items-start">
-                        <div className="w-10 h-10 rounded-xl bg-white dark:bg-[#0B0F17] shadow-sm flex items-center justify-center flex-shrink-0 text-[var(--color-secondary)] dark:text-[#4ADE80] border border-gray-100 dark:border-[#222F43]">
+                        <div className="w-10 h-10 rounded-xl bg-white dark:bg-[#0B0F17] shadow-sm flex items-center justify-center flex-shrink-0 text-[var(--color-secondary)] dark:text-emerald-400 border border-gray-100 dark:border-[#222F43]">
                            <Phone size={20} />
                         </div>
                         <div>
@@ -140,7 +140,7 @@ export default function KontakClient() {
                               href="https://wa.me/6285250402074" 
                               target="_blank" 
                               rel="noopener noreferrer"
-                              className="text-sm text-[var(--color-secondary-dark)] dark:text-[#4ADE80] hover:underline font-semibold flex items-center gap-1"
+                              className="text-sm text-[var(--color-secondary-dark)] dark:text-emerald-400 hover:underline font-semibold flex items-center gap-1"
                               aria-label="Hubungi WhatsApp Sekolah"
                             >
                               0852-5040-2074
@@ -179,7 +179,7 @@ export default function KontakClient() {
                   </div>
                   
                   <div className="bg-[var(--color-secondary-tint)] dark:bg-emerald-950/50 p-4 rounded-xl border border-green-100/50 dark:border-emerald-800/80">
-                    <p className="text-xs text-[var(--color-secondary-dark)] dark:text-[#4ADE80] font-medium leading-relaxed">
+                    <p className="text-xs text-[var(--color-secondary-dark)] dark:text-emerald-400 font-medium leading-relaxed">
                       💡 <strong>Catatan Kunjungan:</strong> Harap membuat janji temu terlebih dahulu melalui WhatsApp/telepon sebelum berkunjung langsung demi memastikan kelancaran pertemuan dengan staff/kepala sekolah.
                     </p>
                   </div>

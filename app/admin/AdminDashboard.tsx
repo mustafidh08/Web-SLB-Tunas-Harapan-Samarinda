@@ -462,7 +462,7 @@ export default function AdminDashboard() {
         {/* HEADER DASHBOARD */}
         <div className="bg-white dark:bg-[#161F2E] p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-200 dark:border-[#222F43] mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-50 dark:bg-green-950/40 text-[var(--color-secondary-dark)] dark:text-green-300 text-xs font-bold rounded-full mb-2 border border-green-200 dark:border-green-800">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-50 dark:bg-emerald-950/50 text-[var(--color-secondary-dark)] dark:text-emerald-400 text-xs font-bold rounded-full mb-2 border border-green-200 dark:border-emerald-800/80">
               <CheckCircle2 size={14} /> Terhubung sebagai Pengelola Publikasi (CRUD Aktif)
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-[var(--color-text-dark)]" style={{ fontFamily: "var(--font-heading)" }}>
@@ -552,7 +552,7 @@ export default function AdminDashboard() {
 
               {msgKegiatan && (
                 <div className={`p-4 rounded-2xl mb-6 text-xs sm:text-sm font-semibold flex items-center gap-3 ${
-                  msgKegiatan.type === "success" ? "bg-green-50 dark:bg-green-950/40 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-800" : "bg-red-50 dark:bg-red-950/40 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800"
+                  msgKegiatan.type === "success" ? "bg-green-50 dark:bg-emerald-950/50 text-green-800 dark:text-emerald-300 border border-green-200 dark:border-emerald-800/80" : "bg-red-50 dark:bg-red-950/40 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800"
                 }`}>
                   {msgKegiatan.type === "success" ? <CheckCircle2 size={20} /> : <AlertCircle size={20} />}
                   <span>{msgKegiatan.text}</span>
@@ -729,7 +729,7 @@ export default function AdminDashboard() {
 
               {msgGaleri && (
                 <div className={`p-4 rounded-2xl mb-6 text-xs sm:text-sm font-semibold flex items-center gap-3 ${
-                  msgGaleri.type === "success" ? "bg-green-50 dark:bg-green-950/40 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-800" : "bg-red-50 dark:bg-red-950/40 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800"
+                  msgGaleri.type === "success" ? "bg-green-50 dark:bg-emerald-950/50 text-green-800 dark:text-emerald-300 border border-green-200 dark:border-emerald-800/80" : "bg-red-50 dark:bg-red-950/40 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800"
                 }`}>
                   {msgGaleri.type === "success" ? <CheckCircle2 size={20} /> : <AlertCircle size={20} />}
                   <span>{msgGaleri.text}</span>
@@ -786,7 +786,7 @@ export default function AdminDashboard() {
                     ) : (
                       <label className="cursor-pointer flex flex-col items-center justify-center">
                         <Upload size={32} className="text-gray-400 dark:text-gray-500 mb-2" />
-                        <span className="text-xs font-bold text-[var(--color-secondary-dark)] dark:text-[#4ADE80]">Klik untuk Upload Foto Galeri</span>
+                        <span className="text-xs font-bold text-[var(--color-secondary-dark)] dark:text-emerald-400">Klik untuk Upload Foto Galeri</span>
                         <span className="text-[10px] text-gray-500 dark:text-gray-400 font-semibold mt-1">✨ Otomatis dikompres & dikonversi ke WebP (Super Ringan)</span>
                         <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, true)} className="hidden" />
                       </label>
