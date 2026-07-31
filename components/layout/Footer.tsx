@@ -12,6 +12,7 @@ const linkSekolah = [
 
 const linkInfo = [
   { href: "/kegiatan", label: "Kegiatan & Berita" },
+  { href: "/donasi", label: "Dukung / Donasi" },
   { href: "/kontak", label: "Kontak & Lokasi" },
 ];
 

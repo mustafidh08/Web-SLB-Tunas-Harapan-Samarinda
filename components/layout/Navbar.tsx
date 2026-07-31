@@ -12,6 +12,7 @@ const navLinks = [
   { href: "/profil", label: "Profil Sekolah" },
   { href: "/galeri", label: "Galeri" },
   { href: "/kegiatan", label: "Kegiatan" },
+  { href: "/donasi", label: "Donasi" },
   { href: "/kontak", label: "Kontak" },
 ];
 
