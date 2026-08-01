@@ -21,7 +21,8 @@ import {
   TrendingUp,
   TrendingDown,
   DollarSign,
-  Search
+  Search,
+  Calendar
 } from "lucide-react";
 import KineticText from "@/components/ui/KineticText";
 import TiltCard from "@/components/ui/TiltCard";
@@ -520,8 +521,51 @@ export default function DonasiClient() {
               </div>
             </div>
 
-            {/* Table View */}
-            <div className="overflow-x-auto">
+            {/* Mobile Card View (Tampil Khusus di HP < 768px agar tidak terhimpit) */}
+            <div className="block md:hidden divide-y divide-gray-150 dark:divide-[#222F43]">
+              {filteredTransaksi.length > 0 ? (
+                filteredTransaksi.map((trx) => (
+                  <div key={trx.id} className="p-4 space-y-2.5 bg-white dark:bg-[#161F2E]">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-mono text-xs text-[var(--color-text-mid)] flex items-center gap-1.5">
+                        <Calendar size={13} className="text-gray-400" /> {trx.tanggal}
+                      </span>
+                      <span
+                        className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                          trx.tipe === "pemasukan"
+                            ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
+                            : "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300"
+                        }`}
+                      >
+                        {trx.kategori}
+                      </span>
+                    </div>
+
+                    <p className="font-medium text-xs sm:text-sm text-[var(--color-text-dark)] leading-relaxed">
+                      {trx.uraian}
+                    </p>
+
+                    <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-[#222F43]">
+                      <span className="text-[11px] font-medium text-[var(--color-text-mid)]">Nominal:</span>
+                      <span
+                        className={`font-bold font-mono text-xs sm:text-sm ${
+                          trx.tipe === "pemasukan" ? "text-emerald-600 dark:text-emerald-400" : "text-gray-900 dark:text-gray-100"
+                        }`}
+                      >
+                        {trx.tipe === "pemasukan" ? "+" : "-"} {formatRupiah(trx.nominal)}
+                      </span>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="py-8 text-center text-gray-400 text-xs">
+                  Tidak ada transaksi yang cocok.
+                </div>
+              )}
+            </div>
+
+            {/* Desktop Table View (Tampil Khusus di Layar Laptop/PC >= 768px) */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-gray-50 dark:bg-[#0B0F17] text-[11px] font-extrabold uppercase text-[var(--color-text-mid)] border-b border-gray-200 dark:border-[#222F43]">
