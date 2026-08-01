@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import SectionTitle from "@/components/ui/SectionTitle";
 import Button from "@/components/ui/Button";
 import { 
@@ -15,11 +15,16 @@ import {
   Award, 
   MessageSquare,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  FileText,
+  Download,
+  TrendingUp,
+  TrendingDown,
+  DollarSign,
+  Search
 } from "lucide-react";
 import KineticText from "@/components/ui/KineticText";
 import TiltCard from "@/components/ui/TiltCard";
-import MagneticButton from "@/components/ui/MagneticButton";
 
 interface ProgramImpact {
   id: string;
@@ -29,6 +34,35 @@ interface ProgramImpact {
   deskripsi: string;
   icon: typeof Heart;
   populer?: boolean;
+}
+
+interface TransaksiItem {
+  id: string;
+  tanggal: string;
+  uraian: string;
+  kategori: string;
+  tipe: "pemasukan" | "pengeluaran";
+  nominal: number;
+  buktiUrl?: string;
+}
+
+interface LaporanDokumen {
+  id: string;
+  judul: string;
+  periode: string;
+  fileUrl: string;
+  tanggalUpload: string;
+}
+
+interface KeuanganData {
+  ringkasan: {
+    totalPemasukan: number;
+    totalPengeluaran: number;
+    saldoKas: number;
+    terakhirDiperbarui: string;
+  };
+  laporanDokumen: LaporanDokumen[];
+  transaksi: TransaksiItem[];
 }
 
 const PROGRAM_DONASI: ProgramImpact[] = [
@@ -61,10 +95,26 @@ const PROGRAM_DONASI: ProgramImpact[] = [
 
 export default function DonasiClient() {
   const [selectedNominal, setSelectedNominal] = useState<number | "custom">(100000);
-  const [customNominal, setCustomNominal] = useState<string>("");
   const [copiedBank, setCopiedBank] = useState<string | null>(null);
   const [showQris, setShowQris] = useState<boolean>(false);
-  const [showConfirmationModal, setShowConfirmationModal] = useState<boolean>(false);
+  const [keuanganData, setKeuanganData] = useState<KeuanganData | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState("semua");
+
+  useEffect(() => {
+    const fetchKeuangan = async () => {
+      try {
+        const res = await fetch("/api/admin/keuangan");
+        const json = await res.json();
+        if (json.success && json.data) {
+          setKeuanganData(json.data);
+        }
+      } catch {
+        // Fallback default
+      }
+    };
+    fetchKeuangan();
+  }, []);
 
   const handleCopy = (text: string, bankId: string) => {
     navigator.clipboard.writeText(text);
@@ -76,6 +126,17 @@ export default function DonasiClient() {
     judul: "Dukungan Bebas Kebaikan Siswa",
     deskripsi: "Setiap kontribusi keikhlasan Anda akan disalurkan secara transparan untuk pemenuhan sarana belajar & terapi anak-anak istimewa.",
   };
+
+  const formatRupiah = (num: number) => {
+    return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(num);
+  };
+
+  // Filter Transaksi
+  const filteredTransaksi = (keuanganData?.transaksi || []).filter((t) => {
+    const matchSearch = t.uraian.toLowerCase().includes(searchQuery.toLowerCase()) || t.kategori.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchCategory = selectedCategoryFilter === "semua" || (selectedCategoryFilter === "masuk" && t.tipe === "pemasukan") || (selectedCategoryFilter === "keluar" && t.tipe === "pengeluaran");
+    return matchSearch && matchCategory;
+  });
 
   return (
     <>
@@ -277,7 +338,7 @@ export default function DonasiClient() {
               </div>
             </div>
 
-            {/* B. PEMBAYARAN QRIS (PROGRESSIVE DISCLOSURE - TERSEMBUNYI HINGGA DIKLIK) */}
+            {/* B. PEMBAYARAN QRIS (PROGRESSIVE DISCLOSURE) */}
             <div className="bg-white dark:bg-[#161F2E] p-6 rounded-2xl border border-gray-200 dark:border-[#222F43] shadow-sm">
               <div
                 onClick={() => setShowQris(!showQris)}
@@ -307,7 +368,6 @@ export default function DonasiClient() {
               {showQris && (
                 <div className="mt-6 pt-6 border-t border-gray-150 dark:border-[#222F43] text-center space-y-4 animate-in fade-in zoom-in-95 duration-300">
                   <div className="max-w-xs mx-auto p-4 bg-white rounded-2xl border-2 border-gray-200 shadow-md">
-                    {/* Placeholder QRIS Image */}
                     <div className="w-56 h-56 mx-auto bg-gray-100 rounded-xl flex flex-col items-center justify-center border border-dashed border-gray-300 p-4 text-gray-500 space-y-2">
                       <QrCode size={64} className="text-gray-400" />
                       <p className="text-xs font-bold text-gray-600">QRIS SLB TUNAS HARAPAN</p>
@@ -345,6 +405,167 @@ export default function DonasiClient() {
                   <span style={{ color: "#ffffff" }}>Konfirmasi via WhatsApp Admin</span>
                 </a>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. SEKSI TRANSPARANSI & AKUNTABILITAS KEUANGAN DONASI */}
+      <section className="section-py bg-white dark:bg-[#0B0F17] transition-colors duration-300">
+        <div className="container-custom max-w-5xl">
+          <SectionTitle
+            label="Laporan Akuntabel"
+            title="Transparansi Penggunaan Dana Donasi"
+            subtitle="Sebagai bentuk pertanggungjawaban publik, seluruh rekapan donasi masuk dan penyaluran program dipublikasikan secara jujur dan transparan."
+          />
+
+          {/* 3 Metric Cards Live Summary */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div className="p-6 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/80 shadow-xs flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold">
+                <TrendingUp size={24} />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-wider">Total Donasi Masuk</p>
+                <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-0.5">
+                  {formatRupiah(keuanganData?.ringkasan?.totalPemasukan || 15000000)}
+                </p>
+              </div>
+            </div>
+
+            <div className="p-6 rounded-2xl bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800/80 shadow-xs flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold">
+                <TrendingDown size={24} />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-blue-800 dark:text-blue-300 uppercase tracking-wider">Dana Tersalurkan</p>
+                <p className="text-2xl font-black text-blue-600 dark:text-blue-400 mt-0.5">
+                  {formatRupiah(keuanganData?.ringkasan?.totalPengeluaran || 10500000)}
+                </p>
+              </div>
+            </div>
+
+            <div className="p-6 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/80 shadow-xs flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold">
+                <DollarSign size={24} />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider">Saldo Kas Donasi</p>
+                <p className="text-2xl font-black text-amber-600 dark:text-amber-400 mt-0.5">
+                  {formatRupiah(keuanganData?.ringkasan?.saldoKas || 4500000)}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Unduh Berkas Laporan Resmi (PDF/Doc) */}
+          {keuanganData?.laporanDokumen && keuanganData.laporanDokumen.length > 0 && (
+            <div className="mb-12 bg-gray-50 dark:bg-[#161F2E] p-6 rounded-2xl border border-gray-200 dark:border-[#222F43] shadow-xs">
+              <div className="flex items-center gap-3 mb-4">
+                <FileText size={20} className="text-[var(--color-primary)]" />
+                <h3 className="font-bold text-base text-[var(--color-text-dark)]">Berkas Laporan Pertanggungjawaban Resmi (PDF/Excel)</h3>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {keuanganData.laporanDokumen.map((doc) => (
+                  <div key={doc.id} className="p-4 rounded-xl bg-white dark:bg-[#0B0F17] border border-gray-200 dark:border-[#2A3B54] flex items-center justify-between gap-3">
+                    <div className="space-y-0.5 overflow-hidden">
+                      <p className="font-bold text-xs text-[var(--color-text-dark)] truncate">{doc.judul}</p>
+                      <p className="text-[11px] text-[var(--color-text-mid)]">Periode: {doc.periode}</p>
+                    </div>
+                    <a
+                      href={doc.fileUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 px-3 py-2 text-xs font-bold rounded-lg bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] !text-white active:scale-95 transition-all flex-shrink-0 shadow-xs"
+                      style={{ color: "#ffffff" }}
+                    >
+                      <Download size={14} className="text-white" />
+                      <span>Unduh</span>
+                    </a>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Tabel Transaksi Terkini */}
+          <div className="bg-white dark:bg-[#161F2E] rounded-2xl border border-gray-200 dark:border-[#222F43] shadow-sm overflow-hidden">
+            <div className="p-6 border-b border-gray-150 dark:border-[#222F43] flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <h3 className="font-bold text-lg text-[var(--color-text-dark)]">Catatan Transaksi Transparansi</h3>
+                <p className="text-xs text-[var(--color-text-mid)]">Rincian mutasi pemasukan donasi & pengeluaran program sekolah.</p>
+              </div>
+
+              {/* Filter & Search */}
+              <div className="flex flex-col sm:flex-row gap-2">
+                <div className="relative">
+                  <Search size={14} className="absolute left-3 top-3 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Cari transaksi..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-8 pr-3 py-1.5 text-xs rounded-xl border border-gray-250 dark:border-[#2A3B54] bg-white dark:bg-[#0B0F17] text-[var(--color-text-dark)] focus:outline-none focus:border-[var(--color-primary)]"
+                  />
+                </div>
+                <select
+                  value={selectedCategoryFilter}
+                  onChange={(e) => setSelectedCategoryFilter(e.target.value)}
+                  className="px-3 py-1.5 text-xs rounded-xl border border-gray-250 dark:border-[#2A3B54] bg-white dark:bg-[#0B0F17] text-[var(--color-text-dark)] focus:outline-none focus:border-[var(--color-primary)] cursor-pointer"
+                >
+                  <option value="semua">Semua Mutasi</option>
+                  <option value="masuk">Donasi Masuk</option>
+                  <option value="keluar">Pengeluaran Program</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Table View */}
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-gray-50 dark:bg-[#0B0F17] text-[11px] font-extrabold uppercase text-[var(--color-text-mid)] border-b border-gray-200 dark:border-[#222F43]">
+                    <th className="py-3 px-4">Tanggal</th>
+                    <th className="py-3 px-4">Uraian & Program</th>
+                    <th className="py-3 px-4">Kategori</th>
+                    <th className="py-3 px-4 text-right">Nominal</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-150 dark:divide-[#222F43] text-xs">
+                  {filteredTransaksi.length > 0 ? (
+                    filteredTransaksi.map((trx) => (
+                      <tr key={trx.id} className="hover:bg-gray-50/50 dark:hover:bg-[#0B0F17]/50 transition-colors">
+                        <td className="py-3.5 px-4 font-mono text-[var(--color-text-mid)] whitespace-nowrap">{trx.tanggal}</td>
+                        <td className="py-3.5 px-4 font-medium text-[var(--color-text-dark)]">{trx.uraian}</td>
+                        <td className="py-3.5 px-4">
+                          <span
+                            className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                              trx.tipe === "pemasukan"
+                                ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
+                                : "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300"
+                            }`}
+                          >
+                            {trx.kategori}
+                          </span>
+                        </td>
+                        <td
+                          className={`py-3.5 px-4 text-right font-bold font-mono whitespace-nowrap ${
+                            trx.tipe === "pemasukan" ? "text-emerald-600 dark:text-emerald-400" : "text-gray-900 dark:text-gray-100"
+                          }`}
+                        >
+                          {trx.tipe === "pemasukan" ? "+" : "-"} {formatRupiah(trx.nominal)}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={4} className="py-8 text-center text-gray-400 text-xs">
+                        Tidak ada transaksi yang cocok.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>

@@ -19,7 +19,11 @@ import {
   Search,
   ExternalLink,
   Eye,
-  EyeOff
+  EyeOff,
+  DollarSign,
+  TrendingUp,
+  TrendingDown,
+  Download
 } from "lucide-react";
 import { convertAndCompressToWebP } from "@/lib/imageCompressor";
 
@@ -39,6 +43,24 @@ interface FotoGaleriItem {
   alt: string;
 }
 
+interface TransaksiItem {
+  id: string;
+  tanggal: string;
+  uraian: string;
+  kategori: string;
+  tipe: "pemasukan" | "pengeluaran";
+  nominal: number;
+  buktiUrl?: string;
+}
+
+interface LaporanDokumenItem {
+  id: string;
+  judul: string;
+  periode: string;
+  fileUrl: string;
+  tanggalUpload: string;
+}
+
 export default function AdminDashboard() {
   // State Autentikasi Admin & Tab Active
   const [passwordInput, setPasswordInput] = useState("");
@@ -46,7 +68,7 @@ export default function AdminDashboard() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loginLoading, setLoginLoading] = useState(false);
   const [loginError, setLoginError] = useState("");
-  const [activeTab, setActiveTab] = useState<"kegiatan" | "galeri" | "pengaturan">("kegiatan");
+  const [activeTab, setActiveTab] = useState<"kegiatan" | "galeri" | "keuangan" | "pengaturan">("kegiatan");
   const [githubToken, setGithubToken] = useState(() => {
     if (typeof window !== "undefined") {
       return localStorage.getItem("slb_github_token") || "";
@@ -82,6 +104,29 @@ export default function AdminDashboard() {
   const [submittingGaleri, setSubmittingGaleri] = useState(false);
   const [msgGaleri, setMsgGaleri] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
+  // State Form & Data Keuangan
+  const [keuanganData, setKeuanganData] = useState<{
+    ringkasan: { totalPemasukan: number; totalPengeluaran: number; saldoKas: number; terakhirDiperbarui: string };
+    transaksi: TransaksiItem[];
+    laporanDokumen: LaporanDokumenItem[];
+  }>({
+    ringkasan: { totalPemasukan: 0, totalPengeluaran: 0, saldoKas: 0, terakhirDiperbarui: "" },
+    transaksi: [],
+    laporanDokumen: [],
+  });
+
+  const [tanggalTrx, setTanggalTrx] = useState(() => new Date().toISOString().split("T")[0]);
+  const [uraianTrx, setUraianTrx] = useState("");
+  const [kategoriTrx, setKategoriTrx] = useState("Pengadaan Alat Peraga Edukatif (APE) & Sensori Terapi");
+  const [tipeTrx, setTipeTrx] = useState<"pengeluaran" | "pemasukan">("pengeluaran");
+  const [nominalTrx, setNominalTrx] = useState("");
+  const [submittingKeuangan, setSubmittingKeuangan] = useState(false);
+  const [msgKeuangan, setMsgKeuangan] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  const [judulDoc, setJudulDoc] = useState("");
+  const [periodeDoc, setPeriodeDoc] = useState("");
+  const [fileUrlDoc, setFileUrlDoc] = useState("");
+
   // State Setting & Token
   const [msgToken, setMsgToken] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
@@ -101,7 +146,7 @@ export default function AdminDashboard() {
     checkSession();
   }, []);
 
-  // Fetch Data List Berita & Galeri
+  // Fetch Data List Berita, Galeri & Keuangan
   const fetchKegiatanList = async () => {
     try {
       const res = await fetch("/api/admin/kegiatan");
@@ -126,14 +171,135 @@ export default function AdminDashboard() {
     }
   };
 
+  const fetchKeuanganList = async () => {
+    try {
+      const res = await fetch("/api/admin/keuangan");
+      const data = await res.json();
+      if (data.success && data.data) {
+        setKeuanganData(data.data);
+      }
+    } catch {
+      console.error("Gagal load data keuangan");
+    }
+  };
+
   useEffect(() => {
     if (isLoggedIn) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchKegiatanList();
       // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchGaleriList();
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      fetchKeuanganList();
     }
   }, [isLoggedIn]);
+
+  // Handler Tambah Transaksi Keuangan
+  const handleAddTransaksi = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmittingKeuangan(true);
+    setMsgKeuangan(null);
+
+    try {
+      const res = await fetch("/api/admin/keuangan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "ADD_TRANSAKSI",
+          password: passwordInput || "slbtunasharapan",
+          githubToken,
+          transaksiData: {
+            tanggal: tanggalTrx,
+            uraian: uraianTrx,
+            kategori: kategoriTrx,
+            tipe: tipeTrx,
+            nominal: Number(nominalTrx) || 0,
+          },
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setMsgKeuangan({ type: "success", text: "Transaksi keuangan berhasil ditambahkan & dihitung ulang!" });
+        setUraianTrx("");
+        setNominalTrx("");
+        fetchKeuanganList();
+      } else {
+        setMsgKeuangan({ type: "error", text: data.message || "Gagal menambah transaksi" });
+      }
+    } catch {
+      setMsgKeuangan({ type: "error", text: "Terjadi kesalahan server saat menyimpan transaksi." });
+    } finally {
+      setSubmittingKeuangan(false);
+    }
+  };
+
+  // Handler Tambah Dokumen Laporan Keuangan
+  const handleAddDokumen = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmittingKeuangan(true);
+    setMsgKeuangan(null);
+
+    try {
+      const res = await fetch("/api/admin/keuangan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "ADD_DOKUMEN",
+          password: passwordInput || "slbtunasharapan",
+          githubToken,
+          dokumenData: {
+            judul: judulDoc,
+            periode: periodeDoc,
+            fileUrl: fileUrlDoc || "/Profil%20Sekolah%202026.docx",
+          },
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setMsgKeuangan({ type: "success", text: "Berkas laporan resmi berhasil ditambahkan!" });
+        setJudulDoc("");
+        setPeriodeDoc("");
+        setFileUrlDoc("");
+        fetchKeuanganList();
+      } else {
+        setMsgKeuangan({ type: "error", text: data.message || "Gagal menambah berkas laporan" });
+      }
+    } catch {
+      setMsgKeuangan({ type: "error", text: "Terjadi kesalahan server saat menyimpan berkas." });
+    } finally {
+      setSubmittingKeuangan(false);
+    }
+  };
+
+  // Handler Hapus Transaksi / Dokumen
+  const handleDeleteKeuangan = async (id: string, type: "TRANSAKSI" | "DOKUMEN", label: string) => {
+    if (!confirm(`Apakah Anda yakin ingin menghapus ${type.toLowerCase()} "${label}"?`)) return;
+
+    try {
+      const res = await fetch("/api/admin/keuangan", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id,
+          type,
+          password: passwordInput || "slbtunasharapan",
+          githubToken,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        alert(data.message);
+        fetchKeuanganList();
+      } else {
+        alert(data.message || "Gagal menghapus catatan");
+      }
+    } catch {
+      alert("Terjadi kesalahan server saat menghapus catatan.");
+    }
+  };
 
   // Handler Login Admin
   const handleLogin = async (e: React.FormEvent) => {
@@ -504,6 +670,16 @@ export default function AdminDashboard() {
             <ImageIcon size={18} /> Kelola Foto Galeri
           </button>
           <button
+            onClick={() => { setActiveTab("keuangan"); fetchKeuanganList(); }}
+            className={`flex items-center gap-2 px-6 py-3 text-sm font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
+              activeTab === "keuangan"
+                ? "border-[var(--color-primary)] text-[var(--color-primary)] bg-white dark:bg-[#161F2E] rounded-t-xl"
+                : "border-transparent text-[var(--color-text-mid)] hover:text-[var(--color-text-dark)] hover:bg-gray-100 dark:hover:bg-[#161F2E]"
+            }`}
+          >
+            <DollarSign size={18} /> Transparansi Keuangan
+          </button>
+          <button
             onClick={() => setActiveTab("pengaturan")}
             className={`flex items-center gap-2 px-6 py-3 text-sm font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap ${
               activeTab === "pengaturan"
@@ -516,7 +692,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* SEARCH BAR (Tampil di Tab Kegiatan & Galeri) */}
-        {activeTab !== "pengaturan" && (
+        {activeTab !== "pengaturan" && activeTab !== "keuangan" && (
           <div className="mb-6 relative">
             <Search size={18} className="absolute left-4 top-3.5 text-gray-400" />
             <input
@@ -867,7 +1043,243 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* TAB 3: PENGATURAN & OTORISASI GITHUB */}
+        {/* TAB 3: TRANSPARANSI KEUANGAN DONASI */}
+        {activeTab === "keuangan" && (
+          <div className="space-y-8">
+            {/* Metric Cards Summary */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-white dark:bg-[#161F2E] p-6 rounded-2xl border border-gray-200 dark:border-[#222F43] shadow-sm flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
+                  <TrendingUp size={24} />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total Donasi Masuk</p>
+                  <p className="text-xl font-black text-emerald-600 dark:text-emerald-400 mt-0.5">
+                    Rp {(keuanganData.ringkasan.totalPemasukan || 0).toLocaleString("id-ID")}
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-white dark:bg-[#161F2E] p-6 rounded-2xl border border-gray-200 dark:border-[#222F43] shadow-sm flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold">
+                  <TrendingDown size={24} />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total Dana Tersalurkan</p>
+                  <p className="text-xl font-black text-blue-600 dark:text-blue-400 mt-0.5">
+                    Rp {(keuanganData.ringkasan.totalPengeluaran || 0).toLocaleString("id-ID")}
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-white dark:bg-[#161F2E] p-6 rounded-2xl border border-gray-200 dark:border-[#222F43] shadow-sm flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold">
+                  <DollarSign size={24} />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Saldo Kas Aktif</p>
+                  <p className="text-xl font-black text-amber-600 dark:text-amber-400 mt-0.5">
+                    Rp {(keuanganData.ringkasan.saldoKas || 0).toLocaleString("id-ID")}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Message Notification */}
+            {msgKeuangan && (
+              <div className={`p-4 rounded-2xl text-xs font-bold flex items-center gap-2 border ${msgKeuangan.type === "success" ? "bg-green-50 text-green-700 border-green-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800" : "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-800"}`}>
+                {msgKeuangan.type === "success" ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+                <span>{msgKeuangan.text}</span>
+              </div>
+            )}
+
+            {/* Form 1: Tambah Transaksi Keuangan Baru */}
+            <div className="bg-white dark:bg-[#161F2E] p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-200 dark:border-[#222F43] space-y-6">
+              <h2 className="text-xl font-bold text-[var(--color-text-dark)] flex items-center gap-2" style={{ fontFamily: "var(--font-heading)" }}>
+                <Plus className="text-emerald-600" /> Catat Transaksi Mutasi Keuangan Baru
+              </h2>
+
+              <form onSubmit={handleAddTransaksi} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="space-y-1">
+                    <label className="block text-xs font-bold text-[var(--color-text-dark)]">Tanggal Transaksi</label>
+                    <input
+                      type="date"
+                      required
+                      value={tanggalTrx}
+                      onChange={(e) => setTanggalTrx(e.target.value)}
+                      className="w-full px-4 py-2.5 text-xs border border-gray-300 dark:border-[#2A3B54] bg-white dark:bg-[#0B0F17] text-[var(--color-text-dark)] rounded-xl focus:outline-none focus:border-[var(--color-primary)]"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="block text-xs font-bold text-[var(--color-text-dark)]">Jenis Transaksi</label>
+                    <select
+                      value={tipeTrx}
+                      onChange={(e) => setTipeTrx(e.target.value as "pengeluaran" | "pemasukan")}
+                      className="w-full px-4 py-2.5 text-xs border border-gray-300 dark:border-[#2A3B54] bg-white dark:bg-[#0B0F17] text-[var(--color-text-dark)] rounded-xl focus:outline-none focus:border-[var(--color-primary)] cursor-pointer"
+                    >
+                      <option value="pengeluaran">Pengeluaran Program</option>
+                      <option value="pemasukan">Pemasukan Donasi</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="block text-xs font-bold text-[var(--color-text-dark)]">Nominal (Rp)</label>
+                    <input
+                      type="number"
+                      required
+                      placeholder="Contoh: 2500000"
+                      value={nominalTrx}
+                      onChange={(e) => setNominalTrx(e.target.value)}
+                      className="w-full px-4 py-2.5 text-xs border border-gray-300 dark:border-[#2A3B54] bg-white dark:bg-[#0B0F17] text-[var(--color-text-dark)] rounded-xl focus:outline-none focus:border-[var(--color-primary)]"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-[var(--color-text-dark)]">Kategori Alokasi</label>
+                  <select
+                    value={kategoriTrx}
+                    onChange={(e) => setKategoriTrx(e.target.value)}
+                    className="w-full px-4 py-2.5 text-xs border border-gray-300 dark:border-[#2A3B54] bg-white dark:bg-[#0B0F17] text-[var(--color-text-dark)] rounded-xl focus:outline-none focus:border-[var(--color-primary)] cursor-pointer"
+                  >
+                    <option value="Pengadaan Alat Peraga Edukatif (APE) & Sensori Terapi">Pengadaan Alat Peraga Edukatif (APE) & Sensori Terapi</option>
+                    <option value="Beasiswa & Alokasi Operasional Siswa Prasejahtera">Beasiswa & Alokasi Operasional Siswa Prasejahtera</option>
+                    <option value="Pelatihan Vokasional & Keterampilan Wirausaha Siswa">Pelatihan Vokasional & Keterampilan Wirausaha Siswa</option>
+                    <option value="Perbaikan & Sanitasi Aksesibilitas Fisik Sekolah">Perbaikan & Sanitasi Aksesibilitas Fisik Sekolah</option>
+                    <option value="Donasi Masuk">Donasi Masuk (Umum)</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-[var(--color-text-dark)]">Uraian / Rincian Penggunaan Dana</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Contoh: Pembelian 5 set papan braille & alat latih fokus sensori motorik"
+                    value={uraianTrx}
+                    onChange={(e) => setUraianTrx(e.target.value)}
+                    className="w-full px-4 py-2.5 text-xs border border-gray-300 dark:border-[#2A3B54] bg-white dark:bg-[#0B0F17] text-[var(--color-text-dark)] rounded-xl focus:outline-none focus:border-[var(--color-primary)]"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={submittingKeuangan}
+                  className="px-6 py-2.5 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 !text-white active:scale-95 transition-all cursor-pointer shadow-sm"
+                  style={{ color: "#ffffff" }}
+                >
+                  {submittingKeuangan ? "Menyimpan..." : "Simpan Transaksi Keuangan"}
+                </button>
+              </form>
+            </div>
+
+            {/* Form 2: Unggah / Tambah Dokumen Laporan Resmi */}
+            <div className="bg-white dark:bg-[#161F2E] p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-200 dark:border-[#222F43] space-y-6">
+              <h2 className="text-xl font-bold text-[var(--color-text-dark)] flex items-center gap-2" style={{ fontFamily: "var(--font-heading)" }}>
+                <FileText className="text-blue-600" /> Publikasikan Berkas Laporan Resmi (PDF/Doc)
+              </h2>
+
+              <form onSubmit={handleAddDokumen} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="block text-xs font-bold text-[var(--color-text-dark)]">Judul Dokumen Laporan</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Contoh: Laporan Akuntabilitas & Transparansi Q2 2026"
+                      value={judulDoc}
+                      onChange={(e) => setJudulDoc(e.target.value)}
+                      className="w-full px-4 py-2.5 text-xs border border-gray-300 dark:border-[#2A3B54] bg-white dark:bg-[#0B0F17] text-[var(--color-text-dark)] rounded-xl focus:outline-none focus:border-[var(--color-primary)]"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="block text-xs font-bold text-[var(--color-text-dark)]">Periode Laporan</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Contoh: April - Juni 2026"
+                      value={periodeDoc}
+                      onChange={(e) => setPeriodeDoc(e.target.value)}
+                      className="w-full px-4 py-2.5 text-xs border border-gray-300 dark:border-[#2A3B54] bg-white dark:bg-[#0B0F17] text-[var(--color-text-dark)] rounded-xl focus:outline-none focus:border-[var(--color-primary)]"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-[var(--color-text-dark)]">URL File Berkas (PDF/Excel/Docx)</label>
+                  <input
+                    type="text"
+                    placeholder="Contoh: /docs/Laporan-Q2-2026.pdf atau URL link Google Drive"
+                    value={fileUrlDoc}
+                    onChange={(e) => setFileUrlDoc(e.target.value)}
+                    className="w-full px-4 py-2.5 text-xs border border-gray-300 dark:border-[#2A3B54] bg-white dark:bg-[#0B0F17] text-[var(--color-text-dark)] rounded-xl focus:outline-none focus:border-[var(--color-primary)] font-mono"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={submittingKeuangan}
+                  className="px-6 py-2.5 text-xs font-bold rounded-xl bg-blue-600 hover:bg-blue-700 !text-white active:scale-95 transition-all cursor-pointer shadow-sm"
+                  style={{ color: "#ffffff" }}
+                >
+                  {submittingKeuangan ? "Menyimpan..." : "Publikasikan Dokumen Laporan"}
+                </button>
+              </form>
+            </div>
+
+            {/* Tabel Manajemen Transaksi & Laporan */}
+            <div className="bg-white dark:bg-[#161F2E] p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-200 dark:border-[#222F43] space-y-6">
+              <h2 className="text-xl font-bold text-[var(--color-text-dark)]" style={{ fontFamily: "var(--font-heading)" }}>
+                Daftar Mutasi & Dokumen Terpublikasi
+              </h2>
+
+              {/* Tabel Transaksi */}
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="bg-gray-100 dark:bg-[#0B0F17] font-bold text-[var(--color-text-dark)] border-b border-gray-200 dark:border-[#222F43]">
+                      <th className="p-3">Tanggal</th>
+                      <th className="p-3">Uraian</th>
+                      <th className="p-3">Kategori</th>
+                      <th className="p-3 text-right">Nominal</th>
+                      <th className="p-3 text-center">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200 dark:divide-[#222F43]">
+                    {keuanganData.transaksi.map((t) => (
+                      <tr key={t.id}>
+                        <td className="p-3 font-mono">{t.tanggal}</td>
+                        <td className="p-3 font-medium">{t.uraian}</td>
+                        <td className="p-3">
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${t.tipe === "pemasukan" ? "bg-emerald-100 text-emerald-800" : "bg-blue-100 text-blue-800"}`}>
+                            {t.kategori}
+                          </span>
+                        </td>
+                        <td className={`p-3 text-right font-bold font-mono ${t.tipe === "pemasukan" ? "text-emerald-600" : "text-gray-900 dark:text-white"}`}>
+                          {t.tipe === "pemasukan" ? "+" : "-"} Rp {t.nominal.toLocaleString("id-ID")}
+                        </td>
+                        <td className="p-3 text-center">
+                          <button
+                            onClick={() => handleDeleteKeuangan(t.id, "TRANSAKSI", t.uraian)}
+                            className="p-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg transition-colors cursor-pointer"
+                            title="Hapus Transaksi"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 4: PENGATURAN & OTORISASI GITHUB */}
         {activeTab === "pengaturan" && (
           <div className="bg-white dark:bg-[#161F2E] p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-200 dark:border-[#222F43] space-y-6">
             <h2 className="text-xl font-bold flex items-center gap-2 text-[var(--color-text-dark)]" style={{ fontFamily: "var(--font-heading)" }}>
