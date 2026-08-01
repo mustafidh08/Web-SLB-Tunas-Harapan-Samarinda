@@ -4,7 +4,10 @@ import { MessageCircle, MapPin, PhoneCall } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 
+import { usePathname } from "next/navigation";
+
 export default function FloatingContactBar() {
+  const pathname = usePathname();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -20,6 +23,11 @@ export default function FloatingContactBar() {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Halaman Admin tidak memerlukan floating contact bar
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
 
   return (
     <AnimatePresence>
