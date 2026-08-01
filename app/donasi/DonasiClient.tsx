@@ -429,7 +429,7 @@ export default function DonasiClient() {
               <div>
                 <p className="text-xs font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-wider">Total Donasi Masuk</p>
                 <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-0.5">
-                  {formatRupiah(keuanganData?.ringkasan?.totalPemasukan || 15000000)}
+                  {formatRupiah(keuanganData?.ringkasan?.totalPemasukan || 0)}
                 </p>
               </div>
             </div>
@@ -441,7 +441,7 @@ export default function DonasiClient() {
               <div>
                 <p className="text-xs font-bold text-blue-800 dark:text-blue-300 uppercase tracking-wider">Dana Tersalurkan</p>
                 <p className="text-2xl font-black text-blue-600 dark:text-blue-400 mt-0.5">
-                  {formatRupiah(keuanganData?.ringkasan?.totalPengeluaran || 10500000)}
+                  {formatRupiah(keuanganData?.ringkasan?.totalPengeluaran || 0)}
                 </p>
               </div>
             </div>
@@ -453,7 +453,7 @@ export default function DonasiClient() {
               <div>
                 <p className="text-xs font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider">Saldo Kas Donasi</p>
                 <p className="text-2xl font-black text-amber-600 dark:text-amber-400 mt-0.5">
-                  {formatRupiah(keuanganData?.ringkasan?.saldoKas || 4500000)}
+                  {formatRupiah(keuanganData?.ringkasan?.saldoKas || 0)}
                 </p>
               </div>
             </div>

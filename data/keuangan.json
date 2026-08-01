@@ -1,55 +1,10 @@
 {
   "ringkasan": {
-    "totalPemasukan": 15000000,
-    "totalPengeluaran": 10500000,
-    "saldoKas": 4500000,
+    "totalPemasukan": 0,
+    "totalPengeluaran": 0,
+    "saldoKas": 0,
     "terakhirDiperbarui": "2026-08-01"
   },
-  "laporanDokumen": [
-    {
-      "id": "doc-q1-2026",
-      "judul": "Laporan Akuntabilitas & Transparansi Keuangan Q1 2026",
-      "periode": "Januari - Maret 2026",
-      "fileUrl": "/Profil%20Sekolah%202026.docx",
-      "tanggalUpload": "2026-04-01"
-    }
-  ],
-  "transaksi": [
-    {
-      "id": "trx-1",
-      "tanggal": "2026-07-28",
-      "uraian": "Pengadaan 5 Set Alat Terapi Sensori Motorik & Mainan Edukatif Adaptif Siswa Autis",
-      "kategori": "Pengadaan Alat Peraga Edukatif (APE) & Sensori Terapi",
-      "tipe": "pengeluaran",
-      "nominal": 3500000,
-      "buktiUrl": ""
-    },
-    {
-      "id": "trx-2",
-      "tanggal": "2026-07-20",
-      "uraian": "Dukungan Beasiswa Modul Belajar & Seragam 4 Siswa Istimewa Prasejahtera",
-      "kategori": "Beasiswa & Alokasi Operasional Siswa Prasejahtera",
-      "tipe": "pengeluaran",
-      "nominal": 4000000,
-      "buktiUrl": ""
-    },
-    {
-      "id": "trx-3",
-      "tanggal": "2026-07-15",
-      "uraian": "Pengadaan Bahan Baku Kriya Tangan & Perlengkapan Tata Boga Wirausaha Siswa",
-      "kategori": "Pelatihan Vokasional & Keterampilan Wirausaha Siswa",
-      "tipe": "pengeluaran",
-      "nominal": 3000000,
-      "buktiUrl": ""
-    },
-    {
-      "id": "trx-4",
-      "tanggal": "2026-07-01",
-      "uraian": "Penerimaan Donasi & Dukungan Mitra Kebaikan Juli 2026",
-      "kategori": "Donasi Masuk",
-      "tipe": "pemasukan",
-      "nominal": 15000000,
-      "buktiUrl": ""
-    }
-  ]
+  "laporanDokumen": [],
+  "transaksi": []
 }
