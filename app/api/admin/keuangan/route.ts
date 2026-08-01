@@ -63,6 +63,7 @@ export async function POST(request: Request) {
     }
 
     const data = readData();
+    const ghToken = githubToken || process.env.GITHUB_TOKEN;
 
     if (action === "ADD_TRANSAKSI" && transaksiData) {
       const newTrx = {
@@ -74,18 +75,139 @@ export async function POST(request: Request) {
         nominal: Number(transaksiData.nominal) || 0,
         buktiUrl: sanitizeInputString(transaksiData.buktiUrl || ""),
       };
-
       data.transaksi.unshift(newTrx);
+    } else if (action === "EDIT_TRANSAKSI" && transaksiData) {
+      const idx = data.transaksi.findIndex((t: { id: string }) => t.id === transaksiData.id);
+      if (idx !== -1) {
+        data.transaksi[idx] = {
+          ...data.transaksi[idx],
+          tanggal: sanitizeInputString(transaksiData.tanggal || data.transaksi[idx].tanggal),
+          uraian: sanitizeInputString(transaksiData.uraian || data.transaksi[idx].uraian),
+          kategori: sanitizeInputString(transaksiData.kategori || data.transaksi[idx].kategori),
+          tipe: transaksiData.tipe === "pemasukan" ? "pemasukan" : "pengeluaran",
+          nominal: Number(transaksiData.nominal) || 0,
+          buktiUrl: sanitizeInputString(transaksiData.buktiUrl || data.transaksi[idx].buktiUrl || ""),
+        };
+      } else {
+        return NextResponse.json({ success: false, message: "Transaksi tidak ditemukan" }, { status: 404 });
+      }
     } else if (action === "ADD_DOKUMEN" && dokumenData) {
+      let finalFileUrl = sanitizeInputString(dokumenData.fileUrl || "");
+
+      // Handle upload file dokumen Base64 jika opsi upload file dipilih
+      if (dokumenData.fileBase64 && dokumenData.fileName) {
+        const sanitizedFileName = sanitizeInputString(dokumenData.fileName).replace(/[^a-zA-Z0-9._-]/g, "_");
+        const docsDir = path.join(process.cwd(), "public", "docs");
+        if (!fs.existsSync(docsDir)) {
+          fs.mkdirSync(docsDir, { recursive: true });
+        }
+
+        const base64Data = dokumenData.fileBase64.replace(/^data:.*;base64,/, "");
+        const fileBuffer = Buffer.from(base64Data, "base64");
+        const savePath = path.join(docsDir, sanitizedFileName);
+        fs.writeFileSync(savePath, fileBuffer);
+        finalFileUrl = `/docs/${sanitizedFileName}`;
+
+        // Commit file ke GitHub jika token tersedia
+        if (ghToken) {
+          try {
+            const gitDocPath = `slb-tunas-harapan/public/docs/${sanitizedFileName}`;
+            const getShaRes = await fetch(
+              `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${gitDocPath}?ref=${BRANCH}`,
+              { headers: { Authorization: `Bearer ${ghToken}`, Accept: "application/vnd.github.v3+json" } }
+            );
+            let sha = "";
+            if (getShaRes.ok) {
+              const shaData = await getShaRes.json();
+              sha = shaData.sha;
+            }
+            await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${gitDocPath}`, {
+              method: "PUT",
+              headers: {
+                Authorization: `Bearer ${ghToken}`,
+                "Content-Type": "application/json",
+                Accept: "application/vnd.github.v3+json",
+              },
+              body: JSON.stringify({
+                message: `upload(docs): upload dokumen laporan ${sanitizedFileName} via CMS Admin`,
+                content: base64Data,
+                sha: sha || undefined,
+                branch: BRANCH,
+              }),
+            });
+          } catch (e) {
+            console.error("Gagal upload berkas ke GitHub:", e);
+          }
+        }
+      }
+
       const newDoc = {
         id: `doc-${Date.now()}`,
         judul: sanitizeInputString(dokumenData.judul || ""),
         periode: sanitizeInputString(dokumenData.periode || ""),
-        fileUrl: sanitizeInputString(dokumenData.fileUrl || ""),
+        fileUrl: finalFileUrl || "/Profil%20Sekolah%202026.docx",
         tanggalUpload: new Date().toISOString().split("T")[0],
       };
-
       data.laporanDokumen.unshift(newDoc);
+    } else if (action === "EDIT_DOKUMEN" && dokumenData) {
+      const idx = data.laporanDokumen.findIndex((d: { id: string }) => d.id === dokumenData.id);
+      if (idx !== -1) {
+        let finalFileUrl = sanitizeInputString(dokumenData.fileUrl || data.laporanDokumen[idx].fileUrl);
+
+        if (dokumenData.fileBase64 && dokumenData.fileName) {
+          const sanitizedFileName = sanitizeInputString(dokumenData.fileName).replace(/[^a-zA-Z0-9._-]/g, "_");
+          const docsDir = path.join(process.cwd(), "public", "docs");
+          if (!fs.existsSync(docsDir)) {
+            fs.mkdirSync(docsDir, { recursive: true });
+          }
+
+          const base64Data = dokumenData.fileBase64.replace(/^data:.*;base64,/, "");
+          const fileBuffer = Buffer.from(base64Data, "base64");
+          const savePath = path.join(docsDir, sanitizedFileName);
+          fs.writeFileSync(savePath, fileBuffer);
+          finalFileUrl = `/docs/${sanitizedFileName}`;
+
+          if (ghToken) {
+            try {
+              const gitDocPath = `slb-tunas-harapan/public/docs/${sanitizedFileName}`;
+              const getShaRes = await fetch(
+                `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${gitDocPath}?ref=${BRANCH}`,
+                { headers: { Authorization: `Bearer ${ghToken}`, Accept: "application/vnd.github.v3+json" } }
+              );
+              let sha = "";
+              if (getShaRes.ok) {
+                const shaData = await getShaRes.json();
+                sha = shaData.sha;
+              }
+              await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${gitDocPath}`, {
+                method: "PUT",
+                headers: {
+                  Authorization: `Bearer ${ghToken}`,
+                  "Content-Type": "application/json",
+                  Accept: "application/vnd.github.v3+json",
+                },
+                body: JSON.stringify({
+                  message: `upload(docs): edit dokumen laporan ${sanitizedFileName} via CMS Admin`,
+                  content: base64Data,
+                  sha: sha || undefined,
+                  branch: BRANCH,
+                }),
+              });
+            } catch (e) {
+              console.error("Gagal upload berkas ke GitHub:", e);
+            }
+          }
+        }
+
+        data.laporanDokumen[idx] = {
+          ...data.laporanDokumen[idx],
+          judul: sanitizeInputString(dokumenData.judul || data.laporanDokumen[idx].judul),
+          periode: sanitizeInputString(dokumenData.periode || data.laporanDokumen[idx].periode),
+          fileUrl: finalFileUrl,
+        };
+      } else {
+        return NextResponse.json({ success: false, message: "Dokumen tidak ditemukan" }, { status: 404 });
+      }
     } else {
       return NextResponse.json({ success: false, message: "Aksi tidak dikenal" }, { status: 400 });
     }
@@ -110,13 +232,10 @@ export async function POST(request: Request) {
     };
 
     const updatedContent = JSON.stringify(data, null, 2);
-
-    // Simpan ke filesystem lokal
     const filePath = getFilePath();
     fs.writeFileSync(filePath, updatedContent, "utf-8");
 
     // Commit ke GitHub API jika token tersedia
-    const ghToken = githubToken || process.env.GITHUB_TOKEN;
     if (ghToken) {
       const gitPath = "slb-tunas-harapan/data/keuangan.json";
       try {
@@ -138,7 +257,7 @@ export async function POST(request: Request) {
             Accept: "application/vnd.github.v3+json",
           },
           body: JSON.stringify({
-            message: `feat(keuangan): update laporan & rekapitulasi donasi via CMS Admin`,
+            message: `feat(keuangan): ${action.toLowerCase()} laporan & rekapitulasi donasi via CMS Admin`,
             content: Buffer.from(updatedContent).toString("base64"),
             sha: sha || undefined,
             branch: BRANCH,

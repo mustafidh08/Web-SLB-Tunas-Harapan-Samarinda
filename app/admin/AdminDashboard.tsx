@@ -115,17 +115,82 @@ export default function AdminDashboard() {
     laporanDokumen: [],
   });
 
+  // State Form & Edit Transaksi Keuangan
+  const [isEditingTrx, setIsEditingTrx] = useState(false);
+  const [editingTrxId, setEditingTrxId] = useState("");
   const [tanggalTrx, setTanggalTrx] = useState(() => new Date().toISOString().split("T")[0]);
   const [uraianTrx, setUraianTrx] = useState("");
   const [kategoriTrx, setKategoriTrx] = useState("Pengadaan Alat Peraga Edukatif (APE) & Sensori Terapi");
   const [tipeTrx, setTipeTrx] = useState<"pengeluaran" | "pemasukan">("pengeluaran");
   const [nominalTrx, setNominalTrx] = useState("");
+
+  // State Form & Edit Dokumen Laporan Keuangan
+  const [isEditingDoc, setIsEditingDoc] = useState(false);
+  const [editingDocId, setEditingDocId] = useState("");
+  const [judulDoc, setJudulDoc] = useState("");
+  const [periodeDoc, setPeriodeDoc] = useState("");
+  const [docOption, setDocOption] = useState<"upload" | "link">("link");
+  const [fileUrlDoc, setFileUrlDoc] = useState("");
+  const [docFileBase64, setDocFileBase64] = useState("");
+  const [docFileName, setDocFileName] = useState("");
+
   const [submittingKeuangan, setSubmittingKeuangan] = useState(false);
   const [msgKeuangan, setMsgKeuangan] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
-  const [judulDoc, setJudulDoc] = useState("");
-  const [periodeDoc, setPeriodeDoc] = useState("");
-  const [fileUrlDoc, setFileUrlDoc] = useState("");
+  const resetFormTrx = () => {
+    setIsEditingTrx(false);
+    setEditingTrxId("");
+    setTanggalTrx(new Date().toISOString().split("T")[0]);
+    setUraianTrx("");
+    setNominalTrx("");
+    setKategoriTrx("Pengadaan Alat Peraga Edukatif (APE) & Sensori Terapi");
+    setTipeTrx("pengeluaran");
+  };
+
+  const resetFormDoc = () => {
+    setIsEditingDoc(false);
+    setEditingDocId("");
+    setJudulDoc("");
+    setPeriodeDoc("");
+    setFileUrlDoc("");
+    setDocFileBase64("");
+    setDocFileName("");
+    setDocOption("link");
+  };
+
+  const handleEditTransaksi = (trx: TransaksiItem) => {
+    setIsEditingTrx(true);
+    setEditingTrxId(trx.id);
+    setTanggalTrx(trx.tanggal);
+    setUraianTrx(trx.uraian);
+    setKategoriTrx(trx.kategori);
+    setTipeTrx(trx.tipe);
+    setNominalTrx(String(trx.nominal));
+    window.scrollTo({ top: 400, behavior: "smooth" });
+  };
+
+  const handleEditDokumen = (doc: LaporanDokumenItem) => {
+    setIsEditingDoc(true);
+    setEditingDocId(doc.id);
+    setJudulDoc(doc.judul);
+    setPeriodeDoc(doc.periode);
+    setFileUrlDoc(doc.fileUrl);
+    setDocOption("link");
+    window.scrollTo({ top: 600, behavior: "smooth" });
+  };
+
+  const handleDocFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setDocFileName(file.name);
+
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const result = evt.target?.result as string;
+      setDocFileBase64(result);
+    };
+    reader.readAsDataURL(file);
+  };
 
   // State Setting & Token
   const [msgToken, setMsgToken] = useState<{ type: "success" | "error"; text: string } | null>(null);
@@ -194,8 +259,8 @@ export default function AdminDashboard() {
     }
   }, [isLoggedIn]);
 
-  // Handler Tambah Transaksi Keuangan
-  const handleAddTransaksi = async (e: React.FormEvent) => {
+  // Handler Simpan Transaksi Keuangan (Create / Edit)
+  const handleSaveTransaksi = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmittingKeuangan(true);
     setMsgKeuangan(null);
@@ -205,10 +270,11 @@ export default function AdminDashboard() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          action: "ADD_TRANSAKSI",
+          action: isEditingTrx ? "EDIT_TRANSAKSI" : "ADD_TRANSAKSI",
           password: passwordInput || "slbtunasharapan",
           githubToken,
           transaksiData: {
+            id: isEditingTrx ? editingTrxId : undefined,
             tanggal: tanggalTrx,
             uraian: uraianTrx,
             kategori: kategoriTrx,
@@ -220,12 +286,11 @@ export default function AdminDashboard() {
 
       const data = await res.json();
       if (data.success) {
-        setMsgKeuangan({ type: "success", text: "Transaksi keuangan berhasil ditambahkan & dihitung ulang!" });
-        setUraianTrx("");
-        setNominalTrx("");
+        setMsgKeuangan({ type: "success", text: isEditingTrx ? "Transaksi keuangan berhasil diperbarui!" : "Transaksi keuangan berhasil ditambahkan!" });
+        resetFormTrx();
         fetchKeuanganList();
       } else {
-        setMsgKeuangan({ type: "error", text: data.message || "Gagal menambah transaksi" });
+        setMsgKeuangan({ type: "error", text: data.message || "Gagal menyimpan transaksi" });
       }
     } catch {
       setMsgKeuangan({ type: "error", text: "Terjadi kesalahan server saat menyimpan transaksi." });
@@ -234,8 +299,8 @@ export default function AdminDashboard() {
     }
   };
 
-  // Handler Tambah Dokumen Laporan Keuangan
-  const handleAddDokumen = async (e: React.FormEvent) => {
+  // Handler Simpan Dokumen Laporan Keuangan (Create / Edit, Upload / Link)
+  const handleSaveDokumen = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmittingKeuangan(true);
     setMsgKeuangan(null);
@@ -245,26 +310,27 @@ export default function AdminDashboard() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          action: "ADD_DOKUMEN",
+          action: isEditingDoc ? "EDIT_DOKUMEN" : "ADD_DOKUMEN",
           password: passwordInput || "slbtunasharapan",
           githubToken,
           dokumenData: {
+            id: isEditingDoc ? editingDocId : undefined,
             judul: judulDoc,
             periode: periodeDoc,
-            fileUrl: fileUrlDoc || "/Profil%20Sekolah%202026.docx",
+            fileUrl: docOption === "link" ? fileUrlDoc : undefined,
+            fileBase64: docOption === "upload" ? docFileBase64 : undefined,
+            fileName: docOption === "upload" ? docFileName : undefined,
           },
         }),
       });
 
       const data = await res.json();
       if (data.success) {
-        setMsgKeuangan({ type: "success", text: "Berkas laporan resmi berhasil ditambahkan!" });
-        setJudulDoc("");
-        setPeriodeDoc("");
-        setFileUrlDoc("");
+        setMsgKeuangan({ type: "success", text: isEditingDoc ? "Dokumen laporan resmi berhasil diperbarui!" : "Dokumen laporan resmi berhasil dipublikasikan!" });
+        resetFormDoc();
         fetchKeuanganList();
       } else {
-        setMsgKeuangan({ type: "error", text: data.message || "Gagal menambah berkas laporan" });
+        setMsgKeuangan({ type: "error", text: data.message || "Gagal menyimpan berkas laporan" });
       }
     } catch {
       setMsgKeuangan({ type: "error", text: "Terjadi kesalahan server saat menyimpan berkas." });
@@ -1093,13 +1159,25 @@ export default function AdminDashboard() {
               </div>
             )}
 
-            {/* Form 1: Tambah Transaksi Keuangan Baru */}
+            {/* Form 1: Catat / Edit Transaksi Keuangan */}
             <div className="bg-white dark:bg-[#161F2E] p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-200 dark:border-[#222F43] space-y-6">
-              <h2 className="text-xl font-bold text-[var(--color-text-dark)] flex items-center gap-2" style={{ fontFamily: "var(--font-heading)" }}>
-                <Plus className="text-emerald-600" /> Catat Transaksi Mutasi Keuangan Baru
-              </h2>
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-[var(--color-text-dark)] flex items-center gap-2" style={{ fontFamily: "var(--font-heading)" }}>
+                  {isEditingTrx ? <Edit3 className="text-amber-500" /> : <Plus className="text-emerald-600" />}
+                  {isEditingTrx ? `Edit Transaksi: "${uraianTrx}"` : "Catat Transaksi Mutasi Keuangan Baru"}
+                </h2>
+                {isEditingTrx && (
+                  <button
+                    type="button"
+                    onClick={resetFormTrx}
+                    className="flex items-center gap-1 px-3 py-1 text-xs font-bold text-gray-500 hover:text-gray-700 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded-lg transition-colors cursor-pointer"
+                  >
+                    <X size={14} /> Batal Edit
+                  </button>
+                )}
+              </div>
 
-              <form onSubmit={handleAddTransaksi} className="space-y-4">
+              <form onSubmit={handleSaveTransaksi} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="space-y-1">
                     <label className="block text-xs font-bold text-[var(--color-text-dark)]">Tanggal Transaksi</label>
@@ -1164,24 +1242,49 @@ export default function AdminDashboard() {
                   />
                 </div>
 
-                <button
-                  type="submit"
-                  disabled={submittingKeuangan}
-                  className="px-6 py-2.5 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 !text-white active:scale-95 transition-all cursor-pointer shadow-sm"
-                  style={{ color: "#ffffff" }}
-                >
-                  {submittingKeuangan ? "Menyimpan..." : "Simpan Transaksi Keuangan"}
-                </button>
+                <div className="flex items-center gap-3 pt-2">
+                  <button
+                    type="submit"
+                    disabled={submittingKeuangan}
+                    className={`px-6 py-2.5 text-xs font-bold rounded-xl !text-white active:scale-95 transition-all cursor-pointer shadow-sm ${
+                      isEditingTrx ? "bg-amber-600 hover:bg-amber-700" : "bg-emerald-600 hover:bg-emerald-700"
+                    }`}
+                    style={{ color: "#ffffff" }}
+                  >
+                    {submittingKeuangan ? "Memproses..." : isEditingTrx ? "✏️ Update Transaksi Keuangan" : "➕ Simpan Transaksi Keuangan"}
+                  </button>
+                  {isEditingTrx && (
+                    <button
+                      type="button"
+                      onClick={resetFormTrx}
+                      className="px-4 py-2.5 text-xs font-bold rounded-xl border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    >
+                      Batal
+                    </button>
+                  )}
+                </div>
               </form>
             </div>
 
-            {/* Form 2: Unggah / Tambah Dokumen Laporan Resmi */}
+            {/* Form 2: Publikasikan / Edit Dokumen Laporan Resmi */}
             <div className="bg-white dark:bg-[#161F2E] p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-200 dark:border-[#222F43] space-y-6">
-              <h2 className="text-xl font-bold text-[var(--color-text-dark)] flex items-center gap-2" style={{ fontFamily: "var(--font-heading)" }}>
-                <FileText className="text-blue-600" /> Publikasikan Berkas Laporan Resmi (PDF/Doc)
-              </h2>
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-[var(--color-text-dark)] flex items-center gap-2" style={{ fontFamily: "var(--font-heading)" }}>
+                  {isEditingDoc ? <Edit3 className="text-amber-500" /> : <FileText className="text-blue-600" />}
+                  {isEditingDoc ? `Edit Laporan: "${judulDoc}"` : "Publikasikan Berkas Laporan Resmi"}
+                </h2>
+                {isEditingDoc && (
+                  <button
+                    type="button"
+                    onClick={resetFormDoc}
+                    className="flex items-center gap-1 px-3 py-1 text-xs font-bold text-gray-500 hover:text-gray-700 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded-lg transition-colors cursor-pointer"
+                  >
+                    <X size={14} /> Batal Edit
+                  </button>
+                )}
+              </div>
 
-              <form onSubmit={handleAddDokumen} className="space-y-4">
+              <form onSubmit={handleSaveDokumen} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <label className="block text-xs font-bold text-[var(--color-text-dark)]">Judul Dokumen Laporan</label>
@@ -1208,72 +1311,190 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
-                <div className="space-y-1">
-                  <label className="block text-xs font-bold text-[var(--color-text-dark)]">URL File Berkas (PDF/Excel/Docx)</label>
-                  <input
-                    type="text"
-                    placeholder="Contoh: /docs/Laporan-Q2-2026.pdf atau URL link Google Drive"
-                    value={fileUrlDoc}
-                    onChange={(e) => setFileUrlDoc(e.target.value)}
-                    className="w-full px-4 py-2.5 text-xs border border-gray-300 dark:border-[#2A3B54] bg-white dark:bg-[#0B0F17] text-[var(--color-text-dark)] rounded-xl focus:outline-none focus:border-[var(--color-primary)] font-mono"
-                  />
+                {/* DUAL OPTION CHOICE: UPLOAD FILE vs TEMPEL LINK */}
+                <div className="space-y-3 pt-2">
+                  <label className="block text-xs font-bold text-[var(--color-text-dark)]">Metode Penyediaan Berkas Laporan</label>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setDocOption("link")}
+                      className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border text-xs font-bold cursor-pointer transition-all ${
+                        docOption === "link"
+                          ? "border-blue-600 bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300"
+                          : "border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0B0F17] text-[var(--color-text-mid)]"
+                      }`}
+                    >
+                      <ExternalLink size={14} /> 🔗 Tempel Link / URL Berkas
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDocOption("upload")}
+                      className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border text-xs font-bold cursor-pointer transition-all ${
+                        docOption === "upload"
+                          ? "border-blue-600 bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300"
+                          : "border-gray-200 dark:border-gray-700 bg-white dark:bg-[#0B0F17] text-[var(--color-text-mid)]"
+                      }`}
+                    >
+                      <Upload size={14} /> 📁 Upload Berkas (PDF/Word/Excel)
+                    </button>
+                  </div>
+
+                  {/* OPTION 1: LINK URL */}
+                  {docOption === "link" && (
+                    <div className="space-y-1 pt-1">
+                      <label className="block text-[11px] font-medium text-[var(--color-text-mid)]">Link / URL Berkas Laporan</label>
+                      <input
+                        type="text"
+                        required={docOption === "link"}
+                        placeholder="Contoh: /docs/Laporan-Q2-2026.pdf atau URL link Google Drive"
+                        value={fileUrlDoc}
+                        onChange={(e) => setFileUrlDoc(e.target.value)}
+                        className="w-full px-4 py-2.5 text-xs border border-gray-300 dark:border-[#2A3B54] bg-white dark:bg-[#0B0F17] text-[var(--color-text-dark)] rounded-xl focus:outline-none focus:border-[var(--color-primary)] font-mono"
+                      />
+                    </div>
+                  )}
+
+                  {/* OPTION 2: FILE UPLOAD */}
+                  {docOption === "upload" && (
+                    <div className="space-y-2 pt-1">
+                      <label className="block text-[11px] font-medium text-[var(--color-text-mid)]">Pilih Berkas Dokumen (PDF, DOCX, XLSX)</label>
+                      <input
+                        type="file"
+                        accept=".pdf,.doc,.docx,.xls,.xlsx"
+                        onChange={handleDocFileSelect}
+                        className="w-full text-xs text-[var(--color-text-dark)] file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-100 file:text-blue-700 dark:file:bg-blue-950 dark:file:text-blue-300 hover:file:bg-blue-200 cursor-pointer"
+                      />
+                      {docFileName && (
+                        <p className="text-xs text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
+                          <CheckCircle2 size={14} /> Berkas siap diunggah: <code>{docFileName}</code>
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
 
-                <button
-                  type="submit"
-                  disabled={submittingKeuangan}
-                  className="px-6 py-2.5 text-xs font-bold rounded-xl bg-blue-600 hover:bg-blue-700 !text-white active:scale-95 transition-all cursor-pointer shadow-sm"
-                  style={{ color: "#ffffff" }}
-                >
-                  {submittingKeuangan ? "Menyimpan..." : "Publikasikan Dokumen Laporan"}
-                </button>
+                <div className="flex items-center gap-3 pt-2">
+                  <button
+                    type="submit"
+                    disabled={submittingKeuangan}
+                    className={`px-6 py-2.5 text-xs font-bold rounded-xl !text-white active:scale-95 transition-all cursor-pointer shadow-sm ${
+                      isEditingDoc ? "bg-amber-600 hover:bg-amber-700" : "bg-blue-600 hover:bg-blue-700"
+                    }`}
+                    style={{ color: "#ffffff" }}
+                  >
+                    {submittingKeuangan ? "Memproses..." : isEditingDoc ? "✏️ Update Dokumen Laporan" : "📄 Publikasikan Dokumen Laporan"}
+                  </button>
+                  {isEditingDoc && (
+                    <button
+                      type="button"
+                      onClick={resetFormDoc}
+                      className="px-4 py-2.5 text-xs font-bold rounded-xl border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    >
+                      Batal
+                    </button>
+                  )}
+                </div>
               </form>
             </div>
 
-            {/* Tabel Manajemen Transaksi & Laporan */}
-            <div className="bg-white dark:bg-[#161F2E] p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-200 dark:border-[#222F43] space-y-6">
-              <h2 className="text-xl font-bold text-[var(--color-text-dark)]" style={{ fontFamily: "var(--font-heading)" }}>
-                Daftar Mutasi & Dokumen Terpublikasi
-              </h2>
+            {/* Tabel Manajemen Transaksi & List Dokumen (CRUD) */}
+            <div className="bg-white dark:bg-[#161F2E] p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-200 dark:border-[#222F43] space-y-8">
+              {/* 1. Kelola Transaksi */}
+              <div className="space-y-4">
+                <h2 className="text-lg font-bold text-[var(--color-text-dark)]" style={{ fontFamily: "var(--font-heading)" }}>
+                  Daftar Mutasi Transaksi ({keuanganData.transaksi.length})
+                </h2>
 
-              {/* Tabel Transaksi */}
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse text-xs">
-                  <thead>
-                    <tr className="bg-gray-100 dark:bg-[#0B0F17] font-bold text-[var(--color-text-dark)] border-b border-gray-200 dark:border-[#222F43]">
-                      <th className="p-3">Tanggal</th>
-                      <th className="p-3">Uraian</th>
-                      <th className="p-3">Kategori</th>
-                      <th className="p-3 text-right">Nominal</th>
-                      <th className="p-3 text-center">Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200 dark:divide-[#222F43]">
-                    {keuanganData.transaksi.map((t) => (
-                      <tr key={t.id}>
-                        <td className="p-3 font-mono">{t.tanggal}</td>
-                        <td className="p-3 font-medium">{t.uraian}</td>
-                        <td className="p-3">
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${t.tipe === "pemasukan" ? "bg-emerald-100 text-emerald-800" : "bg-blue-100 text-blue-800"}`}>
-                            {t.kategori}
-                          </span>
-                        </td>
-                        <td className={`p-3 text-right font-bold font-mono ${t.tipe === "pemasukan" ? "text-emerald-600" : "text-gray-900 dark:text-white"}`}>
-                          {t.tipe === "pemasukan" ? "+" : "-"} Rp {t.nominal.toLocaleString("id-ID")}
-                        </td>
-                        <td className="p-3 text-center">
-                          <button
-                            onClick={() => handleDeleteKeuangan(t.id, "TRANSAKSI", t.uraian)}
-                            className="p-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg transition-colors cursor-pointer"
-                            title="Hapus Transaksi"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </td>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse text-xs">
+                    <thead>
+                      <tr className="bg-gray-100 dark:bg-[#0B0F17] font-bold text-[var(--color-text-dark)] border-b border-gray-200 dark:border-[#222F43]">
+                        <th className="p-3">Tanggal</th>
+                        <th className="p-3">Uraian</th>
+                        <th className="p-3">Kategori</th>
+                        <th className="p-3 text-right">Nominal</th>
+                        <th className="p-3 text-center">Aksi (CRUD)</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200 dark:divide-[#222F43]">
+                      {keuanganData.transaksi.map((t) => (
+                        <tr key={t.id}>
+                          <td className="p-3 font-mono">{t.tanggal}</td>
+                          <td className="p-3 font-medium">{t.uraian}</td>
+                          <td className="p-3">
+                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${t.tipe === "pemasukan" ? "bg-emerald-100 text-emerald-800" : "bg-blue-100 text-blue-800"}`}>
+                              {t.kategori}
+                            </span>
+                          </td>
+                          <td className={`p-3 text-right font-bold font-mono ${t.tipe === "pemasukan" ? "text-emerald-600" : "text-gray-900 dark:text-white"}`}>
+                            {t.tipe === "pemasukan" ? "+" : "-"} Rp {t.nominal.toLocaleString("id-ID")}
+                          </td>
+                          <td className="p-3 text-center">
+                            <div className="flex items-center justify-center gap-1">
+                              <button
+                                onClick={() => handleEditTransaksi(t)}
+                                className="p-1.5 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/40 rounded-lg transition-colors cursor-pointer"
+                                title="Edit Transaksi"
+                              >
+                                <Edit3 size={16} />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteKeuangan(t.id, "TRANSAKSI", t.uraian)}
+                                className="p-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg transition-colors cursor-pointer"
+                                title="Hapus Transaksi"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* 2. Kelola Dokumen Laporan Resmi */}
+              <div className="space-y-4 pt-6 border-t border-gray-200 dark:border-[#222F43]">
+                <h2 className="text-lg font-bold text-[var(--color-text-dark)]" style={{ fontFamily: "var(--font-heading)" }}>
+                  Daftar Berkas Laporan Resmi Terpublikasi ({keuanganData.laporanDokumen.length})
+                </h2>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {keuanganData.laporanDokumen.map((doc) => (
+                    <div key={doc.id} className="p-4 rounded-xl border border-gray-200 dark:border-[#2A3B54] bg-gray-50/50 dark:bg-[#0B0F17] space-y-3">
+                      <div>
+                        <p className="font-bold text-xs text-[var(--color-text-dark)]">{doc.judul}</p>
+                        <p className="text-[11px] text-[var(--color-text-mid)]">Periode: {doc.periode}</p>
+                        <p className="text-[10px] text-gray-400 font-mono mt-1 truncate">Link: {doc.fileUrl}</p>
+                      </div>
+
+                      <div className="flex items-center gap-2 pt-2 border-t border-gray-200 dark:border-gray-800">
+                        <a
+                          href={doc.fileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 flex items-center justify-center gap-1 py-1.5 text-xs font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 rounded-lg transition-colors"
+                        >
+                          <Download size={14} /> Unduh
+                        </a>
+                        <button
+                          onClick={() => handleEditDokumen(doc)}
+                          className="flex-1 flex items-center justify-center gap-1 py-1.5 text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 rounded-lg transition-colors cursor-pointer"
+                        >
+                          <Edit3 size={14} /> Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteKeuangan(doc.id, "DOKUMEN", doc.judul)}
+                          className="p-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg transition-colors cursor-pointer"
+                          title="Hapus Dokumen"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
